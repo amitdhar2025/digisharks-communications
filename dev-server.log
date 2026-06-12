@@ -85,3 +85,15 @@ sendMail success: {
  GET / 200 in 217ms (next.js: 8ms, application-code: 210ms)
  GET / 200 in 93ms (next.js: 3ms, application-code: 89ms)
   Reload env: .env.local
+ GET / 200 in 540ms (next.js: 99ms, application-code: 441ms)
+ GET / 200 in 205ms (next.js: 91ms, application-code: 114ms)
+ GET / 200 in 480ms (next.js: 7ms, application-code: 473ms)
+ GET /digital-products 200 in 238ms (next.js: 170ms, application-code: 67ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+ GET /api/products 200 in 152ms (next.js: 70ms, application-code: 82ms)
+ GET /api/products 200 in 99ms (next.js: 5ms, application-code: 94ms)
+ GET / 200 in 162ms (next.js: 9ms, application-code: 154ms)
+ GET /digital-products 200 in 145ms (next.js: 13ms, application-code: 132ms)
+ GET /api/products 200 in 115ms (next.js: 38ms, application-code: 77ms)
+ GET /api/products 200 in 127ms (next.js: 22ms, application-code: 106ms)
+ GET /about-us 200 in 992ms (next.js: 577ms, application-code: 415ms)
