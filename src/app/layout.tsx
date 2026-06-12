@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { DM_Sans, Syne } from "next/font/google";
 import "./globals.css";
-import AlertBar from "./components/AlertBar";
-import Navigation from "./components/Navigation";
+import "./home.css";
+import AlertBar from "../components/AlertBar";
+import Navigation from "../components/Navigation";
 import ClientScripts from "./ClientScripts";
 
 const dmSans = DM_Sans({

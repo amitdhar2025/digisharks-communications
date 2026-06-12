@@ -1,0 +1,72 @@
+
+> digisharks-communications@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.7 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://172.31.32.1:3000
+- Environments: .env.local
+✓ Ready in 6.2s
+
+○ Compiling /admin/login ...
+ GET /admin/login 200 in 13.2s (next.js: 12.7s, application-code: 471ms)
+ GET /admin/dashboard 307 in 1368ms (next.js: 1114ms, application-code: 254ms)
+ GET /admin/store 307 in 907ms (next.js: 699ms, application-code: 208ms)
+○ Compiling /api/admin/orders/export ...
+ GET /api/admin/orders/export?format=xlsx 401 in 7.9s (next.js: 7.9s, application-code: 28ms)
+ GET /api/admin/orders/export?format=csv 401 in 16ms (next.js: 6ms, application-code: 11ms)
+ POST /api/admin/orders/bulk-delete 401 in 344ms (next.js: 338ms, application-code: 6ms)
+ POST /api/admin/login 200 in 940ms (next.js: 482ms, application-code: 458ms)
+ POST /api/admin/login 200 in 384ms (next.js: 4ms, application-code: 380ms)
+ GET /admin/dashboard 200 in 178ms (next.js: 6ms, application-code: 172ms)
+ GET /admin/store 200 in 106ms (next.js: 4ms, application-code: 102ms)
+ GET /api/admin/orders 200 in 720ms (next.js: 341ms, application-code: 380ms)
+ GET /api/admin/orders/export?format=csv 200 in 53ms (next.js: 4ms, application-code: 49ms)
+ GET /api/admin/orders/export?format=xlsx 200 in 117ms (next.js: 3ms, application-code: 113ms)
+ POST /api/admin/orders/bulk-delete 400 in 16ms (next.js: 3ms, application-code: 13ms)
+ POST /api/admin/login 200 in 410ms (next.js: 4ms, application-code: 406ms)
+ GET /api/admin/orders/export?format=xlsx 200 in 112ms (next.js: 3ms, application-code: 108ms)
+ GET /api/admin/orders/export?format=csv 200 in 64ms (next.js: 5ms, application-code: 59ms)
+ POST /api/admin/orders/bulk-delete?q=zzzz-nothing 200 in 56ms (next.js: 3ms, application-code: 53ms)
+ POST /api/admin/login 200 in 491ms (next.js: 3ms, application-code: 488ms)
+ GET /api/admin/orders/export?format=csv 200 in 49ms (next.js: 2ms, application-code: 47ms)
+ GET / 200 in 1727ms (next.js: 415ms, application-code: 1313ms)
+ GET /digital-products 200 in 942ms (next.js: 887ms, application-code: 55ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+ GET /api/products 200 in 375ms (next.js: 288ms, application-code: 87ms)
+ GET /api/products 200 in 396ms (next.js: 283ms, application-code: 113ms)
+ GET /digital-products/pan-india-updated-database-2020-2025 200 in 1387ms (next.js: 1325ms, application-code: 62ms)
+ GET /admin 307 in 939ms (next.js: 612ms, application-code: 327ms)
+ GET /admin/login 200 in 138ms (next.js: 7ms, application-code: 131ms)
+ POST /api/admin/login 200 in 381ms (next.js: 3ms, application-code: 378ms)
+ GET /admin/dashboard 200 in 65ms (next.js: 4ms, application-code: 61ms)
+ GET /admin/dashboard 200 in 64ms (next.js: 7ms, application-code: 58ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+ GET /api/admin/me 200 in 519ms (next.js: 414ms, application-code: 104ms)
+ GET /api/admin/me 200 in 24ms (next.js: 9ms, application-code: 15ms)
+ GET /api/admin/queries?page=1&limit=20 200 in 599ms (next.js: 502ms, application-code: 97ms)
+ GET /api/admin/queries?page=1&limit=20 200 in 98ms (next.js: 3ms, application-code: 95ms)
+ GET /admin/store 200 in 130ms (next.js: 3ms, application-code: 127ms)
+ GET /api/admin/me 200 in 27ms (next.js: 17ms, application-code: 9ms)
+ GET /api/admin/orders?sort=date_desc 200 in 286ms (next.js: 4ms, application-code: 282ms)
+○ Compiling /api/admin/orders/[id]/resend ...
+[store-orders] failed to build invoice PDF WinAnsi cannot encode "₹" (0x20b9)
+sendMail success: {
+  to: 'sureshsingh1992025@gmail.com',
+  accepted: [ 'sureshsingh1992025@gmail.com' ],
+  rejected: [],
+  envelope: {
+    from: 'noreply@digisharkscommunications.com',
+    to: [ 'sureshsingh1992025@gmail.com' ]
+  },
+  response: '250 2.0.0 OK  1781245311 98e67ed59e1d1-37a237dadbdsm936765a91.5 - gsmtp',
+  messageId: '<12a54d75-ae69-4534-90d1-7cb782603a26@digisharkscommunications.com>',
+  attachmentCount: 0
+}
+ POST /api/admin/orders/6a294186be70528fce333b7a/resend 200 in 14.1s (next.js: 5.0s, application-code: 9.1s)
+ GET /api/admin/orders?sort=date_desc 200 in 248ms (next.js: 4ms, application-code: 244ms)
+ GET / 200 in 381ms (next.js: 19ms, application-code: 362ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+ GET /digital-products 200 in 114ms (next.js: 9ms, application-code: 105ms)
+ GET /api/products 200 in 87ms (next.js: 7ms, application-code: 80ms)
+ GET /api/products 200 in 112ms (next.js: 4ms, application-code: 107ms)
