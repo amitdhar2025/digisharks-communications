@@ -97,3 +97,4 @@ sendMail success: {
  GET /api/products 200 in 115ms (next.js: 38ms, application-code: 77ms)
  GET /api/products 200 in 127ms (next.js: 22ms, application-code: 106ms)
  GET /about-us 200 in 992ms (next.js: 577ms, application-code: 415ms)
+ GET /contact-us 200 in 527ms (next.js: 383ms, application-code: 144ms)
