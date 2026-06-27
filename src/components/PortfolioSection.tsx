@@ -37,10 +37,9 @@ export default function PortfolioSection() {
 
         <div className="portfolio-grid-mc">
           <div className="pf-card theme-cyan fade-up stagger-1">
-            <div className="pf-card-header">
+            <div className="pf-card-header" style={{ backgroundImage: 'url("/Digital PR.png")', backgroundPosition: 'center' }}>
               <span className="pf-tag">Digital PR</span>
               <span className="pf-year">2026</span>
-              <span className="pf-emoji">📰</span>
             </div>
             <div className="pf-card-body">
               <div className="pf-card-tags">
@@ -72,10 +71,9 @@ export default function PortfolioSection() {
           </div>
 
           <div className="pf-card theme-violet fade-up stagger-2">
-            <div className="pf-card-header">
+            <div className="pf-card-header" style={{ backgroundImage: 'url("/Web Development.png")', backgroundPosition: 'center' }}>
               <span className="pf-tag">Web Development</span>
               <span className="pf-year">2025</span>
-              <span className="pf-emoji">💻</span>
             </div>
             <div className="pf-card-body">
               <div className="pf-card-tags">
@@ -107,10 +105,9 @@ export default function PortfolioSection() {
           </div>
 
           <div className="pf-card theme-magenta fade-up stagger-3">
-            <div className="pf-card-header">
+            <div className="pf-card-header" style={{ backgroundImage: 'url("/Social Media.png")', backgroundPosition: 'center' }}>
               <span className="pf-tag">Social Media</span>
               <span className="pf-year">2026</span>
-              <span className="pf-emoji">📱</span>
             </div>
             <div className="pf-card-body">
               <div className="pf-card-tags">
@@ -142,10 +139,9 @@ export default function PortfolioSection() {
           </div>
 
           <div className="pf-card theme-pink fade-up stagger-1">
-            <div className="pf-card-header">
+            <div className="pf-card-header" style={{ backgroundImage: 'url("/Political PR.png")', backgroundPosition: 'center' }}>
               <span className="pf-tag">Political PR</span>
               <span className="pf-year">2024</span>
-              <span className="pf-emoji">🗳️</span>
             </div>
             <div className="pf-card-body">
               <div className="pf-card-tags">
@@ -177,10 +173,9 @@ export default function PortfolioSection() {
           </div>
 
           <div className="pf-card theme-orange fade-up stagger-2">
-            <div className="pf-card-header">
+            <div className="pf-card-header" style={{ backgroundImage: 'url("/SEO & PPC.png")', backgroundPosition: 'center' }}>
               <span className="pf-tag">SEO & PPC</span>
               <span className="pf-year">2026</span>
-              <span className="pf-emoji">🚀</span>
             </div>
             <div className="pf-card-body">
               <div className="pf-card-tags">
@@ -212,10 +207,9 @@ export default function PortfolioSection() {
           </div>
 
           <div className="pf-card theme-lime fade-up stagger-3">
-            <div className="pf-card-header">
+            <div className="pf-card-header" style={{ backgroundImage: 'url("/Branding.png")', backgroundPosition: 'center' }}>
               <span className="pf-tag">Branding</span>
               <span className="pf-year">2025</span>
-              <span className="pf-emoji">🎨</span>
             </div>
             <div className="pf-card-body">
               <div className="pf-card-tags">
@@ -247,10 +241,9 @@ export default function PortfolioSection() {
           </div>
 
           <div className="pf-card theme-aurora fade-up stagger-1">
-            <div className="pf-card-header">
+            <div className="pf-card-header" style={{ backgroundImage: 'url("/Reputation.png")', backgroundPosition: 'center' }}>
               <span className="pf-tag">Reputation</span>
               <span className="pf-year">2026</span>
-              <span className="pf-emoji">🛡️</span>
             </div>
             <div className="pf-card-body">
               <div className="pf-card-tags">
@@ -282,10 +275,9 @@ export default function PortfolioSection() {
           </div>
 
           <div className="pf-card theme-sunset fade-up stagger-2">
-            <div className="pf-card-header">
+            <div className="pf-card-header" style={{ backgroundImage: 'url("/Influencer.png")', backgroundPosition: 'center' }}>
               <span className="pf-tag">Influencer</span>
               <span className="pf-year">2026</span>
-              <span className="pf-emoji">🌟</span>
             </div>
             <div className="pf-card-body">
               <div className="pf-card-tags">
@@ -317,10 +309,9 @@ export default function PortfolioSection() {
           </div>
 
           <div className="pf-card theme-ocean fade-up stagger-3">
-            <div className="pf-card-header">
+            <div className="pf-card-header" style={{ backgroundImage: 'url("/AI Tools.png")', backgroundPosition: 'center' }}>
               <span className="pf-tag">AI Tools</span>
               <span className="pf-year">2026</span>
-              <span className="pf-emoji">🤖</span>
             </div>
             <div className="pf-card-body">
               <div className="pf-card-tags">

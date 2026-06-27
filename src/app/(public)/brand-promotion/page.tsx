@@ -2,7 +2,6 @@ export const dynamic = "force-dynamic";
 
 import type { Metadata } from "next";
 import Footer from "../../../components/Footer";
-import FloatingContact from "../../../components/FloatingContact";
 
 const siteUrl = "https://digisharks-communications.vercel.app/brand-promotion/";
 
@@ -27,7 +26,7 @@ export default function BrandPromotionPage() {
           <div className="hero-inner">
             <div className="hero-eyebrow fade-up">✦ Build a Brand Customers Trust</div>
             <h1 className="fade-up stagger-1">
-              Strategic <span className="gradient-text">Brand Promotion</span> That Stands Out
+              Strategic <span className="orange-text">Brand Promotion</span> That Stands Out
             </h1>
             <p className="fade-up stagger-2">
               In today's competitive market, brand recognition is everything. We help you cut through the noise with brand promotion strategies that combine creativity, market research, digital marketing, and public relations.
@@ -40,188 +39,185 @@ export default function BrandPromotionPage() {
         </section>
 
         {/* BRAND PROMOTION EXPERTS */}
-        <section>
+        <section className="section-bg-white">
           <div className="container">
             <div className="section-label fade-up">Brand Promotion Experts</div>
-            <h2 className="fade-up stagger-1">A <span className="gradient-text">360-Degree Approach</span></h2>
+            <h2 className="fade-up stagger-1">A <span className="orange-text">360-Degree Approach</span></h2>
             <p className="fade-up stagger-2" style={{ color: "var(--muted)", maxWidth: "720px", marginTop: "0.75rem" }}>
               Great brands are built at the intersection of creativity, data, and storytelling. We bring all three together for every client engagement.
             </p>
-            <div className="benefits-grid">
-              <div className="benefit-card fade-up stagger-1">
-                <div className="b-icon">🎨</div>
+            <div className="bp-approach-grid">
+              <div className="bp-approach-card fade-up stagger-1" style={{ "--card-accent": "#FF5B2E", "--card-accent-bg": "rgba(255,91,46,0.08)" } as React.CSSProperties}>
+                <div className="bp-approach-icon">🎨</div>
                 <h3>Creativity</h3>
-                <p>Award-winning creative work that captures attention and stays in memory.</p>
+                <p className="bp-approach-desc">Award-winning creative work that captures attention and stays in memory.</p>
+                <div className="bp-approach-stat">
+                  <span className="bp-approach-stat-num">12+</span>
+                  <span className="bp-approach-stat-label">Awards Won</span>
+                </div>
               </div>
-              <div className="benefit-card fade-up stagger-2">
-                <div className="b-icon">📊</div>
+              <div className="bp-approach-card fade-up stagger-2" style={{ "--card-accent": "#3B82F6", "--card-accent-bg": "rgba(59,130,246,0.08)" } as React.CSSProperties}>
+                <div className="bp-approach-icon">📊</div>
                 <h3>Market Research</h3>
-                <p>Deep audience, competitor, and category research that informs every move.</p>
+                <p className="bp-approach-desc">Deep audience, competitor, and category research that informs every move.</p>
+                <div className="bp-approach-stat">
+                  <span className="bp-approach-stat-num">10K+</span>
+                  <span className="bp-approach-stat-label">Data Points Analysed</span>
+                </div>
               </div>
-              <div className="benefit-card fade-up stagger-3">
-                <div className="b-icon">💻</div>
+              <div className="bp-approach-card fade-up stagger-3" style={{ "--card-accent": "#EC4899", "--card-accent-bg": "rgba(236,72,153,0.08)" } as React.CSSProperties}>
+                <div className="bp-approach-icon">💻</div>
                 <h3>Digital Marketing</h3>
-                <p>Performance media, content, and SEO to amplify your brand across every channel.</p>
+                <p className="bp-approach-desc">Performance media, content, and SEO to amplify your brand across every channel.</p>
+                <div className="bp-approach-stat">
+                  <span className="bp-approach-stat-num">320%</span>
+                  <span className="bp-approach-stat-label">Avg. Traffic Growth</span>
+                </div>
               </div>
-              <div className="benefit-card fade-up stagger-1">
-                <div className="b-icon">📰</div>
+              <div className="bp-approach-card fade-up stagger-4" style={{ "--card-accent": "#10B981", "--card-accent-bg": "rgba(16,185,129,0.08)" } as React.CSSProperties}>
+                <div className="bp-approach-icon">📰</div>
                 <h3>Public Relations</h3>
-                <p>Strategic media outreach that earns third-party validation and trust.</p>
+                <p className="bp-approach-desc">Strategic media outreach that earns third-party validation and trust.</p>
+                <div className="bp-approach-stat">
+                  <span className="bp-approach-stat-num">50+</span>
+                  <span className="bp-approach-stat-label">Media Partnerships</span>
+                </div>
               </div>
             </div>
           </div>
         </section>
 
         {/* SERVICES */}
-        <section id="services">
+        <section id="services" className="section-bg-soft">
           <div className="container">
             <div className="section-label fade-up">Our Brand Promotion Services</div>
-            <h2 className="fade-up stagger-1">Solutions for <span className="gradient-text">Every Brand Goal</span></h2>
+            <h2 className="fade-up stagger-1">Solutions for <span className="orange-text">Every Brand Goal</span></h2>
             <p className="fade-up stagger-2" style={{ color: "var(--muted)", maxWidth: "720px", marginTop: "0.75rem" }}>
               Whether you're launching a new brand or reinvigorating an established one, our services scale to fit.
             </p>
 
-            <div className="detail-block fade-up">
-              <h3><span className="d-num">A</span>Digital Brand Promotion</h3>
-              <p style={{ color: "var(--muted)", fontSize: ".95rem", lineHeight: 1.8 }}>
-                Amplify your brand across every digital channel that matters.
-              </p>
-              <div className="db-cols">
-                <div>
-                  <h4>Services</h4>
-                  <ul className="db-list">
-                    <li>Social Media Promotion</li>
-                    <li>Search Engine Marketing</li>
-                    <li>Content Marketing</li>
-                    <li>Influencer Marketing</li>
-                    <li>Digital PR</li>
-                    <li>ORM</li>
-                  </ul>
+            <div className="bp-cap-grid">
+              {/* CARD 1 — Digital Brand Promotion */}
+              <div className="bp-cap-card fade-up stagger-1" style={{ "--card-accent": "#FF5B2E", "--card-accent-bg": "rgba(255,91,46,0.08)" } as React.CSSProperties}>
+                <div className="bp-cap-icon">📱</div>
+                <h3>Digital Brand Promotion</h3>
+                <p className="bp-cap-desc">Amplify your brand across every digital channel that matters.</p>
+                <ul className="bp-cap-features">
+                  <li>Social Media Promotion</li>
+                  <li>Search Engine Marketing</li>
+                  <li>Content Marketing</li>
+                  <li>Influencer Marketing</li>
+                  <li>Digital PR</li>
+                  <li>ORM</li>
+                </ul>
+                <div className="bp-cap-tags">
+                  <span>Awareness</span>
+                  <span>Engagement</span>
+                  <span>Visibility</span>
+                  <span>Lead Generation</span>
                 </div>
-                <div>
-                  <h4>Benefits</h4>
-                  <ul className="db-list">
-                    <li>Awareness</li>
-                    <li>Engagement</li>
-                    <li>Visibility</li>
-                    <li>Lead Generation</li>
-                  </ul>
+                <div className="bp-cap-cta">
+                  <a href="/contact-us/">Learn More →</a>
                 </div>
               </div>
-            </div>
 
-            <div className="detail-block fade-up">
-              <h3><span className="d-num">B</span>Media Promotion</h3>
-              <p style={{ color: "var(--muted)", fontSize: ".95rem", lineHeight: 1.8 }}>
-                Earned media coverage that builds credibility and market positioning.
-              </p>
-              <div className="db-cols">
-                <div>
-                  <h4>Services</h4>
-                  <ul className="db-list">
-                    <li>Press Release Distribution</li>
-                    <li>Media Coverage</li>
-                    <li>News Publications</li>
-                    <li>Interview Opportunities</li>
-                    <li>Brand Storytelling</li>
-                    <li>PR Campaigns</li>
-                  </ul>
+              {/* CARD 2 — Media Promotion */}
+              <div className="bp-cap-card fade-up stagger-2" style={{ "--card-accent": "#3B82F6", "--card-accent-bg": "rgba(59,130,246,0.08)" } as React.CSSProperties}>
+                <div className="bp-cap-icon">📰</div>
+                <h3>Media Promotion</h3>
+                <p className="bp-cap-desc">Earned media coverage that builds credibility and market positioning.</p>
+                <ul className="bp-cap-features">
+                  <li>Press Release Distribution</li>
+                  <li>Media Coverage</li>
+                  <li>News Publications</li>
+                  <li>Interview Opportunities</li>
+                  <li>Brand Storytelling</li>
+                  <li>PR Campaigns</li>
+                </ul>
+                <div className="bp-cap-tags">
+                  <span>Credibility</span>
+                  <span>Market Positioning</span>
+                  <span>Public Trust</span>
+                  <span>Audience Reach</span>
                 </div>
-                <div>
-                  <h4>Benefits</h4>
-                  <ul className="db-list">
-                    <li>Credibility</li>
-                    <li>Market Positioning</li>
-                    <li>Public Trust</li>
-                    <li>Audience Reach</li>
-                  </ul>
+                <div className="bp-cap-cta">
+                  <a href="/contact-us/">Learn More →</a>
                 </div>
               </div>
-            </div>
 
-            <div className="detail-block fade-up">
-              <h3><span className="d-num">C</span>Social Media Brand Building</h3>
-              <p style={{ color: "var(--muted)", fontSize: ".95rem", lineHeight: 1.8 }}>
-                Build an engaged brand presence across the platforms your customers live on.
-              </p>
-              <div className="db-cols">
-                <div>
-                  <h4>Platforms</h4>
-                  <ul className="db-list">
-                    <li>Facebook</li>
-                    <li>Instagram</li>
-                    <li>LinkedIn</li>
-                    <li>Twitter (X)</li>
-                    <li>YouTube</li>
-                  </ul>
+              {/* CARD 3 — Social Media Brand Building */}
+              <div className="bp-cap-card fade-up stagger-3" style={{ "--card-accent": "#EC4899", "--card-accent-bg": "rgba(236,72,153,0.08)" } as React.CSSProperties}>
+                <div className="bp-cap-icon">💬</div>
+                <h3>Social Media Brand Building</h3>
+                <p className="bp-cap-desc">Build an engaged brand presence across the platforms your customers live on.</p>
+                <ul className="bp-cap-features">
+                  <li>Facebook</li>
+                  <li>Instagram</li>
+                  <li>LinkedIn</li>
+                  <li>Twitter (X)</li>
+                  <li>YouTube</li>
+                </ul>
+                <div className="bp-cap-tags">
+                  <span>Content Creation</span>
+                  <span>Campaign Management</span>
+                  <span>Audience Engagement</span>
+                  <span>Advertising</span>
                 </div>
-                <div>
-                  <h4>Services</h4>
-                  <ul className="db-list">
-                    <li>Content Creation</li>
-                    <li>Campaign Management</li>
-                    <li>Audience Engagement</li>
-                    <li>Advertising</li>
-                  </ul>
+                <div className="bp-cap-cta">
+                  <a href="/contact-us/">Learn More →</a>
                 </div>
               </div>
-            </div>
 
-            <div className="detail-block fade-up">
-              <h3><span className="d-num">D</span>Influencer Marketing</h3>
-              <p style={{ color: "var(--muted)", fontSize: ".95rem", lineHeight: 1.8 }}>
-                Authentic promotion through trusted voices in your industry.
-              </p>
-              <div className="db-cols">
-                <div>
-                  <h4>Advantages</h4>
-                  <ul className="db-list">
-                    <li>Authentic Promotion</li>
-                    <li>Increased Reach</li>
-                    <li>Higher Engagement</li>
-                    <li>Brand Trust</li>
-                    <li>Targeted Audience Access</li>
-                  </ul>
+              {/* CARD 4 — Influencer Marketing */}
+              <div className="bp-cap-card fade-up stagger-1" style={{ "--card-accent": "#8B5CF6", "--card-accent-bg": "rgba(139,92,246,0.08)" } as React.CSSProperties}>
+                <div className="bp-cap-icon">⭐</div>
+                <h3>Influencer Marketing</h3>
+                <p className="bp-cap-desc">Authentic promotion through trusted voices in your industry.</p>
+                <ul className="bp-cap-features">
+                  <li>Authentic Promotion</li>
+                  <li>Increased Reach</li>
+                  <li>Higher Engagement</li>
+                  <li>Brand Trust</li>
+                  <li>Targeted Audience Access</li>
+                </ul>
+                <div className="bp-cap-cta">
+                  <a href="/contact-us/">Learn More →</a>
                 </div>
               </div>
-            </div>
 
-            <div className="detail-block fade-up">
-              <h3><span className="d-num">E</span>Corporate Branding</h3>
-              <p style={{ color: "var(--muted)", fontSize: ".95rem", lineHeight: 1.8 }}>
-                Build a cohesive brand identity system that works across every touchpoint.
-              </p>
-              <div className="db-cols">
-                <div>
-                  <h4>Elements</h4>
-                  <ul className="db-list">
-                    <li>Logo Design</li>
-                    <li>Brand Guidelines</li>
-                    <li>Marketing Collateral</li>
-                    <li>Presentations</li>
-                    <li>Brochures</li>
-                    <li>Company Profiles</li>
-                  </ul>
+              {/* CARD 5 — Corporate Branding */}
+              <div className="bp-cap-card fade-up stagger-2" style={{ "--card-accent": "#10B981", "--card-accent-bg": "rgba(16,185,129,0.08)" } as React.CSSProperties}>
+                <div className="bp-cap-icon">🏢</div>
+                <h3>Corporate Branding</h3>
+                <p className="bp-cap-desc">Build a cohesive brand identity system that works across every touchpoint.</p>
+                <ul className="bp-cap-features">
+                  <li>Logo Design</li>
+                  <li>Brand Guidelines</li>
+                  <li>Marketing Collateral</li>
+                  <li>Presentations</li>
+                  <li>Brochures</li>
+                  <li>Company Profiles</li>
+                </ul>
+                <div className="bp-cap-cta">
+                  <a href="/contact-us/">Learn More →</a>
                 </div>
               </div>
-            </div>
 
-            <div className="detail-block fade-up">
-              <h3><span className="d-num">F</span>Event & Promotional Marketing</h3>
-              <p style={{ color: "var(--muted)", fontSize: ".95rem", lineHeight: 1.8 }}>
-                Memorable in-person experiences that build deeper brand connections.
-              </p>
-              <div className="db-cols">
-                <div>
-                  <h4>Services</h4>
-                  <ul className="db-list">
-                    <li>Corporate Events</li>
-                    <li>Product Launches</li>
-                    <li>Road Shows</li>
-                    <li>Award Ceremonies</li>
-                    <li>Brand Activation</li>
-                    <li>Exhibitions</li>
-                  </ul>
+              {/* CARD 6 — Event & Promotional Marketing */}
+              <div className="bp-cap-card fade-up stagger-3" style={{ "--card-accent": "#F59E0B", "--card-accent-bg": "rgba(245,158,11,0.08)" } as React.CSSProperties}>
+                <div className="bp-cap-icon">🎪</div>
+                <h3>Event &amp; Promotional Marketing</h3>
+                <p className="bp-cap-desc">Memorable in-person experiences that build deeper brand connections.</p>
+                <ul className="bp-cap-features">
+                  <li>Corporate Events</li>
+                  <li>Product Launches</li>
+                  <li>Road Shows</li>
+                  <li>Award Ceremonies</li>
+                  <li>Brand Activation</li>
+                  <li>Exhibitions</li>
+                </ul>
+                <div className="bp-cap-cta">
+                  <a href="/contact-us/">Learn More →</a>
                 </div>
               </div>
             </div>
@@ -232,7 +228,7 @@ export default function BrandPromotionPage() {
         <section className="pr-media">
           <div className="container">
             <div className="section-label fade-up">Why It Matters</div>
-            <h2 className="fade-up stagger-1">Why <span className="gradient-text">Brand Promotion</span> Matters</h2>
+            <h2 className="fade-up stagger-1">Why <span className="orange-text">Brand Promotion</span> Matters</h2>
             <div className="benefits-grid">
               <div className="benefit-card fade-up stagger-1">
                 <div className="b-icon">🌟</div>
@@ -259,15 +255,20 @@ export default function BrandPromotionPage() {
                 <h3>Strengthen Customer Loyalty</h3>
                 <p>Promoted brands earn repeat business and word-of-mouth referrals.</p>
               </div>
+              <div className="benefit-card fade-up stagger-3">
+                <div className="b-icon">⚡</div>
+                <h3>Boost Brand Recognition</h3>
+                <p>Stand out in crowded markets with a distinctive, memorable brand identity.</p>
+              </div>
             </div>
           </div>
         </section>
 
         {/* WHY CHOOSE DIGISHARKS */}
-        <section>
+        <section className="section-bg-white">
           <div className="container">
             <div className="section-label fade-up">Why Choose Digisharks?</div>
-            <h2 className="fade-up stagger-1">A <span className="gradient-text">Trusted Partner</span> for Brand Growth</h2>
+            <h2 className="fade-up stagger-1">A <span className="orange-text">Trusted Partner</span> for Brand Growth</h2>
             <div className="benefits-grid">
               <div className="benefit-card fade-up stagger-1">
                 <div className="b-icon">🧭</div>
@@ -289,6 +290,16 @@ export default function BrandPromotionPage() {
                 <h3>Measurable Results</h3>
                 <p>Clear KPIs, transparent reporting, and continuous optimization for outcomes.</p>
               </div>
+              <div className="benefit-card fade-up stagger-2">
+                <div className="b-icon">⚡</div>
+                <h3>Rapid Execution</h3>
+                <p>Agile campaign delivery with quick turnaround times and milestone-based progress tracking.</p>
+              </div>
+              <div className="benefit-card fade-up stagger-3">
+                <div className="b-icon">💡</div>
+                <h3>Innovation First</h3>
+                <p>Cutting-edge tools, AI-driven insights, and fresh creative approaches for modern brands.</p>
+              </div>
             </div>
           </div>
         </section>
@@ -297,7 +308,7 @@ export default function BrandPromotionPage() {
         <section className="pr-media">
           <div className="container">
             <div className="section-label fade-up">Industries We Serve</div>
-            <h2 className="fade-up stagger-1">Brand Promotion <span className="gradient-text">Across Industries</span></h2>
+            <h2 className="fade-up stagger-1">Brand Promotion <span className="orange-text">Across Industries</span></h2>
             <p className="fade-up stagger-2" style={{ color: "var(--muted)", maxWidth: "720px", marginTop: "0.75rem" }}>
               We've helped brands stand out across a wide range of industries and customer segments.
             </p>
@@ -319,10 +330,10 @@ export default function BrandPromotionPage() {
         </section>
 
         {/* PROCESS */}
-        <section id="process">
+        <section id="process" className="section-bg-white">
           <div className="container">
             <div className="section-label fade-up">Our Process</div>
-            <h2 className="fade-up stagger-1">Our <span className="gradient-text">Brand Promotion Process</span></h2>
+            <h2 className="fade-up stagger-1">Our <span className="orange-text">Brand Promotion Process</span></h2>
             <p className="fade-up stagger-2" style={{ color: "var(--muted)", maxWidth: "720px", marginTop: "0.75rem" }}>
               A proven five-step framework for building, executing, and optimizing brand promotion campaigns that deliver.
             </p>
@@ -342,24 +353,29 @@ export default function BrandPromotionPage() {
                 <h4>Campaign Execution</h4>
                 <p>Creative production, media buying, and campaign launch across channels.</p>
               </div>
-              <div className="process-step fade-up stagger-4">
+              <div className="process-step fade-up stagger-1">
                 <div className="step-num">4</div>
                 <h4>Performance Monitoring</h4>
                 <p>Real-time tracking of every metric that matters to your goals.</p>
               </div>
-              <div className="process-step fade-up stagger-5">
+              <div className="process-step fade-up stagger-2">
                 <div className="step-num">5</div>
                 <h4>Optimization</h4>
                 <p>Continuous testing and refinement to maximize return on investment.</p>
+              </div>
+              <div className="process-step fade-up stagger-3">
+                <div className="step-num">6</div>
+                <h4>Reporting &amp; Insights</h4>
+                <p>Detailed reports with actionable insights to guide your next campaign decisions.</p>
               </div>
             </div>
           </div>
         </section>
 
         {/* CTA */}
-        <section className="final-cta">
+        <section className="final-cta section-bg-white">
           <div className="cta-box fade-up container">
-            <h2>Get Your <span className="gradient-text">Free Brand Promotion</span> Consultation</h2>
+            <h2>Get Your <span className="orange-text">Free Brand Promotion</span> Consultation</h2>
             <p>
               Book a complimentary consultation with our brand promotion experts. We'll analyze your brand, identify growth opportunities, and recommend a custom strategy — at zero cost.
             </p>
@@ -373,7 +389,6 @@ export default function BrandPromotionPage() {
         <Footer />
       </div>
 
-      <FloatingContact />
     </>
   );
 }

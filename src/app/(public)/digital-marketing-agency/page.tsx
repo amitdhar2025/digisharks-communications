@@ -2,7 +2,6 @@ export const dynamic = "force-dynamic";
 
 import type { Metadata } from "next";
 import Footer from "../../../components/Footer";
-import FloatingContact from "../../../components/FloatingContact";
 
 const siteUrl = "https://digisharks-communications.vercel.app/digital-marketing-agency/";
 
@@ -33,7 +32,7 @@ export default function DigitalMarketingPage() {
           <div className="hero-inner">
             <div className="hero-eyebrow fade-up">✦ Get Instant Growth Results for Your Business</div>
             <h1 className="fade-up stagger-1">
-              India's Leading <span className="gradient-text">Digital Marketing Agency</span>
+              India's Leading <span className="orange-text">Digital Marketing Agency</span>
             </h1>
             <p className="fade-up stagger-2">
               We are a leading digital marketing agency helping brands grow through data-driven strategies, performance media, and high-quality content. Our campaigns are designed to deliver measurable ROI and long-term business outcomes.
@@ -46,10 +45,10 @@ export default function DigitalMarketingPage() {
         </section>
 
         {/* THREE PILLARS */}
-        <section>
+        <section className="section-bg-white">
           <div className="container">
             <div className="section-label fade-up">Digital Marketing Experts</div>
-            <h2 className="fade-up stagger-1">Built on Three <span className="gradient-text">Core Pillars</span></h2>
+            <h2 className="fade-up stagger-1">Built on Three <span className="orange-text">Core Pillars</span></h2>
             <p className="fade-up stagger-2" style={{ color: "var(--muted)", maxWidth: "720px", marginTop: "0.75rem" }}>
               Every campaign we run is designed around the three pillars that drive real digital growth.
             </p>
@@ -74,234 +73,195 @@ export default function DigitalMarketingPage() {
         </section>
 
         {/* SERVICES */}
-        <section id="services">
+        <section id="services" className="section-bg-soft">
           <div className="container">
             <div className="section-label fade-up">Our Digital Marketing Services</div>
-            <h2 className="fade-up stagger-1">End-to-End <span className="gradient-text">Performance Marketing</span></h2>
+            <h2 className="fade-up stagger-1">End-to-End <span className="orange-text">Performance Marketing</span></h2>
             <p className="fade-up stagger-2" style={{ color: "var(--muted)", maxWidth: "720px", marginTop: "0.75rem" }}>
               From search to social, content to conversion — explore the full suite of services that power your digital growth.
             </p>
 
-            <div className="detail-block fade-up">
-              <h3><span className="d-num">A</span>SEO (Search Engine Optimization)</h3>
-              <p style={{ color: "var(--muted)", fontSize: ".95rem", lineHeight: 1.8 }}>
-                Dominate search rankings with a full-spectrum SEO strategy built for the Indian market and beyond.
-              </p>
-              <div className="db-cols">
-                <div>
-                  <h4>Services</h4>
-                  <ul className="db-list">
-                    <li>Keyword Research</li>
-                    <li>On-Page Optimization</li>
-                    <li>Technical SEO</li>
-                    <li>Link Building</li>
-                    <li>Content Optimization</li>
-                    <li>Performance Monitoring</li>
-                  </ul>
+            <div className="dm-cap-grid">
+              {/* CARD 1 — SEO */}
+              <div className="dm-cap-card fade-up stagger-1" style={{ "--card-accent": "#FF5B2E", "--card-accent-bg": "rgba(255,91,46,0.08)" } as React.CSSProperties}>
+                <div className="dm-cap-icon">🔍</div>
+                <h3>SEO</h3>
+                <p className="dm-cap-desc">Dominate search rankings with a full-spectrum SEO strategy built for the Indian market and beyond.</p>
+                <ul className="dm-cap-features">
+                  <li>Keyword Research</li>
+                  <li>On-Page Optimization</li>
+                  <li>Technical SEO</li>
+                  <li>Link Building</li>
+                  <li>Content Optimization</li>
+                  <li>Performance Monitoring</li>
+                </ul>
+                <div className="dm-cap-tags">
+                  <span>Higher Rankings</span>
+                  <span>Organic Traffic</span>
+                  <span>Brand Visibility</span>
+                  <span>Long-Term Growth</span>
                 </div>
-                <div>
-                  <h4>Benefits</h4>
-                  <ul className="db-list">
-                    <li>Higher Rankings</li>
-                    <li>Organic Traffic</li>
-                    <li>User Experience</li>
-                    <li>Brand Visibility</li>
-                    <li>Long-Term Growth</li>
-                  </ul>
+                <div className="dm-cap-cta">
+                  <a href="/contact-us/">Learn More →</a>
                 </div>
               </div>
-            </div>
 
-            <div className="detail-block fade-up">
-              <h3><span className="d-num">B</span>Google Ads</h3>
-              <p style={{ color: "var(--muted)", fontSize: ".95rem", lineHeight: 1.8 }}>
-                Drive immediate, measurable results with pay-per-click campaigns optimized for maximum ROI.
-              </p>
-              <div className="db-cols">
-                <div>
-                  <h4>Services</h4>
-                  <ul className="db-list">
-                    <li>Search Ads</li>
-                    <li>Display Ads</li>
-                    <li>Shopping Ads</li>
-                    <li>YouTube Ads</li>
-                    <li>Remarketing</li>
-                  </ul>
+              {/* CARD 2 — Google Ads */}
+              <div className="dm-cap-card fade-up stagger-2" style={{ "--card-accent": "#3B82F6", "--card-accent-bg": "rgba(59,130,246,0.08)" } as React.CSSProperties}>
+                <div className="dm-cap-icon">📊</div>
+                <h3>Google Ads</h3>
+                <p className="dm-cap-desc">Drive immediate, measurable results with pay-per-click campaigns optimized for maximum ROI.</p>
+                <ul className="dm-cap-features">
+                  <li>Search Ads</li>
+                  <li>Display Ads</li>
+                  <li>Shopping Ads</li>
+                  <li>YouTube Ads</li>
+                  <li>Remarketing</li>
+                </ul>
+                <div className="dm-cap-tags">
+                  <span>Qualified Leads</span>
+                  <span>Website Traffic</span>
+                  <span>Conversion Rates</span>
+                  <span>Faster Results</span>
                 </div>
-                <div>
-                  <h4>Benefits</h4>
-                  <ul className="db-list">
-                    <li>Qualified Leads</li>
-                    <li>Website Traffic</li>
-                    <li>Conversion Rates</li>
-                    <li>Faster Results</li>
-                  </ul>
+                <div className="dm-cap-cta">
+                  <a href="/contact-us/">Learn More →</a>
                 </div>
               </div>
-            </div>
 
-            <div className="detail-block fade-up">
-              <h3><span className="d-num">C</span>Website Design & Development</h3>
-              <p style={{ color: "var(--muted)", fontSize: ".95rem", lineHeight: 1.8 }}>
-                Build a powerful digital storefront that turns visitors into customers.
-              </p>
-              <div className="db-cols">
-                <div>
-                  <h4>Services</h4>
-                  <ul className="db-list">
-                    <li>Custom Design</li>
-                    <li>Responsive & Mobile</li>
-                    <li>UI/UX Design</li>
-                    <li>Landing Pages</li>
-                    <li>Corporate Websites</li>
-                    <li>E-commerce</li>
-                  </ul>
+              {/* CARD 3 — Web Design */}
+              <div className="dm-cap-card fade-up stagger-3" style={{ "--card-accent": "#8B5CF6", "--card-accent-bg": "rgba(139,92,246,0.08)" } as React.CSSProperties}>
+                <div className="dm-cap-icon">🎨</div>
+                <h3>Website Design &amp; Development</h3>
+                <p className="dm-cap-desc">Build a powerful digital storefront that turns visitors into customers with custom design and UX.</p>
+                <ul className="dm-cap-features">
+                  <li>Custom Design</li>
+                  <li>Responsive &amp; Mobile</li>
+                  <li>UI/UX Design</li>
+                  <li>Landing Pages</li>
+                  <li>Corporate Websites</li>
+                  <li>E-commerce</li>
+                </ul>
+                <div className="dm-cap-tags">
+                  <span>User Experience</span>
+                  <span>Performance</span>
+                  <span>Brand Representation</span>
+                  <span>Lead Generation</span>
                 </div>
-                <div>
-                  <h4>Benefits</h4>
-                  <ul className="db-list">
-                    <li>User Experience</li>
-                    <li>Performance</li>
-                    <li>Brand Representation</li>
-                    <li>Lead Generation</li>
-                  </ul>
+                <div className="dm-cap-cta">
+                  <a href="/contact-us/">Learn More →</a>
                 </div>
               </div>
-            </div>
 
-            <div className="detail-block fade-up">
-              <h3><span className="d-num">D</span>Link Building</h3>
-              <p style={{ color: "var(--muted)", fontSize: ".95rem", lineHeight: 1.8 }}>
-                Earn high-quality backlinks that power your search engine authority and visibility.
-              </p>
-              <div className="db-cols">
-                <div>
-                  <h4>Services</h4>
-                  <ul className="db-list">
-                    <li>High-Authority Backlinks</li>
-                    <li>Guest Posting</li>
-                    <li>PR Mentions</li>
-                    <li>Citation Building</li>
-                    <li>Directory Listings</li>
-                  </ul>
+              {/* CARD 4 — Link Building */}
+              <div className="dm-cap-card fade-up stagger-4" style={{ "--card-accent": "#10B981", "--card-accent-bg": "rgba(16,185,129,0.08)" } as React.CSSProperties}>
+                <div className="dm-cap-icon">🔗</div>
+                <h3>Link Building</h3>
+                <p className="dm-cap-desc">Earn high-quality backlinks that power your search engine authority, domain rank, and visibility.</p>
+                <ul className="dm-cap-features">
+                  <li>High-Authority Backlinks</li>
+                  <li>Guest Posting</li>
+                  <li>PR Mentions</li>
+                  <li>Citation Building</li>
+                  <li>Directory Listings</li>
+                </ul>
+                <div className="dm-cap-tags">
+                  <span>Domain Authority</span>
+                  <span>Search Rankings</span>
+                  <span>Organic Visibility</span>
+                  <span>Brand Credibility</span>
                 </div>
-                <div>
-                  <h4>Benefits</h4>
-                  <ul className="db-list">
-                    <li>Domain Authority</li>
-                    <li>Search Rankings</li>
-                    <li>Organic Visibility</li>
-                    <li>Brand Credibility</li>
-                  </ul>
+                <div className="dm-cap-cta">
+                  <a href="/contact-us/">Learn More →</a>
                 </div>
               </div>
-            </div>
 
-            <div className="detail-block fade-up">
-              <h3><span className="d-num">E</span>Hyperlocal Social Media Marketing</h3>
-              <p style={{ color: "var(--muted)", fontSize: ".95rem", lineHeight: 1.8 }}>
-                Reach customers in your neighborhood, city, or region with hyper-targeted social campaigns.
-              </p>
-              <div className="db-cols">
-                <div>
-                  <h4>Strategies</h4>
-                  <ul className="db-list">
-                    <li>Location-Based Campaigns</li>
-                    <li>Community Engagement</li>
-                    <li>Local Promotions</li>
-                  </ul>
+              {/* CARD 5 — Hyperlocal Social */}
+              <div className="dm-cap-card fade-up stagger-1" style={{ "--card-accent": "#EC4899", "--card-accent-bg": "rgba(236,72,153,0.08)" } as React.CSSProperties}>
+                <div className="dm-cap-icon">📍</div>
+                <h3>Hyperlocal Social Media</h3>
+                <p className="dm-cap-desc">Reach customers in your neighborhood, city, or region with hyper-targeted social campaigns.</p>
+                <ul className="dm-cap-features">
+                  <li>Location-Based Campaigns</li>
+                  <li>Community Engagement</li>
+                  <li>Local Promotions</li>
+                </ul>
+                <div className="dm-cap-tags">
+                  <span>Local Reach</span>
+                  <span>Engagement</span>
+                  <span>Awareness</span>
+                  <span>Conversions</span>
                 </div>
-                <div>
-                  <h4>Benefits</h4>
-                  <ul className="db-list">
-                    <li>Local Reach</li>
-                    <li>Engagement</li>
-                    <li>Awareness</li>
-                    <li>Conversions</li>
-                  </ul>
+                <div className="dm-cap-cta">
+                  <a href="/contact-us/">Learn More →</a>
                 </div>
               </div>
-            </div>
 
-            <div className="detail-block fade-up">
-              <h3><span className="d-num">F</span>Graphic Design Services</h3>
-              <p style={{ color: "var(--muted)", fontSize: ".95rem", lineHeight: 1.8 }}>
-                Anything to everything — graphic design that makes your brand stand out with the right concept and execution.
-              </p>
-              <div className="db-cols">
-                <div>
-                  <h4>Services</h4>
-                  <ul className="db-list">
-                    <li>Logo Design</li>
-                    <li>Social Media Creatives</li>
-                    <li>Brand Identity</li>
-                    <li>Marketing Materials</li>
-                    <li>Infographics</li>
-                  </ul>
+              {/* CARD 6 — Graphic Design */}
+              <div className="dm-cap-card fade-up stagger-2" style={{ "--card-accent": "#F59E0B", "--card-accent-bg": "rgba(245,158,11,0.08)" } as React.CSSProperties}>
+                <div className="dm-cap-icon">✏️</div>
+                <h3>Graphic Design</h3>
+                <p className="dm-cap-desc">Anything to everything — graphic design that makes your brand stand out with the right concept and execution.</p>
+                <ul className="dm-cap-features">
+                  <li>Logo Design</li>
+                  <li>Social Media Creatives</li>
+                  <li>Brand Identity</li>
+                  <li>Marketing Materials</li>
+                  <li>Infographics</li>
+                </ul>
+                <div className="dm-cap-tags">
+                  <span>Professional Image</span>
+                  <span>Engagement</span>
+                  <span>Visual Identity</span>
                 </div>
-                <div>
-                  <h4>Benefits</h4>
-                  <ul className="db-list">
-                    <li>Professional Image</li>
-                    <li>Engagement</li>
-                    <li>Visual Identity</li>
-                  </ul>
+                <div className="dm-cap-cta">
+                  <a href="/contact-us/">Learn More →</a>
                 </div>
               </div>
-            </div>
 
-            <div className="detail-block fade-up">
-              <h3><span className="d-num">G</span>Content Creation</h3>
-              <p style={{ color: "var(--muted)", fontSize: ".95rem", lineHeight: 1.8 }}>
-                Compelling content that attracts, engages, and converts your target audience.
-              </p>
-              <div className="db-cols">
-                <div>
-                  <h4>Content Types</h4>
-                  <ul className="db-list">
-                    <li>Website Content</li>
-                    <li>Blog Articles</li>
-                    <li>Social Media Content</li>
-                    <li>Marketing Copy</li>
-                    <li>Video Scripts</li>
-                  </ul>
+              {/* CARD 7 — Content Creation */}
+              <div className="dm-cap-card fade-up stagger-3" style={{ "--card-accent": "#06B6D4", "--card-accent-bg": "rgba(6,182,212,0.08)" } as React.CSSProperties}>
+                <div className="dm-cap-icon">📝</div>
+                <h3>Content Creation</h3>
+                <p className="dm-cap-desc">Compelling content that attracts, engages, and converts your target audience across every channel.</p>
+                <ul className="dm-cap-features">
+                  <li>Website Content</li>
+                  <li>Blog Articles</li>
+                  <li>Social Media Content</li>
+                  <li>Marketing Copy</li>
+                  <li>Video Scripts</li>
+                </ul>
+                <div className="dm-cap-tags">
+                  <span>Engagement</span>
+                  <span>Brand Authority</span>
+                  <span>SEO</span>
+                  <span>Lead Generation</span>
                 </div>
-                <div>
-                  <h4>Benefits</h4>
-                  <ul className="db-list">
-                    <li>Engagement</li>
-                    <li>Brand Authority</li>
-                    <li>SEO</li>
-                    <li>Lead Generation</li>
-                  </ul>
+                <div className="dm-cap-cta">
+                  <a href="/contact-us/">Learn More →</a>
                 </div>
               </div>
-            </div>
 
-            <div className="detail-block fade-up">
-              <h3><span className="d-num">H</span>Local SEO</h3>
-              <p style={{ color: "var(--muted)", fontSize: ".95rem", lineHeight: 1.8 }}>
-                Capture high-intent local customers searching for your products and services nearby.
-              </p>
-              <div className="db-cols">
-                <div>
-                  <h4>Services</h4>
-                  <ul className="db-list">
-                    <li>Google Business Profile</li>
-                    <li>Local Citations</li>
-                    <li>Review Management</li>
-                    <li>Location Keywords</li>
-                    <li>Local Link Building</li>
-                  </ul>
+              {/* CARD 8 — Local SEO */}
+              <div className="dm-cap-card fade-up stagger-4" style={{ "--card-accent": "#6366F1", "--card-accent-bg": "rgba(99,102,241,0.08)" } as React.CSSProperties}>
+                <div className="dm-cap-icon">🏪</div>
+                <h3>Local SEO</h3>
+                <p className="dm-cap-desc">Capture high-intent local customers searching for your products and services nearby.</p>
+                <ul className="dm-cap-features">
+                  <li>Google Business Profile</li>
+                  <li>Local Citations</li>
+                  <li>Review Management</li>
+                  <li>Location Keywords</li>
+                  <li>Local Link Building</li>
+                </ul>
+                <div className="dm-cap-tags">
+                  <span>Local Visibility</span>
+                  <span>Customer Inquiries</span>
+                  <span>Local Rankings</span>
+                  <span>Reputation</span>
                 </div>
-                <div>
-                  <h4>Benefits</h4>
-                  <ul className="db-list">
-                    <li>Local Visibility</li>
-                    <li>Customer Inquiries</li>
-                    <li>Local Rankings</li>
-                    <li>Reputation</li>
-                  </ul>
+                <div className="dm-cap-cta">
+                  <a href="/contact-us/">Learn More →</a>
                 </div>
               </div>
             </div>
@@ -312,7 +272,7 @@ export default function DigitalMarketingPage() {
         <section className="pr-media">
           <div className="container">
             <div className="section-label fade-up">Why Choose Digisharks?</div>
-            <h2 className="fade-up stagger-1">Strategy Backed by <span className="gradient-text">Demographic Intelligence</span></h2>
+            <h2 className="fade-up stagger-1">Strategy Backed by <span className="orange-text">Demographic Intelligence</span></h2>
             <p className="fade-up stagger-2" style={{ color: "var(--muted)", maxWidth: "720px", marginTop: "0.75rem" }}>
               Our demographic analysis approach is used by Digisharks Communications to help you understand the characteristics of the people who buy your products and services. We map your audience by age, location, gender, job title, income, interests, and behaviors — so every campaign hits the right target.
             </p>
@@ -352,9 +312,9 @@ export default function DigitalMarketingPage() {
         </section>
 
         {/* CTA */}
-        <section className="final-cta">
+        <section className="final-cta section-bg-white">
           <div className="cta-box fade-up container">
-            <h2>Ready for <span className="gradient-text">Instant Growth?</span></h2>
+            <h2>Ready for <span className="orange-text">Instant Growth?</span></h2>
             <p>
               Let's build a digital marketing strategy that compounds your growth month over month. From SEO to Google Ads, content to conversion — we handle the heavy lifting so you can focus on running your business.
             </p>
@@ -368,7 +328,6 @@ export default function DigitalMarketingPage() {
         <Footer />
       </div>
 
-      <FloatingContact />
     </>
   );
 }

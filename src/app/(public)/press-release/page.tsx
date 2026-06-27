@@ -2,7 +2,6 @@ export const dynamic = "force-dynamic";
 
 import type { Metadata } from "next";
 import Footer from "../../../components/Footer";
-import FloatingContact from "../../../components/FloatingContact";
 
 const siteUrl = "https://digisharks-communications.vercel.app/press-release/";
 
@@ -34,7 +33,7 @@ export default function PressReleasePage() {
           <div className="hero-inner">
             <div className="hero-eyebrow fade-up">✦ One of India's Most Trusted PR Agencies</div>
             <h1 className="fade-up stagger-1">
-              Digital PR & <span className="gradient-text">Press Release</span> Services
+              Digital PR & <span className="orange-text">Press Release</span> Services
             </h1>
             <p className="fade-up stagger-2">
               Build a powerful digital presence through strategic media house partnerships. We craft compelling brand stories, distribute them across India's leading publications, and amplify your message to the audiences that matter most.
@@ -47,10 +46,10 @@ export default function PressReleasePage() {
         </section>
 
         {/* WHY CHOOSE DIGITAL PR */}
-        <section>
+        <section className="section-bg-white">
           <div className="container">
             <div className="section-label fade-up">Why Digital PR?</div>
-            <h2 className="fade-up stagger-1">Earned Media That <span className="gradient-text">Builds Authority</span></h2>
+            <h2 className="fade-up stagger-1">Earned Media That <span className="orange-text">Builds Authority</span></h2>
             <p className="fade-up stagger-2" style={{ color: "var(--muted)", maxWidth: "720px", marginTop: "0.75rem" }}>
               Digital PR blends the credibility of traditional public relations with the measurability of online marketing — generating brand awareness, stronger search visibility, and lasting reputation.
             </p>
@@ -71,6 +70,21 @@ export default function PressReleasePage() {
                 <h3>Media Relations</h3>
                 <p>Direct access to journalists, media houses, bloggers, influencers, news platforms, and industry publications across India and beyond.</p>
               </div>
+              <div className="benefit-card fade-up stagger-1">
+                <div className="b-icon">🤝</div>
+                <h3>Influencer Collaboration</h3>
+                <p>Strategic partnerships with key opinion leaders and industry influencers to amplify your brand message authentically.</p>
+              </div>
+              <div className="benefit-card fade-up stagger-2">
+                <div className="b-icon">📡</div>
+                <h3>Real-Time Monitoring</h3>
+                <p>Track mentions, sentiment, and coverage across all media channels with live analytics.</p>
+              </div>
+              <div className="benefit-card fade-up stagger-3">
+                <div className="b-icon">📋</div>
+                <h3>Media Kit Creation</h3>
+                <p>Professional press kits that tell your brand story and make journalists want to cover you.</p>
+              </div>
             </div>
           </div>
         </section>
@@ -79,7 +93,7 @@ export default function PressReleasePage() {
         <section className="pr-media">
           <div className="container">
             <div className="section-label fade-up">Why Digisharks Communications?</div>
-            <h2 className="fade-up stagger-1">Outcomes That <span className="gradient-text">Move the Needle</span></h2>
+            <h2 className="fade-up stagger-1">Outcomes That <span className="orange-text">Move the Needle</span></h2>
             <div className="benefits-grid">
               <div className="benefit-card fade-up stagger-1">
                 <div className="b-icon">📈</div>
@@ -116,10 +130,10 @@ export default function PressReleasePage() {
         </section>
 
         {/* MEDIA PARTNERS */}
-        <section>
+        <section className="section-bg-white">
           <div className="container">
             <div className="section-label fade-up">Our Media Network</div>
-            <h2 className="fade-up stagger-1">Featured on <span className="gradient-text">India's Top Publications</span></h2>
+            <h2 className="fade-up stagger-1">Featured on <span className="orange-text">India's Top Publications</span></h2>
             <p className="fade-up stagger-2" style={{ color: "var(--muted)", maxWidth: "720px", marginTop: "0.75rem" }}>
               Your story deserves to be told on the platforms that move industries. Our media partners include some of the most respected names in journalism.
             </p>
@@ -137,12 +151,12 @@ export default function PressReleasePage() {
           </div>
         </section>
 
-        {/* FIVE REASONS */}
-        <section>
+        {/* TEN REASONS */}
+        <section className="section-bg-soft">
           <div className="container">
             <div className="section-label fade-up">Why It Works</div>
-            <h2 className="fade-up stagger-1">Five Reasons to <span className="gradient-text">Use Digital PR</span></h2>
-            <div className="reasons-list">
+            <h2 className="fade-up stagger-1">Ten Reasons to <span className="orange-text">Use Digital PR</span></h2>
+            <div className="reasons-list reasons-list-4">
               <div className="reason-card fade-up stagger-1">
                 <span className="r-num">01</span>
                 <h4>Increased Online Visibility</h4>
@@ -163,10 +177,35 @@ export default function PressReleasePage() {
                 <h4>Greater Audience Engagement</h4>
                 <p>Reach readers who actually care about your story.</p>
               </div>
-              <div className="reason-card fade-up stagger-5">
+              <div className="reason-card fade-up stagger-1">
                 <span className="r-num">05</span>
                 <h4>Effective Crisis Management</h4>
                 <p>Protect your brand with proactive communication strategies.</p>
+              </div>
+              <div className="reason-card fade-up stagger-2">
+                <span className="r-num">06</span>
+                <h4>Scalable PR Campaigns</h4>
+                <p>Expand your reach with campaigns that grow alongside your business goals.</p>
+              </div>
+              <div className="reason-card fade-up stagger-3">
+                <span className="r-num">07</span>
+                <h4>Cost-Effective Marketing</h4>
+                <p>Earned media delivers higher ROI than paid advertising with lasting organic value.</p>
+              </div>
+              <div className="reason-card fade-up stagger-4">
+                <span className="r-num">08</span>
+                <h4>Targeted Audience Reach</h4>
+                <p>Connect with niche demographics through carefully curated media and influencer channels.</p>
+              </div>
+              <div className="reason-card fade-up stagger-1">
+                <span className="r-num">09</span>
+                <h4>Long-Lasting Impact</h4>
+                <p>Press releases and media mentions remain discoverable online, building your brand equity over time.</p>
+              </div>
+              <div className="reason-card fade-up stagger-2">
+                <span className="r-num">10</span>
+                <h4>Competitive Advantage</h4>
+                <p>Stay ahead of competitors with consistent media presence and thought leadership positioning.</p>
               </div>
             </div>
           </div>
@@ -176,51 +215,61 @@ export default function PressReleasePage() {
         <section className="pr-media">
           <div className="container">
             <div className="section-label fade-up">Why Press Releases Matter</div>
-            <h2 className="fade-up stagger-1">Tangible <span className="gradient-text">Benefits of Press Releases</span></h2>
+            <h2 className="fade-up stagger-1">Tangible <span className="orange-text">Benefits of Press Releases</span></h2>
             <div className="benefits-grid">
-              <div className="benefit-card fade-up stagger-1">
+              <div className="benefit-card benefit-card-enhanced fade-up stagger-1" style={{ "--card-accent": "#FF5B2E", "--card-accent-bg": "rgba(255,91,46,0.08)" } as React.CSSProperties}>
                 <div className="b-icon">👁️</div>
                 <h3>Brand Visibility</h3>
                 <p>Amplify brand presence across India and global media outlets.</p>
               </div>
-              <div className="benefit-card fade-up stagger-2">
+              <div className="benefit-card benefit-card-enhanced fade-up stagger-2" style={{ "--card-accent": "#6366F1", "--card-accent-bg": "rgba(99,102,241,0.08)" } as React.CSSProperties}>
                 <div className="b-icon">📰</div>
                 <h3>Media Coverage</h3>
                 <p>Get featured in leading newspapers, magazines, and online platforms.</p>
               </div>
-              <div className="benefit-card fade-up stagger-3">
+              <div className="benefit-card benefit-card-enhanced fade-up stagger-3" style={{ "--card-accent": "#0EA5E9", "--card-accent-bg": "rgba(14,165,233,0.08)" } as React.CSSProperties}>
                 <div className="b-icon">🛡️</div>
                 <h3>Online Reputation</h3>
                 <p>Shape public perception with strategic, positive brand storytelling.</p>
               </div>
-              <div className="benefit-card fade-up stagger-1">
+              <div className="benefit-card benefit-card-enhanced fade-up stagger-1" style={{ "--card-accent": "#10B981", "--card-accent-bg": "rgba(16,185,129,0.08)" } as React.CSSProperties}>
                 <div className="b-icon">🔍</div>
                 <h3>SEO Benefits</h3>
                 <p>Earn powerful backlinks that boost your search rankings.</p>
               </div>
-              <div className="benefit-card fade-up stagger-2">
+              <div className="benefit-card benefit-card-enhanced fade-up stagger-2" style={{ "--card-accent": "#EC4899", "--card-accent-bg": "rgba(236,72,153,0.08)" } as React.CSSProperties}>
                 <div className="b-icon">📊</div>
                 <h3>Lead Generation</h3>
                 <p>Convert media exposure into qualified business leads.</p>
               </div>
-              <div className="benefit-card fade-up stagger-3">
+              <div className="benefit-card benefit-card-enhanced fade-up stagger-3" style={{ "--card-accent": "#F59E0B", "--card-accent-bg": "rgba(245,158,11,0.08)" } as React.CSSProperties}>
                 <div className="b-icon">🏆</div>
                 <h3>Industry Recognition</h3>
                 <p>Build authority and credibility within your industry.</p>
               </div>
-              <div className="benefit-card fade-up stagger-1">
+              <div className="benefit-card benefit-card-enhanced fade-up stagger-1" style={{ "--card-accent": "#8B5CF6", "--card-accent-bg": "rgba(139,92,246,0.08)" } as React.CSSProperties}>
                 <div className="b-icon">🚨</div>
                 <h3>Crisis Communication</h3>
                 <p>Address issues quickly with controlled, strategic messaging.</p>
+              </div>
+              <div className="benefit-card benefit-card-enhanced fade-up stagger-2" style={{ "--card-accent": "#14B8A6", "--card-accent-bg": "rgba(20,184,166,0.08)" } as React.CSSProperties}>
+                <div className="b-icon">🤝</div>
+                <h3>Influencer Partnerships</h3>
+                <p>Collaborate with key voices to extend your brand&apos;s trust and reach.</p>
+              </div>
+              <div className="benefit-card benefit-card-enhanced fade-up stagger-3" style={{ "--card-accent": "#F97316", "--card-accent-bg": "rgba(249,115,22,0.08)" } as React.CSSProperties}>
+                <div className="b-icon">🎯</div>
+                <h3>Targeted Distribution</h3>
+                <p>Reach the right journalists and publications with precision-targeted press release campaigns.</p>
               </div>
             </div>
           </div>
         </section>
 
         {/* CLOSING CTA */}
-        <section className="final-cta">
+        <section className="final-cta section-bg-white">
           <div className="cta-box fade-up container">
-            <h2>Start <span className="gradient-text">Growing Your Brand</span> Today</h2>
+            <h2>Start <span className="orange-text">Growing Your Brand</span> Today</h2>
             <p>
               Our demographic analysis approach is used by Digisharks Communications to help you understand the characteristics of the people who buy your products and services. By leads, you can see who buys your products and services — also you can see who your brand appeals to the most by age, location, gender, job title, income, and hundreds of other variables.
             </p>
@@ -234,7 +283,6 @@ export default function PressReleasePage() {
         <Footer />
       </div>
 
-      <FloatingContact />
     </>
   );
 }

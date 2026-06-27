@@ -36,16 +36,22 @@ export async function GET(req: NextRequest) {
 
   if (!cartId) {
     // Return empty cart without setting cookie.
-    return NextResponse.json({ cartId: null, items: [], updatedAt: null }, { status: 200 })
+    const res = NextResponse.json({ cartId: null, items: [], updatedAt: null }, { status: 200 })
+    res.headers.set('Cache-Control', 'no-cache, private')
+    return res
   }
 
   const cart = await cartCollection.findOne({ cartId })
 
   if (!cart) {
-    return NextResponse.json({ cartId, items: [], updatedAt: null }, { status: 200 })
+    const res = NextResponse.json({ cartId, items: [], updatedAt: null }, { status: 200 })
+    res.headers.set('Cache-Control', 'no-cache, private')
+    return res
   }
 
-  return NextResponse.json(cart, { status: 200 })
+  const res = NextResponse.json(cart, { status: 200 })
+  res.headers.set('Cache-Control', 'no-cache, private')
+  return res
 }
 
 export async function POST(req: NextRequest) {

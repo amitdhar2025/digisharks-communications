@@ -1,22 +1,20 @@
+import Footer from "../../../components/Footer";
+
 export const dynamic = "force-dynamic";
 
 export default function AboutUs() {
   return (
     <>
 
-      <div className="orb orb-1"></div>
-      <div className="orb orb-2"></div>
-      <div className="orb orb-3"></div>
-
       <div className="content">
         {/* ============== HERO ============== */}
-        <section className="hero" style={{ minHeight: "auto", paddingTop: "120px" }}>
+        <section className="hero compact">
           <div className="hero-inner">
             <div className="hero-grid">
               <div className="hero-copy">
                 <div className="hero-eyebrow fade-up">✦ About Digisharks</div>
                 <h1 className="fade-up stagger-1">
-                  Build lasting <span className="gradient-text">brand value</span> with digital PR
+                  Build lasting <span className="orange-text">brand value</span> with digital PR
                   & growth.
                 </h1>
                 <p className="fade-up stagger-2">
@@ -59,7 +57,7 @@ export default function AboutUs() {
                 <div className="hero-visual-card">
                   <div className="hero-visual-topline" />
                   <div className="hero-visual-title">
-                    <span className="gradient-text">Digital PR</span> + Digital Marketing
+                    <span className="orange-text">Digital PR</span> + Digital Marketing
                   </div>
                   <div className="hero-visual-sub">
                     Strategy, media outreach, online reputation, and measurable business outcomes—built
@@ -79,7 +77,7 @@ export default function AboutUs() {
                       <span className="progress-num">92%</span>
                     </div>
                     <div className="progress-bar">
-                      <div className="progress-fill" style={{ width: "92%" }} />
+                      <div className="progress-fill" data-width="92%" style={{ width: "0%" }} />
                     </div>
 
                     <div className="progress-row" style={{ marginTop: ".9rem" }}>
@@ -87,7 +85,7 @@ export default function AboutUs() {
                       <span className="progress-num">88%</span>
                     </div>
                     <div className="progress-bar">
-                      <div className="progress-fill progress-fill-2" style={{ width: "88%" }} />
+                      <div className="progress-fill progress-fill-2" data-width="88%" style={{ width: "0%" }} />
                     </div>
                   </div>
                 </div>
@@ -104,7 +102,7 @@ export default function AboutUs() {
           <div className="container">
             <div className="section-label fade-up">About The Company</div>
             <h2 className="fade-up stagger-1">
-              Digisharks Communications <span className="gradient-text">Since 2017</span>
+              Digisharks Communications <span className="orange-text">Since 2017</span>
             </h2>
             <p className="fade-up stagger-2 text-muted" style={{ marginTop: "1.25rem", lineHeight: 1.9, fontSize: '1.05rem', textAlign: 'justify', textAlignLast: 'left' }}>
               Digisharks Communications is a pioneer and creative digital marketing agency established in 2017 in New Delhi.
@@ -114,32 +112,32 @@ export default function AboutUs() {
             </p>
 
             <div className="achievement-grid" style={{ marginTop: "2.75rem" }}>
-              <div className="achievement-card fade-up stagger-1">
-                <div className="achievement-icon">🏆</div>
-                <span className="achievement-num">10+</span>
-                <span className="achievement-label">Years of Excellence</span>
+              <div className="ach-card fade-up stagger-1" style={{ "--card-accent": "#FF5B2E", "--card-accent-bg": "rgba(255,91,46,0.08)" } as React.CSSProperties}>
+                <div className="ach-icon">🏆</div>
+                <span className="ach-num">10+</span>
+                <span className="ach-label">Years of Excellence</span>
               </div>
-              <div className="achievement-card fade-up stagger-2">
-                <div className="achievement-icon">😊</div>
-                <span className="achievement-num">4000+</span>
-                <span className="achievement-label">Happy Customers</span>
+              <div className="ach-card fade-up stagger-2" style={{ "--card-accent": "#3B82F6", "--card-accent-bg": "rgba(59,130,246,0.08)" } as React.CSSProperties}>
+                <div className="ach-icon">😊</div>
+                <span className="ach-num">4000+</span>
+                <span className="ach-label">Happy Customers</span>
               </div>
-              <div className="achievement-card fade-up stagger-3">
-                <div className="achievement-icon">📊</div>
-                <span className="achievement-num">120+</span>
-                <span className="achievement-label">Projects Delivered</span>
+              <div className="ach-card fade-up stagger-3" style={{ "--card-accent": "#10B981", "--card-accent-bg": "rgba(16,185,129,0.08)" } as React.CSSProperties}>
+                <div className="ach-icon">📊</div>
+                <span className="ach-num">120+</span>
+                <span className="ach-label">Projects Delivered</span>
               </div>
-              <div className="achievement-card fade-up stagger-4">
-                <div className="achievement-icon">🚀</div>
-                <span className="achievement-num">50+</span>
-                <span className="achievement-label">Active Campaigns</span>
+              <div className="ach-card fade-up stagger-4" style={{ "--card-accent": "#8B5CF6", "--card-accent-bg": "rgba(139,92,246,0.08)" } as React.CSSProperties}>
+                <div className="ach-icon">🚀</div>
+                <span className="ach-num">50+</span>
+                <span className="ach-label">Active Campaigns</span>
               </div>
             </div>
 
             <div className="dm-grid" style={{ marginTop: "2.75rem" }}>
-              <div className="dm-card fade-up stagger-1">
+              <div className="dm-card dm-card-enhanced fade-up stagger-1" style={{ "--card-accent": "#FF5B2E", "--card-accent-bg": "rgba(255,91,46,0.08)" } as React.CSSProperties}>
                 <div className="dm-card-header">
-                  <div className="dm-card-icon icon-cyan">✨</div>
+                  <div className="dm-card-icon">✨</div>
                   <h3>Vision</h3>
                 </div>
                 <p>
@@ -148,19 +146,19 @@ export default function AboutUs() {
                 </p>
                 <div className="dm-card-stats">
                   <div className="dm-card-stat">
-                    <span className="dm-card-stat-num">🌍</span>
-                    <span className="dm-card-stat-label">Pan-India Reach</span>
+                    <span className="dm-card-stat-num">10+</span>
+                    <span className="dm-card-stat-label">Years of Excellence</span>
                   </div>
                   <div className="dm-card-stat">
-                    <span className="dm-card-stat-num">💯</span>
-                    <span className="dm-card-stat-label">Quality First</span>
+                    <span className="dm-card-stat-num">4000+</span>
+                    <span className="dm-card-stat-label">Happy Clients</span>
                   </div>
                 </div>
               </div>
 
-              <div className="dm-card fade-up stagger-2">
+              <div className="dm-card dm-card-enhanced fade-up stagger-2" style={{ "--card-accent": "#6366F1", "--card-accent-bg": "rgba(99,102,241,0.08)" } as React.CSSProperties}>
                 <div className="dm-card-header">
-                  <div className="dm-card-icon icon-violet">🎯</div>
+                  <div className="dm-card-icon">🎯</div>
                   <h3>Mission</h3>
                 </div>
                 <p>
@@ -169,19 +167,19 @@ export default function AboutUs() {
                 </p>
                 <div className="dm-card-stats">
                   <div className="dm-card-stat">
-                    <span className="dm-card-stat-num">🤝</span>
-                    <span className="dm-card-stat-label">Trust & Transparency</span>
+                    <span className="dm-card-stat-num">120+</span>
+                    <span className="dm-card-stat-label">Projects Delivered</span>
                   </div>
                   <div className="dm-card-stat">
-                    <span className="dm-card-stat-num">📈</span>
-                    <span className="dm-card-stat-label">Measurable ROI</span>
+                    <span className="dm-card-stat-num">500+</span>
+                    <span className="dm-card-stat-label">Campaigns Run</span>
                   </div>
                 </div>
               </div>
 
-              <div className="dm-card fade-up stagger-3">
+              <div className="dm-card dm-card-enhanced fade-up stagger-3" style={{ "--card-accent": "#0EA5E9", "--card-accent-bg": "rgba(14,165,233,0.08)" } as React.CSSProperties}>
                 <div className="dm-card-header">
-                  <div className="dm-card-icon icon-pink">🧩</div>
+                  <div className="dm-card-icon">🧩</div>
                   <h3>What We Offer</h3>
                 </div>
                 <p style={{ marginBottom: ".85rem" }}>
@@ -190,12 +188,9 @@ export default function AboutUs() {
                 <ul className="feature-list">
                   <li>Digital PR & Media Coverage</li>
                   <li>Social Media Marketing</li>
-                  <li>Search Engine Optimization (SEO)</li>
+                  <li>SEO & PPC Advertising</li>
                   <li>Website Design & Development</li>
                   <li>Political Campaign Management</li>
-                  <li>Corporate Events & Road Shows</li>
-                  <li>Award Shows & Brand Promotions</li>
-                  <li>Media Management</li>
                   <li>Online Reputation Management</li>
                 </ul>
                 <div className="dm-card-stats">
@@ -217,7 +212,7 @@ export default function AboutUs() {
         <section style={{ background: 'var(--surface)' }}>
           <div className="container">
             <div className="section-label fade-up" style={{ justifyContent: 'center', display: 'flex' }}>Our Core Values</div>
-            <h2 className="fade-up stagger-1" style={{ textAlign: 'center' }}>What <span className="gradient-text">Drives Us</span> Forward</h2>
+            <h2 className="fade-up stagger-1" style={{ textAlign: 'center' }}>What <span className="orange-text">Drives Us</span> Forward</h2>
             <p className="fade-up stagger-2 text-muted" style={{ textAlign: 'center', maxWidth: '700px', margin: '1rem auto 0', fontSize: '1.05rem', lineHeight: 1.75, textAlignLast: 'center' }}>
               Our values aren't just words on a wall — they shape every strategy, every campaign, and every relationship we build with our clients.
             </p>
@@ -261,7 +256,7 @@ export default function AboutUs() {
           <div className="container">
             <div className="section-label fade-up">Leadership Team</div>
             <h2 className="fade-up stagger-1">
-              Meet the <span className="gradient-text">Visionary</span> Behind the Brand
+              Meet the <span className="orange-text">Visionary</span> Behind the Brand
             </h2>
 
             <div className="leader-card fade-up" style={{ marginTop: "2.5rem" }}>
@@ -318,7 +313,7 @@ export default function AboutUs() {
         <section style={{ background: 'var(--surface)' }}>
           <div className="container">
             <div className="section-label fade-up" style={{ justifyContent: 'center', display: 'flex' }}>Our Journey</div>
-            <h2 className="fade-up stagger-1" style={{ textAlign: 'center' }}>10+ Years of <span className="gradient-text">Building & Growing</span></h2>
+            <h2 className="fade-up stagger-1" style={{ textAlign: 'center' }}>10+ Years of <span className="orange-text">Building & Growing</span></h2>
             <p className="fade-up stagger-2 text-muted" style={{ textAlign: 'center', maxWidth: '700px', margin: '1rem auto 0', fontSize: '1.05rem', lineHeight: 1.75, textAlignLast: 'center' }}>
               From a small New Delhi studio to a trusted national PR & digital marketing partner — the milestones that shaped us.
             </p>
@@ -386,7 +381,7 @@ export default function AboutUs() {
           <div className="pr-grid">
             <div className="fade-up">
               <div className="section-label">Specialized Services</div>
-              <h2>Booth Management <span className="gradient-text">Services</span></h2>
+              <h2>Booth Management <span className="orange-text">Services</span></h2>
               <p className="text-muted" style={{ marginTop: "1.25rem", lineHeight: 1.8, fontSize: '1rem', textAlign: 'justify', textAlignLast: 'left' }}>
                 Digisharks Communications provides specialized booth-level election management services for political campaigns.
                 Our booth management strategy combines grassroots voter engagement, data-driven targeting, and on-ground execution
@@ -415,22 +410,22 @@ export default function AboutUs() {
                 In Indian elections, every vote counts — and booth-level management is the difference between winning and losing.
                 We help parties and candidates build robust, on-the-ground networks that mobilize voters effectively.
               </p>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1.25rem' }}>
-                <div style={{ padding: '1rem', background: 'var(--bg)', borderRadius: '10px', textAlign: 'center' }}>
-                  <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--cyan)', fontFamily: 'Syne, sans-serif' }}>500+</div>
-                  <div style={{ fontSize: '.75rem', color: 'var(--muted)', marginTop: '.25rem' }}>Booths Managed</div>
+              <div className="booth-stats-row">
+                <div className="booth-stat-cell">
+                  <div className="booth-stat-num">500+</div>
+                  <div className="booth-stat-label">Booths Managed</div>
                 </div>
-                <div style={{ padding: '1rem', background: 'var(--bg)', borderRadius: '10px', textAlign: 'center' }}>
-                  <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--cyan)', fontFamily: 'Syne, sans-serif' }}>95%</div>
-                  <div style={{ fontSize: '.75rem', color: 'var(--muted)', marginTop: '.25rem' }}>Voter Turnout Boost</div>
+                <div className="booth-stat-cell">
+                  <div className="booth-stat-num">95%</div>
+                  <div className="booth-stat-label">Voter Turnout Boost</div>
                 </div>
-                <div style={{ padding: '1rem', background: 'var(--bg)', borderRadius: '10px', textAlign: 'center' }}>
-                  <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--cyan)', fontFamily: 'Syne, sans-serif' }}>50+</div>
-                  <div style={{ fontSize: '.75rem', color: 'var(--muted)', marginTop: '.25rem' }}>Campaigns Won</div>
+                <div className="booth-stat-cell">
+                  <div className="booth-stat-num">50+</div>
+                  <div className="booth-stat-label">Campaigns Won</div>
                 </div>
-                <div style={{ padding: '1rem', background: 'var(--bg)', borderRadius: '10px', textAlign: 'center' }}>
-                  <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--cyan)', fontFamily: 'Syne, sans-serif' }}>1M+</div>
-                  <div style={{ fontSize: '.75rem', color: 'var(--muted)', marginTop: '.25rem' }}>Voters Reached</div>
+                <div className="booth-stat-cell">
+                  <div className="booth-stat-num">1M+</div>
+                  <div className="booth-stat-label">Voters Reached</div>
                 </div>
               </div>
             </div>
@@ -441,25 +436,34 @@ export default function AboutUs() {
         <section>
           <div className="container">
             <div className="section-label fade-up" style={{ justifyContent: 'center', display: 'flex' }}>By The Numbers</div>
-            <h2 className="fade-up stagger-1" style={{ textAlign: 'center' }}>Our Achievements in <span className="gradient-text">Numbers</span></h2>
+            <h2 className="fade-up stagger-1" style={{ textAlign: 'center' }}>Our Achievements in <span className="orange-text">Numbers</span></h2>
             <p className="fade-up stagger-2 text-muted" style={{ textAlign: 'center', maxWidth: '700px', margin: '1rem auto 0', fontSize: '1.05rem', lineHeight: 1.75, textAlignLast: 'center' }}>
               Real numbers that reflect the trust our clients place in us and the consistent results we deliver across every campaign.
             </p>
-            <div className="metric-grid">
-              <div className="metric-card fade-up stagger-1">
-                <div className="metric-num">4000+</div>
-                <div className="metric-label">Satisfied Customers</div>
-                <p className="metric-desc">High-quality brand promotion and strategic communication that builds long-term confidence and trust.</p>
+            <div className="achievement-grid" style={{ marginTop: "2.75rem" }}>
+              <div className="ach-card fade-up stagger-1" style={{ "--card-accent": "#FF5B2E", "--card-accent-bg": "rgba(255,91,46,0.08)" } as React.CSSProperties}>
+                <div className="ach-icon">😊</div>
+                <span className="ach-num">4000+</span>
+                <span className="ach-label">Satisfied Customers</span>
+                <p className="ach-desc">High-quality brand promotion that builds long-term confidence and trust.</p>
               </div>
-              <div className="metric-card fade-up stagger-2">
-                <div className="metric-num">120+</div>
-                <div className="metric-label">Completed Projects</div>
-                <p className="metric-desc">From strategy to execution — delivering measurable growth and brand impact across multiple industries.</p>
+              <div className="ach-card fade-up stagger-2" style={{ "--card-accent": "#3B82F6", "--card-accent-bg": "rgba(59,130,246,0.08)" } as React.CSSProperties}>
+                <div className="ach-icon">📊</div>
+                <span className="ach-num">120+</span>
+                <span className="ach-label">Completed Projects</span>
+                <p className="ach-desc">From strategy to execution — delivering measurable growth across multiple industries.</p>
               </div>
-              <div className="metric-card fade-up stagger-3">
-                <div className="metric-num">50+</div>
-                <div className="metric-label">Live Projects</div>
-                <p className="metric-desc">Ongoing campaigns that keep your brand visible, engaging, and relevant in a fast-changing market.</p>
+              <div className="ach-card fade-up stagger-3" style={{ "--card-accent": "#10B981", "--card-accent-bg": "rgba(16,185,129,0.08)" } as React.CSSProperties}>
+                <div className="ach-icon">🚀</div>
+                <span className="ach-num">50+</span>
+                <span className="ach-label">Live Projects</span>
+                <p className="ach-desc">Ongoing campaigns that keep your brand visible and relevant in a fast-changing market.</p>
+              </div>
+              <div className="ach-card fade-up stagger-4" style={{ "--card-accent": "#8B5CF6", "--card-accent-bg": "rgba(139,92,246,0.08)" } as React.CSSProperties}>
+                <div className="ach-icon">💎</div>
+                <span className="ach-num">98%</span>
+                <span className="ach-label">Client Satisfaction</span>
+                <p className="ach-desc">Consistent results that earn trust and lasting partnerships with every client.</p>
               </div>
             </div>
           </div>
@@ -470,12 +474,12 @@ export default function AboutUs() {
           <div className="container">
             <div className="section-label fade-up">Why Choose Us</div>
             <h2 className="fade-up stagger-1">
-              Three Pillars of <span className="gradient-text">Our Approach</span>
+              Three Pillars of <span className="orange-text">Our Approach</span>
             </h2>
             <div className="dm-grid" style={{ marginTop: "2.75rem" }}>
-              <div className="dm-card fade-up stagger-1">
+              <div className="dm-card dm-card-enhanced fade-up stagger-1" style={{ "--card-accent": "#14B8A6", "--card-accent-bg": "rgba(20,184,166,0.08)" } as React.CSSProperties}>
                 <div className="dm-card-header">
-                  <div className="dm-card-icon icon-cyan">📊</div>
+                  <div className="dm-card-icon">📊</div>
                   <h3>Data-Driven Marketing</h3>
                 </div>
                 <p>
@@ -502,9 +506,9 @@ export default function AboutUs() {
                 </div>
               </div>
 
-              <div className="dm-card fade-up stagger-2">
+              <div className="dm-card dm-card-enhanced fade-up stagger-2" style={{ "--card-accent": "#10B981", "--card-accent-bg": "rgba(16,185,129,0.08)" } as React.CSSProperties}>
                 <div className="dm-card-header">
-                  <div className="dm-card-icon icon-violet">🏆</div>
+                  <div className="dm-card-icon">🏆</div>
                   <h3>Start Your Growth Journey</h3>
                 </div>
                 <p>
@@ -547,9 +551,9 @@ export default function AboutUs() {
                 </a>
               </div>
 
-              <div className="dm-card fade-up stagger-3">
+              <div className="dm-card dm-card-enhanced fade-up stagger-3" style={{ "--card-accent": "#EC4899", "--card-accent-bg": "rgba(236,72,153,0.08)" } as React.CSSProperties}>
                 <div className="dm-card-header">
-                  <div className="dm-card-icon icon-pink">🧑‍💼</div>
+                  <div className="dm-card-icon">🧑‍💼</div>
                   <h3>Featured Clients</h3>
                 </div>
                 <p style={{ marginBottom: '1rem' }}>
@@ -582,7 +586,7 @@ export default function AboutUs() {
         <section>
           <div className="container">
             <div className="section-label fade-up" style={{ justifyContent: 'center', display: 'flex' }}>Frequently Asked Questions</div>
-            <h2 className="fade-up stagger-1" style={{ textAlign: 'center' }}>About <span className="gradient-text">Working With Us</span></h2>
+            <h2 className="fade-up stagger-1" style={{ textAlign: 'center' }}>About <span className="orange-text">Working With Us</span></h2>
             <p className="fade-up stagger-2 text-muted" style={{ textAlign: 'center', maxWidth: '700px', margin: '1rem auto 0', fontSize: '1.05rem', lineHeight: 1.75, textAlignLast: 'center' }}>
               Quick answers to the most common questions about partnering with Digisharks Communications.
             </p>
@@ -605,7 +609,7 @@ export default function AboutUs() {
               </div>
               <div className="faq-item fade-up">
                 <div className="faq-q"><span className="faq-q-icon">Q</span>How can I get in touch with your team?</div>
-                <div className="faq-a">You can reach us via phone at +91 96273 32332, email at info@digisharkscommunications.com, or visit our office at B-2, C-87, C Block, Sector 63, Noida, UP 201301. We also offer free consultation calls — just book through our website.</div>
+                <div className="faq-a">You can reach us via phone at +91 96273 32332, email at marketing@digisharkscommunications.com, or visit our office at B-2, C-87, C Block, Sector 63, Noida, UP 201301. We also offer free consultation calls — just book through our website.</div>
               </div>
             </div>
           </div>
@@ -616,7 +620,7 @@ export default function AboutUs() {
           <div className="container">
             <div className="section-label fade-up">Get In Touch</div>
             <h2 className="fade-up stagger-1" style={{ textAlign: 'center' }}>
-              About <span className="gradient-text">Digisharks Communications</span>
+              About <span className="orange-text">Digisharks Communications</span>
             </h2>
             <p className="fade-up stagger-2 text-muted" style={{ textAlign: 'center', maxWidth: '780px', margin: '1rem auto 0', fontSize: '1.05rem', lineHeight: 1.75, textAlignLast: 'center' }}>
               Established in 2017, Digisharks Communications has emerged as a trusted partner for businesses seeking innovative digital
@@ -645,7 +649,7 @@ export default function AboutUs() {
                   <div className="contact-info-icon">✉️</div>
                   <div>
                     <div className="contact-info-label">Email</div>
-                    <div className="contact-info-value"><a href="mailto:info@digisharkscommunications.com">info@digisharkscommunications.com</a></div>
+                    <div className="contact-info-value"><a href="mailto:marketing@digisharkscommunications.com">marketing@digisharkscommunications.com</a></div>
                   </div>
                 </div>
                 <div className="contact-info-item">
@@ -699,9 +703,9 @@ export default function AboutUs() {
             </div>
 
             <div className="dm-grid" style={{ marginTop: "2.5rem" }}>
-              <div className="dm-card fade-up stagger-1">
+              <div className="dm-card dm-card-enhanced fade-up stagger-1" style={{ "--card-accent": "#FF5B2E", "--card-accent-bg": "rgba(255,91,46,0.08)" } as React.CSSProperties}>
                 <div className="dm-card-header">
-                  <div className="dm-card-icon icon-cyan">📍</div>
+                  <div className="dm-card-icon">📍</div>
                   <h3>Visit Our Office</h3>
                 </div>
                 <p>
@@ -710,19 +714,19 @@ export default function AboutUs() {
                 </p>
                 <div className="dm-card-stats">
                   <div className="dm-card-stat">
-                    <span className="dm-card-stat-num">📅</span>
-                    <span className="dm-card-stat-label">Mon–Sat</span>
+                    <span className="dm-card-stat-num">Mon–Sat</span>
+                    <span className="dm-card-stat-label">Business Days</span>
                   </div>
                   <div className="dm-card-stat">
-                    <span className="dm-card-stat-num">🕒</span>
-                    <span className="dm-card-stat-label">10am–7pm</span>
+                    <span className="dm-card-stat-num">10am–7pm</span>
+                    <span className="dm-card-stat-label">Working Hours</span>
                   </div>
                 </div>
               </div>
 
-              <div className="dm-card fade-up stagger-2">
+              <div className="dm-card dm-card-enhanced fade-up stagger-2" style={{ "--card-accent": "#6366F1", "--card-accent-bg": "rgba(99,102,241,0.08)" } as React.CSSProperties}>
                 <div className="dm-card-header">
-                  <div className="dm-card-icon icon-violet">✉️</div>
+                  <div className="dm-card-icon">✉️</div>
                   <h3>Quick Actions</h3>
                 </div>
                 <p>
@@ -731,14 +735,14 @@ export default function AboutUs() {
                 </p>
                 <div style={{ display: 'flex', gap: '.5rem', flexWrap: 'wrap', marginTop: '1rem' }}>
                   <a href="tel:+919627332332" className="cred-tag" style={{ textDecoration: 'none' }}>📞 Call Now</a>
-                  <a href="mailto:info@digisharkscommunications.com" className="cred-tag" style={{ textDecoration: 'none' }}>✉️ Email</a>
+                  <a href="mailto:marketing@digisharkscommunications.com" className="cred-tag" style={{ textDecoration: 'none' }}>✉️ Email</a>
                   <a href="#" className="cred-tag" style={{ textDecoration: 'none' }}>📅 Book Call</a>
                 </div>
               </div>
 
-              <div className="dm-card fade-up stagger-3">
+              <div className="dm-card dm-card-enhanced fade-up stagger-3" style={{ "--card-accent": "#0EA5E9", "--card-accent-bg": "rgba(14,165,233,0.08)" } as React.CSSProperties}>
                 <div className="dm-card-header">
-                  <div className="dm-card-icon icon-pink">📣</div>
+                  <div className="dm-card-icon">📣</div>
                   <h3>What You Can Expect</h3>
                 </div>
                 <ul className="feature-list">
@@ -751,12 +755,12 @@ export default function AboutUs() {
                 </ul>
                 <div className="dm-card-stats">
                   <div className="dm-card-stat">
-                    <span className="dm-card-stat-num">⚡</span>
-                    <span className="dm-card-stat-label">2hr Response</span>
+                    <span className="dm-card-stat-num">2hr</span>
+                    <span className="dm-card-stat-label">Response Time</span>
                   </div>
                   <div className="dm-card-stat">
-                    <span className="dm-card-stat-num">🎯</span>
-                    <span className="dm-card-stat-label">98% Satisfaction</span>
+                    <span className="dm-card-stat-num">98%</span>
+                    <span className="dm-card-stat-label">Client Satisfaction</span>
                   </div>
                 </div>
               </div>
@@ -768,7 +772,7 @@ export default function AboutUs() {
         <section className="final-cta">
           <div className="cta-box fade-up container">
             <div className="cta-eyebrow">💼 Let's Start a Conversation</div>
-            <h2>Ready to <span className="gradient-text">Grow With Us</span>?</h2>
+            <h2>Ready to <span className="orange-text">Grow With Us</span>?</h2>
             <p>Whether you're a startup looking to launch, a growing brand aiming to scale, or an established company seeking fresh digital momentum — we have the expertise, team, and proven strategies to make it happen.</p>
             <div className="cta-features">
               <div className="cta-feature"><span className="cta-feature-icon">✓</span>Free 30-min Strategy Call</div>
@@ -784,90 +788,7 @@ export default function AboutUs() {
           </div>
         </section>
 
-        <footer>
-          <div className="footer-top">
-            <div>
-              <a href="/" className="footer-logo">DigiSharks</a>
-              <p className="footer-tagline">Top Digital PR and Digital Marketing Agency helping businesses achieve measurable growth through innovative strategies. Established 2017, New Delhi.</p>
-              <div className="social-icons">
-                <a href="#" className="social-icon" aria-label="Instagram">📸</a>
-                <a href="#" className="social-icon" aria-label="LinkedIn">💼</a>
-                <a href="#" className="social-icon" aria-label="Twitter">🐦</a>
-                <a href="#" className="social-icon" aria-label="Facebook">📘</a>
-                <a href="#" className="social-icon" aria-label="YouTube">▶️</a>
-              </div>
-            </div>
-            <div className="footer-col">
-              <h4>Quick Links</h4>
-              <ul>
-                <li>
-                  <a href="/">Home</a>
-                </li>
-                <li>
-                  <a href="/about-us">About Us</a>
-                </li>
-                <li>
-                  <a href="#">Services</a>
-                </li>
-                <li>
-                  <a href="#">Portfolio</a>
-                </li>
-                <li>
-                  <a href="#">Blog</a>
-                </li>
-                <li>
-                  <a href="#">Contact</a>
-                </li>
-              </ul>
-            </div>
-            <div className="footer-col">
-              <h4>Services</h4>
-              <ul>
-                <li>
-                  <a href="#">Digital PR</a>
-                </li>
-                <li>
-                  <a href="#">Media Management</a>
-                </li>
-                <li>
-                  <a href="#">SEO Services</a>
-                </li>
-                <li>
-                  <a href="#">Social Media (SMO)</a>
-                </li>
-                <li>
-                  <a href="#">PPC Advertising</a>
-                </li>
-                <li>
-                  <a href="#">Political Campaigns</a>
-                </li>
-              </ul>
-            </div>
-            <div className="footer-col footer-contact">
-              <h4>Contact Info</h4>
-              <ul>
-                <li>📍 B-2, C-87, C Block, Sector 63<br />Noida, Uttar Pradesh 201301</li>
-                <li style={{ marginTop: '.5rem' }}>📞 <a href="tel:+919627332332" style={{ color: 'var(--cyan)', textDecoration: 'none' }}>+91 96273 32332</a></li>
-                <li style={{ marginTop: '.25rem' }}>✉️ <a href="mailto:info@digisharkscommunications.com" style={{ color: 'var(--cyan)', textDecoration: 'none', fontSize: '.82rem' }}>info@digisharkscommunications.com</a></li>
-                <li style={{ marginTop: '.5rem' }}>🕒 Mon–Sat: 10:00 AM – 7:00 PM IST</li>
-              </ul>
-            </div>
-          </div>
-          <div className="footer-bottom">
-            <p>© 2026 Digisharks Communications. All Rights Reserved. Made with 💙 in India.</p>
-            <ul className="footer-bottom-links">
-              <li>
-                <a href="#">Privacy Policy</a>
-              </li>
-              <li>
-                <a href="#">Terms & Conditions</a>
-              </li>
-              <li>
-                <a href="#">Refund Policy</a>
-              </li>
-            </ul>
-          </div>
-        </footer>
+        <Footer />
       </div>
     </>
   );

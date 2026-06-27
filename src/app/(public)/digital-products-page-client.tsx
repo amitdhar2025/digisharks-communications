@@ -57,7 +57,7 @@ export default function DigitalProductsPageClient() {
 
   useEffect(() => {
     let cancelled = false
-    fetch('/api/products', { cache: 'no-store' })
+    fetch('/api/products', { cache: 'default' })
       .then(async (r) => {
         if (!r.ok) throw new Error('Failed to load products')
         return r.json()
@@ -111,7 +111,7 @@ export default function DigitalProductsPageClient() {
                   >
                     {cover ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={cover} alt={p.title} />
+                      <img src={cover} alt={p.title} loading="lazy" />
                     ) : (
                       <div className="placeholder">📦</div>
                     )}

@@ -27,12 +27,14 @@ export async function GET(req: NextRequest) {
     const orders = await getOrdersCollection()
     const order = await orders.findOne({ orderNumber })
     if (!order) {
-      return NextResponse.json({
+      const res = NextResponse.json({
         order: null,
         downloadUrl: DEFAULT_PAN_INDIA_PDF,
         howToUseVideo: DEFAULT_PAN_INDIA_VIDEO,
         supportEmail: 'marketing@digisharkscommunications.com',
       })
+      res.headers.set('Cache-Control', 'public, max-age=30, s-maxage=60')
+      return res
     }
 
     // Only reveal download links for paid orders.

@@ -2,7 +2,6 @@ export const dynamic = "force-dynamic";
 
 import type { Metadata } from "next";
 import Footer from "../../../components/Footer";
-import FloatingContact from "../../../components/FloatingContact";
 
 const siteUrl = "https://digisharks-communications.vercel.app/services-top-pr-digital-marketing/";
 
@@ -40,7 +39,7 @@ export default function ServicesPricingPage() {
           <div className="hero-inner">
             <div className="hero-eyebrow fade-up">✦ Top PR Agency in India</div>
             <h1 className="fade-up stagger-1">
-              Our <span className="gradient-text">Services & Pricing</span>
+              Our <span className="orange-text">Services & Pricing</span>
             </h1>
             <p className="fade-up stagger-2">
               Digisharks Communications provides top PR and digital marketing services. We firmly believe in transparency and high-quality standards through contemporary and creative Digital Press Release and digital marketing tactics. We offer a wide range of digital marketing and conventional marketing services including social media services, SEO, Website Design, Political Campaigns, Digital PR, Corporate Events, Road Shows, Award Shows, and Pricing.
@@ -53,10 +52,10 @@ export default function ServicesPricingPage() {
         </section>
 
         {/* PRICING CARDS SECTION */}
-        <section id="pricing" style={{ paddingTop: "2rem" }}>
+        <section id="pricing" style={{ paddingTop: "2rem" }} className="section-bg-white">
           <div className="container">
             <div className="section-label fade-up">Transparent Pricing</div>
-            <h2 className="fade-up stagger-1">Choose the Right <span className="gradient-text">Growth Package</span></h2>
+            <h2 className="fade-up stagger-1">Choose the Right <span className="orange-text">Growth Package</span></h2>
             <p className="fade-up stagger-2" style={{ color: "var(--muted)", maxWidth: "720px", marginTop: "0.75rem" }}>
               Pick a service that aligns with your brand goals. Every plan is built for measurable outcomes, transparent deliverables, and dedicated support.
             </p>
@@ -74,13 +73,15 @@ export default function ServicesPricingPage() {
                   <li>Coverage from 80+ websites assured</li>
                   <li>Distribution across leading media houses</li>
                 </ul>
-                <div className="pc-price">
-                  <span className="currency">INR</span>
-                  <span className="amount">Rs 8,500</span>
-                </div>
-                <p className="pc-note">One-time fee | For Indian Clients</p>
-                <div className="pc-cta">
-                  <a href="/contact-us/" className="btn-primary">Buy Now →</a>
+                <div className="pc-bottom-wrapper">
+                  <div className="pc-price">
+                    <span className="currency">INR</span>
+                    <span className="amount">Rs 8,500</span>
+                  </div>
+                  <p className="pc-note">One-time fee | For Indian Clients</p>
+                  <div className="pc-cta">
+                    <a href="/contact-us/" className="btn-primary">Buy Now →</a>
+                  </div>
                 </div>
               </div>
 
@@ -97,13 +98,15 @@ export default function ServicesPricingPage() {
                   <li>2 Design Concepts + Unlimited Revisions</li>
                   <li>FREE Search Engine Submission</li>
                 </ul>
-                <div className="pc-price">
-                  <span className="currency">INR</span>
-                  <span className="amount">Rs 10,500</span>
-                  <span className="period">/ website</span>
-                </div>
-                <div className="pc-cta">
-                  <a href="/contact-us/" className="btn-primary">Buy Now →</a>
+                <div className="pc-bottom-wrapper">
+                  <div className="pc-price">
+                    <span className="currency">INR</span>
+                    <span className="amount">Rs 10,500</span>
+                    <span className="period">/ website</span>
+                  </div>
+                  <div className="pc-cta">
+                    <a href="/contact-us/" className="btn-primary">Buy Now →</a>
+                  </div>
                 </div>
               </div>
 
@@ -120,12 +123,14 @@ export default function ServicesPricingPage() {
                   <li>Blogs & Social Media Networks</li>
                   <li>Online & Social Media reputation monitoring</li>
                 </ul>
-                <div className="pc-price">
-                  <span className="amount" style={{ fontSize: "1.6rem" }}>SEO for 5 Keywords</span>
-                </div>
-                <p className="pc-note">INR Rs 2,40,000 /-</p>
-                <div className="pc-cta">
-                  <a href="/contact-us/" className="btn-primary">Buy Now →</a>
+                <div className="pc-bottom-wrapper">
+                  <div className="pc-price">
+                    <span className="amount" style={{ fontSize: "1.6rem" }}>SEO for 5 Keywords</span>
+                  </div>
+                  <p className="pc-note">INR Rs 2,40,000 /-</p>
+                  <div className="pc-cta">
+                    <a href="/contact-us/" className="btn-primary">Buy Now →</a>
+                  </div>
                 </div>
               </div>
 
@@ -141,13 +146,15 @@ export default function ServicesPricingPage() {
                   <li>Fashion Show & Modeling Agency Events</li>
                   <li>Bollywood & Advertising Agency Events</li>
                 </ul>
-                <div className="pc-price">
-                  <span className="currency">INR</span>
-                  <span className="amount">Rs 50,000</span>
-                  <span className="period">/ day</span>
-                </div>
-                <div className="pc-cta">
-                  <a href="/contact-us/" className="btn-primary">Buy Now →</a>
+                <div className="pc-bottom-wrapper">
+                  <div className="pc-price">
+                    <span className="currency">INR</span>
+                    <span className="amount">Rs 50,000</span>
+                    <span className="period">/ day</span>
+                  </div>
+                  <div className="pc-cta">
+                    <a href="/contact-us/" className="btn-primary">Buy Now →</a>
+                  </div>
                 </div>
               </div>
 
@@ -158,12 +165,14 @@ export default function ServicesPricingPage() {
                 <p style={{ color: "var(--muted)", fontSize: ".86rem", lineHeight: 1.7, position: "relative", zIndex: 1 }}>
                   Backed by skillful experts, we are proficient in rendering Brand Promotion Services. These services are enormously appreciated in the market due to their timely completion. Our professionals render our offered service employing advanced techniques. Offered services are rendered in varied forms and terms that meet on customer's demand.
                 </p>
-                <div className="pc-price">
-                  <span className="currency">INR</span>
-                  <span className="amount">Rs 50,000</span>
-                </div>
-                <div className="pc-cta">
-                  <a href="/contact-us/" className="btn-primary">Buy Now →</a>
+                <div className="pc-bottom-wrapper">
+                  <div className="pc-price">
+                    <span className="currency">INR</span>
+                    <span className="amount">Rs 50,000</span>
+                  </div>
+                  <div className="pc-cta">
+                    <a href="/contact-us/" className="btn-primary">Buy Now →</a>
+                  </div>
                 </div>
               </div>
 
@@ -184,166 +193,224 @@ export default function ServicesPricingPage() {
                   <div className="row"><span>Monthly Fee</span><span>Contact Us</span></div>
                   <div className="row"><span>Quarterly</span><span className="save">Save 10%</span></div>
                 </div>
-                <div className="pc-price">
-                  <span className="currency">INR</span>
-                  <span className="amount">Rs 20,000</span>
+                <div className="pc-bottom-wrapper">
+                  <div className="pc-price">
+                    <span className="currency">INR</span>
+                    <span className="amount">Rs 20,000</span>
+                  </div>
+                  <div className="pc-cta">
+                    <a href="/contact-us/" className="btn-primary">Buy Now →</a>
+                  </div>
                 </div>
-                <div className="pc-cta">
-                  <a href="/contact-us/" className="btn-primary">Buy Now →</a>
-                </div>
+              </div>
+            </div>
+          </div>
+        </section>        {/* AI POWERED MARKET EDGE */}
+        <section className="section-bg-white" style={{ paddingTop: '2rem' }}>
+          <div className="container">
+            <div className="section-label-orange centered-label fade-up">
+              <span className="label-dot"></span>
+              AI-Powered Market Edge
+            </div>
+            <h2 className="fade-up stagger-1" style={{ textAlign: 'center' }}>New <span className="orange-text">AI Launch Tools</span> for 2026</h2>
+            <p className="fade-up stagger-2" style={{ color: "var(--muted)", maxWidth: "720px", marginTop: "0.75rem", textAlign: 'center', marginLeft: 'auto', marginRight: 'auto' }}>
+              Digisharks has launched a suite of AI-powered marketing tools designed to give your brand a competitive edge. From AI content generation to predictive audience targeting — get ahead of the market.
+            </p>
+            <div className="benefits-grid" style={{ marginTop: '2.5rem' }}>
+              <div className="benefit-card fade-up stagger-1">
+                <div className="b-icon">🤖</div>
+                <h3>AI Content Studio</h3>
+                <p>Generate SEO-optimised blogs, press releases, and social media copy in seconds with our proprietary AI engine — trained on 500+ successful campaigns.</p>
+              </div>
+              <div className="benefit-card fade-up stagger-2">
+                <div className="b-icon">🎯</div>
+                <h3>Predictive Audience Targeting</h3>
+                <p>Our AI analyses demographic, psychographic, and behavioral data to predict which audience segments will convert — before you spend a rupee on ads.</p>
+              </div>
+              <div className="benefit-card fade-up stagger-3">
+                <div className="b-icon">📊</div>
+                <h3>Real-Time Campaign Dashboard</h3>
+                <p>Track every campaign metric in real time with AI-powered insights, anomaly detection, and automated optimization suggestions delivered to your inbox daily.</p>
+              </div>
+              <div className="benefit-card fade-up stagger-1">
+                <div className="b-icon">🔍</div>
+                <h3>AI SEO Auditor</h3>
+                <p>Get instant SEO health scores, competitor backlink analysis, and content gap recommendations — all powered by machine learning models updated weekly.</p>
+              </div>
+              <div className="benefit-card fade-up stagger-2">
+                <div className="b-icon">📰</div>
+                <h3>Smart Media Matchmaker</h3>
+                <p>Our AI automatically matches your brand story with the right journalists and publications — increasing pitch acceptance rates by up to 3x versus traditional outreach.</p>
+              </div>
+              <div className="benefit-card fade-up stagger-3">
+                <div className="b-icon">📈</div>
+                <h3>AI Performance Optimizer</h3>
+                <p>Continuous A/B testing and creative iteration powered by AI — your campaigns improve automatically based on real-time performance data and market trends.</p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* MID-PAGE BANNER */}
-        <section style={{ paddingTop: "0", paddingBottom: "0" }}>
-          <div className="mid-banner fade-up">
-            <h2>
-              Get <span className="gradient-text">Instant Growth Results</span> for Your Business
-            </h2>
-          </div>
-        </section>
-
-        {/* SERVICES OVERVIEW - 7 BLOCKS */}
-        <section>
+        {/* SERVICES OVERVIEW - CAPABILITIES CARD GRID */}
+        <section className="section-bg-white">
           <div className="container">
             <div className="section-label fade-up">Our Capabilities</div>
-            <h2 className="fade-up stagger-1">End-to-End <span className="gradient-text">Digital Services</span></h2>
+            <h2 className="fade-up stagger-1">End-to-End <span className="orange-text">Digital Services</span></h2>
             <p className="fade-up stagger-2" style={{ color: "var(--muted)", maxWidth: "720px", marginTop: "0.75rem" }}>
               From strategic PR to performance marketing, design to development — explore the full range of services we offer to help your brand grow with measurable results.
             </p>
 
-            {/* BLOCK 1 — Press Release */}
-            <div className="svc-block fade-up">
-              <h2><span className="sb-icon">📰</span>Press Release</h2>
-              <p>We have tie-up with leading media houses for exclusive coverage for highly engaging contents to target various segments and assure more visibility through our PR services.</p>
-              <div className="sub-label">Key Benefits</div>
-              <ul className="svc-list">
-                <li>Timeline Graphics</li>
-                <li>Increase Brand Awareness</li>
-                <li>High Engagement</li>
-                <li>Quality Contents</li>
-                <li>Increase Reach</li>
-              </ul>
-              <div className="sub-label">We are partnered with leading media houses for both online/offline news contents and press releases</div>
-              <div className="media-partners">
-                <div className="mp">Times of India</div>
-                <div className="mp">Mid Day</div>
-                <div className="mp">News 18</div>
-                <div className="mp">Hindustan Times</div>
-                <div className="mp">Live Mint</div>
-                <div className="mp">Forbes India</div>
-                <div className="mp">Yahoo News</div>
-                <div className="mp">Daily Hunt</div>
-                <div className="mp">DD News</div>
+            <div className="svc-cap-grid">
+              {/* CARD 1 — Press Release */}
+              <div className="svc-cap-card fade-up stagger-1" style={{ "--card-accent": "#FF5B2E", "--card-accent-bg": "rgba(255,91,46,0.08)" } as React.CSSProperties}>
+                <div className="svc-cap-icon">📰</div>
+                <h3>Press Release</h3>
+                <p className="svc-cap-desc">Exclusive coverage via leading media houses for highly engaging content targeting various segments with assured visibility.</p>
+                <ul className="svc-cap-list">
+                  <li>Timeline Graphics</li>
+                  <li>Brand Awareness</li>
+                  <li>High Engagement</li>
+                  <li>Quality Contents</li>
+                  <li>Increased Reach</li>
+                </ul>
+                <div className="svc-cap-media-label">Media Partners</div>
+                <div className="svc-cap-partners">
+                  <span>Times of India</span>
+                  <span>Mid Day</span>
+                  <span>News 18</span>
+                  <span>Hindustan Times</span>
+                  <span>Live Mint</span>
+                  <span>Forbes India</span>
+                  <span>Yahoo News</span>
+                </div>
               </div>
-            </div>
 
-            {/* BLOCK 2 — Digital Marketing */}
-            <div className="svc-block fade-up">
-              <h2><span className="sb-icon">📈</span>Digital Marketing</h2>
-              <p>Our Digital Marketing is built across three main pillars — focused targets, affordable budget, and high potential returns. We assure strategies with higher conversion rate and more traffic through versatile tools.</p>
-              <div className="sub-label">Tools & Services</div>
-              <ul className="svc-list">
-                <li>Search Engine Optimization (SEO)</li>
-                <li>Search Engine Marketing (SEM)</li>
-                <li>Social Media Optimization (SMO)</li>
-                <li>Pay-Per-Click (PPC)</li>
-                <li>Content Marketing</li>
-              </ul>
-            </div>
+              {/* CARD 2 — Digital Marketing */}
+              <div className="svc-cap-card fade-up stagger-2" style={{ "--card-accent": "#6366F1", "--card-accent-bg": "rgba(99,102,241,0.08)" } as React.CSSProperties}>
+                <div className="svc-cap-icon">📈</div>
+                <h3>Digital Marketing</h3>
+                <p className="svc-cap-desc">Built on focused targets, affordable budgets, and high ROI. Strategies that drive higher conversion rates and more traffic.</p>
+                <ul className="svc-cap-list">
+                  <li>SEO (Search Engine Optimization)</li>
+                  <li>SEM (Search Engine Marketing)</li>
+                  <li>SMO (Social Media Optimization)</li>
+                  <li>Pay-Per-Click (PPC)</li>
+                  <li>Content Marketing</li>
+                </ul>
+                <div className="svc-cap-cta">
+                  <a href="/contact-us/">Learn More →</a>
+                </div>
+              </div>
 
-            {/* BLOCK 3 — Social Media Marketing */}
-            <div className="svc-block fade-up">
-              <h2><span className="sb-icon">💬</span>Social Media Marketing</h2>
-              <p>Through the social media platform, we have been able to drive brands through connecting the right audience. Digisharks Communication has successfully tapped online networks through its wide-ranging strategies. We promote business among top platforms through live streaming, marketing posts, and more.</p>
-              <div className="sub-label">Platforms We Cover</div>
-              <ul className="svc-list">
-                <li>Facebook</li>
-                <li>Twitter (X)</li>
-                <li>YouTube</li>
-                <li>Instagram</li>
-                <li>Pinterest and more</li>
-              </ul>
-            </div>
+              {/* CARD 3 — Social Media Marketing */}
+              <div className="svc-cap-card fade-up stagger-3" style={{ "--card-accent": "#EC4899", "--card-accent-bg": "rgba(236,72,153,0.08)" } as React.CSSProperties}>
+                <div className="svc-cap-icon">💬</div>
+                <h3>Social Media Marketing</h3>
+                <p className="svc-cap-desc">Drive brand engagement across top platforms through live streaming, marketing posts, and strategic content distribution.</p>
+                <ul className="svc-cap-list">
+                  <li>Facebook</li>
+                  <li>Twitter (X)</li>
+                  <li>YouTube</li>
+                  <li>Instagram</li>
+                  <li>Pinterest & more</li>
+                </ul>
+                <div className="svc-cap-cta">
+                  <a href="/contact-us/">Learn More →</a>
+                </div>
+              </div>
 
-            {/* BLOCK 4 — Website Design and Graphics */}
-            <div className="svc-block fade-up">
-              <h2><span className="sb-icon">🎨</span>Website Design and Graphics</h2>
-              <p>Your impression of brands lies on your website. The website represents your brand and is an immediate reflection of it — very much critical to digital marketing. At Digisharks Communication we have dedicated teams to build customised websites with attractive design, layout, and content.</p>
-              <ul className="svc-list">
-                <li>Designing template and visual contents</li>
-                <li>Content writing</li>
-                <li>Custom animations and videos</li>
-                <li>Creating custom interactions and functionality</li>
-              </ul>
-              <div className="sub-label">Graphic Design Services</div>
-              <p style={{ fontStyle: "italic", color: "var(--text)", marginBottom: "1rem", fontSize: ".95rem" }}>
-                Anything to everything — Graphic design is our art of making you stand out with top design and concept.
-              </p>
-              <ul className="svc-list">
-                <li>Logo Design</li>
-                <li>Banners Design</li>
-                <li>Package Design</li>
-                <li>Flyers, Brochure, Newsletter Design</li>
-                <li>Typography, Icons, Business Cards</li>
-              </ul>
-            </div>
+              {/* CARD 4 — Website Design & Graphics */}
+              <div className="svc-cap-card fade-up stagger-4" style={{ "--card-accent": "#0EA5E9", "--card-accent-bg": "rgba(14,165,233,0.08)" } as React.CSSProperties}>
+                <div className="svc-cap-icon">🎨</div>
+                <h3>Website Design &amp; Graphics</h3>
+                <p className="svc-cap-desc">Customised websites with attractive design, layout, and content. From template design to full graphic services.</p>
+                <ul className="svc-cap-list">
+                  <li>Template & Visual Design</li>
+                  <li>Content Writing</li>
+                  <li>Custom Animations & Videos</li>
+                  <li>Logo & Brand Identity</li>
+                  <li>Flyers, Brochures & More</li>
+                </ul>
+                <div className="svc-cap-cta">
+                  <a href="/contact-us/">Learn More →</a>
+                </div>
+              </div>
 
-            {/* BLOCK 5 — Event Management */}
-            <div className="svc-block fade-up">
-              <h2><span className="sb-icon">🎤</span>Event Management</h2>
-              <p>We believe in exceeding business through the most innovative way, to accelerate your business to the next level, we deal in various events including:</p>
-              <ul className="svc-list">
-                <li>Corporate Events</li>
-                <li>Seminars</li>
-                <li>Conferences</li>
-                <li>Tradeshows</li>
-                <li>Workshops</li>
-                <li>Theme Parties</li>
-                <li>Virtual Events</li>
-                <li>Fashion Shows</li>
-                <li>Exhibitions</li>
-              </ul>
-            </div>
+              {/* CARD 5 — Event Management */}
+              <div className="svc-cap-card fade-up stagger-1" style={{ "--card-accent": "#10B981", "--card-accent-bg": "rgba(16,185,129,0.08)" } as React.CSSProperties}>
+                <div className="svc-cap-icon">🎤</div>
+                <h3>Event Management</h3>
+                <p className="svc-cap-desc">Innovative event planning and execution — from corporate events to fashion shows and exhibitions that accelerate business growth.</p>
+                <ul className="svc-cap-list">
+                  <li>Corporate Events & Seminars</li>
+                  <li>Conferences & Tradeshows</li>
+                  <li>Workshops & Theme Parties</li>
+                  <li>Virtual & Hybrid Events</li>
+                  <li>Fashion Shows & Exhibitions</li>
+                </ul>
+                <div className="svc-cap-cta">
+                  <a href="/contact-us/">Learn More →</a>
+                </div>
+              </div>
 
-            {/* BLOCK 6 — Brand Promotion */}
-            <div className="svc-block fade-up">
-              <h2><span className="sb-icon">🚀</span>Brand Promotion</h2>
-              <p>Over the years we had helped many companies with strategic brand promotion. Our brand promotion campaigns along with digital marketing strategies had empowered many clients.</p>
-              <ul className="svc-list">
-                <li>Establishing a brand through online/offline advertisement techniques</li>
-                <li>Sales promotion strategies</li>
-                <li>Media and graphic promotions</li>
-                <li>360-Degree integrated marketing approach</li>
-                <li>Publicity tactics</li>
-                <li>Public events</li>
-                <li>Sales surveys and more</li>
-              </ul>
-            </div>
+              {/* CARD 6 — Brand Promotion */}
+              <div className="svc-cap-card fade-up stagger-2" style={{ "--card-accent": "#F59E0B", "--card-accent-bg": "rgba(245,158,11,0.08)" } as React.CSSProperties}>
+                <div className="svc-cap-icon">🚀</div>
+                <h3>Brand Promotion</h3>
+                <p className="svc-cap-desc">Strategic brand promotion campaigns empowered with digital marketing strategies to establish and amplify your brand presence.</p>
+                <ul className="svc-cap-list">
+                  <li>Online & Offline Advertising</li>
+                  <li>Sales Promotion Strategies</li>
+                  <li>Media & Graphic Promotions</li>
+                  <li>360° Integrated Marketing</li>
+                  <li>Public Events & Surveys</li>
+                </ul>
+                <div className="svc-cap-cta">
+                  <a href="/contact-us/">Learn More →</a>
+                </div>
+              </div>
 
-            {/* BLOCK 7 — Motion Picture Marketing */}
-            <div className="svc-block fade-up">
-              <h2><span className="sb-icon">🎬</span>Motion Picture Marketing</h2>
-              <p>Digisharks Communications has thrived in motion picture marketing with its magnificent competitor-oriented and realistic marketing approach. It shaped many brands through various marketing tools including:</p>
-              <ul className="svc-list">
-                <li>Short films</li>
-                <li>Still Shoots</li>
-                <li>Animated videos</li>
-                <li>Publicity stunts</li>
-                <li>Advertisement campaigns</li>
-                <li>Merchandising</li>
-                <li>Media Interviews</li>
-              </ul>
+              {/* CARD 7 — Motion Picture Marketing */}
+              <div className="svc-cap-card fade-up stagger-3" style={{ "--card-accent": "#8B5CF6", "--card-accent-bg": "rgba(139,92,246,0.08)" } as React.CSSProperties}>
+                <div className="svc-cap-icon">🎬</div>
+                <h3>Motion Picture Marketing</h3>
+                <p className="svc-cap-desc">Thriving in motion picture marketing with competitor-oriented, realistic marketing approaches that shape brands powerfully.</p>
+                <ul className="svc-cap-list">
+                  <li>Short Films & Still Shoots</li>
+                  <li>Animated Videos</li>
+                  <li>Publicity Stunts</li>
+                  <li>Advertisement Campaigns</li>
+                  <li>Merchandising & Media Interviews</li>
+                </ul>
+                <div className="svc-cap-cta">
+                  <a href="/contact-us/">Learn More →</a>
+                </div>
+              </div>
+
+              {/* CARD 8 — Online Reputation Management */}
+              <div className="svc-cap-card fade-up stagger-4" style={{ "--card-accent": "#14B8A6", "--card-accent-bg": "rgba(20,184,166,0.08)" } as React.CSSProperties}>
+                <div className="svc-cap-icon">🛡️</div>
+                <h3>Online Reputation Management</h3>
+                <p className="svc-cap-desc">Protect and enhance your brand's digital footprint with proactive monitoring, strategic response, and positive narrative amplification.</p>
+                <ul className="svc-cap-list">
+                  <li>Brand Mention Monitoring</li>
+                  <li>Review Management</li>
+                  <li>Crisis Communication</li>
+                  <li>Sentiment Analysis</li>
+                  <li>Positive Content Amplification</li>
+                </ul>
+                <div className="svc-cap-cta">
+                  <a href="/contact-us/">Learn More →</a>
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
         {/* CLOSING CTA SECTION */}
-        <section className="final-cta">
+        <section className="final-cta section-bg-warm">
           <div className="cta-box fade-up container">
-            <h2>Would You Like to <span className="gradient-text">Start?</span></h2>
+            <h2>Would You Like to <span className="orange-text">Start?</span></h2>
             <p>
               Digisharks Communications is known for its high-quality brand promotions. Representing your brand communicates with the world. Our demographic approach is used by Digisharks Communications to help you understand the characteristics of the people who buy your products and services. By leads, you can see who buys your products and services — also you can see who your brand appeals to the most by age, location, gender, job title, income, and hundreds of other variables. With the right PR agency by your side, growth becomes measurable and consistent.
             </p>
@@ -354,61 +421,13 @@ export default function ServicesPricingPage() {
           </div>
         </section>
 
-        {/* FEATURED CLIENTS */}
-        <section style={{ paddingTop: "2rem" }}>
-          <div className="container">
-            <div className="section-label fade-up" style={{ justifyContent: "center", display: "flex" }}>Our Featured Clients</div>
-            <h2 className="fade-up stagger-1" style={{ textAlign: "center" }}>Brands That <span className="gradient-text">Trust Us</span></h2>
-            <div className="clients-row">
-              <div className="client-tile fade-up stagger-1">Fitlivs</div>
-              <div className="client-tile fade-up stagger-2">PTC Punjab Network</div>
-              <div className="client-tile fade-up stagger-3">Ascleplus</div>
-              <div className="client-tile fade-up stagger-4">Shivanshi Tarot Card Reader</div>
-              <div className="client-tile fade-up stagger-5">Patanjali</div>
-            </div>
-            <div className="social-icons" style={{ justifyContent: "center", marginTop: "2rem" }}>
-              <a href="https://www.facebook.com/digisharks" target="_blank" rel="noopener noreferrer" className="social-icon" aria-label="Facebook">f</a>
-              <a href="https://www.linkedin.com/company/digisharks" target="_blank" rel="noopener noreferrer" className="social-icon" aria-label="LinkedIn">in</a>
-              <a href="https://www.instagram.com/digisharks" target="_blank" rel="noopener noreferrer" className="social-icon" aria-label="Instagram">◉</a>
-            </div>
-          </div>
-        </section>
 
-        {/* PAYMENT WIDGET SECTION */}
-        <section>
-          <div className="container">
-            <div className="payment-widget fade-up">
-              <h2>Let&apos;s Complete Your <span className="gradient-text">Payment</span></h2>
-              <p className="pw-note">Fields marked with * are required.</p>
-              <form className="pw-form" action="/contact-us/" method="get">
-                <div className="field">
-                  <label htmlFor="pay-name">Name *</label>
-                  <input type="text" id="pay-name" name="name" placeholder="Your full name" required />
-                </div>
-                <div className="field">
-                  <label htmlFor="pay-phone">Phone *</label>
-                  <input type="tel" id="pay-phone" name="phone" placeholder="+91 99999 99999" required />
-                </div>
-                <div className="field full">
-                  <label htmlFor="pay-email">Email *</label>
-                  <input type="email" id="pay-email" name="email" placeholder="you@company.com" required />
-                </div>
-                <div className="field full">
-                  <label htmlFor="pay-amount">Amount</label>
-                  <input type="text" id="pay-amount" name="amount" placeholder="INR Rs" />
-                </div>
-              </form>
-              <div className="pw-cta">
-                <a href="/contact-us/" className="btn-primary">Proceed to Payment →</a>
-              </div>
-            </div>
-          </div>
-        </section>
+
+
 
         <Footer />
       </div>
 
-      <FloatingContact />
     </>
   );
 }

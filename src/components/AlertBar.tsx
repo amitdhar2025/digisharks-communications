@@ -49,11 +49,11 @@ export default function AlertBar() {
         <div className="alert-nav-links" aria-label="Navigation links">
           <a className="alert-nav-link" href="/about-us">About Us</a>
           <span className="alert-pipe" aria-hidden="true">|</span>
-          <a className="alert-nav-link" href="/contact-us">Contact</a>
+          <a className="alert-nav-link" href="https://theindianalert.com" target="_blank" rel="noopener noreferrer">TIA</a>
           <span className="alert-pipe" aria-hidden="true">|</span>
-          <a className="alert-nav-link" href="#">Career</a>
+          <a className="alert-nav-link" href="/career">Career</a>
           <span className="alert-pipe" aria-hidden="true">|</span>
-          <a className="alert-nav-link" href="#">Blog</a>
+          <a className="alert-nav-link" href="/news">News</a>
         </div>
 
         <a href="tel:+919627332332" className="alert-phone" aria-label="Phone">

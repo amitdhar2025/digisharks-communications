@@ -39,6 +39,9 @@ export default function AdminStoreShell({ children }: { children: React.ReactNod
         <Link className="nav-item active" href="/admin/store">
           🛒 Digital Products Sales
         </Link>
+        <Link className="nav-item" href="/admin/blog">
+          📝 Blog
+        </Link>
         <Link className="nav-item" href="/contact-us" target="_blank" rel="noreferrer">
           🌐 View Site
         </Link>

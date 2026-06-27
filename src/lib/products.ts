@@ -122,16 +122,24 @@ export async function getOrdersCollection() {
  * Idempotent seed: if there are no products in the DB, insert the
  * launch product. Safe to call on every page render.
  */
+/** Once seeded successfully, skip the DB count check on subsequent calls */
+let _seeded = false
+
 export async function ensureProductsSeeded(): Promise<void> {
+  if (_seeded) return
   try {
     const products = await getProductsCollection()
     const count = await products.estimatedDocumentCount()
-    if (count > 0) return
+    if (count > 0) {
+      _seeded = true
+      return
+    }
 
     await products.insertOne({
       ...SEED_PRODUCT,
       createdAt: new Date(),
     } as Product)
+    _seeded = true
   } catch (err) {
     // DB unreachable — callers will fall back to the static seed product.
     console.warn('[products] ensureProductsSeeded skipped (DB unavailable):', (err as Error)?.message)

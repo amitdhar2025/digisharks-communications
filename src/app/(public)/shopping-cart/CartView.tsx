@@ -73,7 +73,7 @@ export default function CartView() {
                   <Link href={productHref} className="sc-thumb-link" aria-label={it.title}>
                     {it.image ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={it.image} alt={it.title} className="sc-thumb" />
+                      <img src={it.image} alt={it.title} loading="lazy" className="sc-thumb" />
                     ) : (
                       <span className="sc-thumb sc-thumb-empty" aria-hidden="true" />
                     )}

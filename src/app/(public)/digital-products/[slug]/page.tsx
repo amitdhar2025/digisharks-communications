@@ -237,6 +237,7 @@ export default function PanIndiaProductPage() {
               <img
                 src={product.images[activeImg]}
                 alt={product.title}
+                loading="lazy"
                 onError={handleImgError}
                 onClick={openZoom}
               />
@@ -256,7 +257,7 @@ export default function PanIndiaProductPage() {
                   aria-label={`View image ${i + 1}`}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={src} alt="" onError={handleImgError} />
+                  <img src={src} alt="" loading="lazy" onError={handleImgError} />
                 </button>
               ))}
             </div>
@@ -409,7 +410,7 @@ export default function PanIndiaProductPage() {
               {product.testimonials.map((t) => (
                 <div className="testimonial-card" key={t.name}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={t.avatar} alt={t.name} className="testimonial-avatar" />
+                  <img src={t.avatar} alt={t.name} loading="lazy" className="testimonial-avatar" />
                   <div>
                     <div className="testimonial-stars" aria-label={`${t.stars} stars`}>
                       {'★'.repeat(t.stars)}
@@ -444,7 +445,7 @@ export default function PanIndiaProductPage() {
       {/* ===================== SECURE PAYMENT ===================== */}
       <div className="footer-image">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={product.securePaymentImg} alt="100% Secure Payment by Razorpay" />
+        <img src={product.securePaymentImg} alt="100% Secure Payment by Razorpay" loading="lazy" />
       </div>
 
       {/* ===================== ZOOM LIGHTBOX ===================== */}
@@ -466,10 +467,10 @@ export default function PanIndiaProductPage() {
           </button>
 
           <div className="pi-lightbox-stage" onClick={(e) => e.stopPropagation()}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            {/* eslint-disable-next-line @next/next/no-img-element */}              <img
               src={product.images[activeImg]}
               alt={product.title}
+              loading="lazy"
               onError={handleImgError}
               className={zoomedIn ? 'zoomed' : ''}
               style={zoomedIn ? { transformOrigin: `${origin.x}% ${origin.y}%` } : undefined}
@@ -499,7 +500,7 @@ export default function PanIndiaProductPage() {
                   aria-label={`View image ${i + 1}`}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={src} alt="" onError={handleImgError} />
+                  <img src={src} alt="" loading="lazy" onError={handleImgError} />
                 </button>
               ))}
             </div>
@@ -539,7 +540,7 @@ export default function PanIndiaProductPage() {
           top: 12px;
           left: 12px;
           z-index: 2;
-          background: #82851f;
+          background: #4F46E5;
           color: #fff;
           font-size: 0.85rem;
           font-weight: 600;
@@ -605,7 +606,7 @@ export default function PanIndiaProductPage() {
           overflow: hidden;
         }
         .pi-product-page .thumbs button.active {
-          border-color: #2db5d8;
+          border-color: #4F46E5;
         }
         .pi-product-page .thumbs img {
           width: 100%;
@@ -700,13 +701,13 @@ export default function PanIndiaProductPage() {
           width: 38px;
           height: 44px;
           border: none;
-          background: #8a5cf6;
+          background: #4F46E5;
           font-size: 1.2rem;
           cursor: pointer;
           color: #fff;
         }
         .pi-product-page .qty button:hover {
-          background: #7c4ef0;
+          background: #312E81;
         }
         .pi-product-page .qty input {
           width: 48px;
@@ -727,7 +728,7 @@ export default function PanIndiaProductPage() {
         }
         .pi-product-page .add-to-cart {
           flex: 0 0 auto;
-          background: #8a5cf6;
+          background: #4F46E5;
           color: #fff;
           font-weight: 600;
           font-size: 0.95rem;
@@ -742,7 +743,7 @@ export default function PanIndiaProductPage() {
           transition: background 0.15s ease;
         }
         .pi-product-page .add-to-cart:hover {
-          background: #7c4ef0;
+          background: #312E81;
           color: #fff;
         }
 
@@ -821,8 +822,8 @@ export default function PanIndiaProductPage() {
         }
 
         .pi-product-page .sale-banner {
-          background: #81d4fa;
-          color: #003b63;
+          background: rgba(79,70,229, 0.1);
+          color: #312E81;
           padding: 10px;
           text-align: center;
           font-size: 20px;
@@ -835,7 +836,7 @@ export default function PanIndiaProductPage() {
           margin-top: 20px;
         }
         .pi-product-page .download-btn {
-          background: #e53935;
+          background: #4F46E5;
           color: #fff;
           font-size: 20px;
           font-weight: bold;
@@ -850,7 +851,7 @@ export default function PanIndiaProductPage() {
           transition: background 0.15s ease, transform 0.15s ease;
         }
         .pi-product-page .download-btn:hover {
-          background: #c62828;
+          background: #312E81;
           color: #fff;
           transform: translateY(-1px);
         }

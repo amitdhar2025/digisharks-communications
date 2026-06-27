@@ -224,8 +224,37 @@ export default function DashboardPage() {
         <a className="nav-item" href="/admin/store">
           🛒 Digital Products Sales
         </a>
-        <a className="nav-item" href="/contact-us" target="_blank" rel="noreferrer">
-          🌐 View Site
+        <a className="nav-item" href="/admin/blog">
+          📝 Blog
+        </a>
+        <a className="nav-item" href="/admin/rss">
+          📡 RSS Feeds
+        </a>
+        <a className="nav-item" href="/admin/career">
+          💼 Career
+        </a>
+        <div className="nav-section">🤖 Chatbot</div>
+        <a className="nav-item" href="/admin/chatbot">
+          📊 Dashboard
+        </a>
+        <a className="nav-item" href="/admin/chatbot/qna">
+          💬 Q&A Manager
+        </a>
+        <a className="nav-item" href="/admin/chatbot/upload">
+          📤 Upload
+        </a>
+        <a className="nav-item" href="/admin/chatbot/settings">
+          ⚙ Settings
+        </a>
+        <div className="nav-section">🔍 SEO</div>
+        <a className="nav-item" href="/admin/seo-audit">
+          📊 Audit Dashboard
+        </a>
+        <a className="nav-item" href="/admin/seo-audit/settings">
+          ⚙ Audit Settings
+        </a>
+        <a className="nav-item" href="/" target="_blank" rel="noreferrer">
+          🏠 Home
         </a>
         <div className="nav-section">Account</div>
         <div style={{ padding: '8px 12px', fontSize: 13, color: '#94a3b8' }}>

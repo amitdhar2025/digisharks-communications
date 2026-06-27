@@ -35,3 +35,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .env*
+
+# OS / Windows junk files
+nul
+Thumbs.db
+desktop.ini
+*.lnk
+*.tmp

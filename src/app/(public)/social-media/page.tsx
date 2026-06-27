@@ -2,7 +2,6 @@ export const dynamic = "force-dynamic";
 
 import type { Metadata } from "next";
 import Footer from "../../../components/Footer";
-import FloatingContact from "../../../components/FloatingContact";
 
 const siteUrl = "https://digisharks-communications.vercel.app/social-media/";
 
@@ -27,7 +26,7 @@ export default function SocialMediaPage() {
           <div className="hero-inner">
             <div className="hero-eyebrow fade-up">✦ Get Instant Growth Results for Your Business</div>
             <h1 className="fade-up stagger-1">
-              Social Media Marketing <span className="gradient-text">That Scales Brands</span>
+              Social Media Marketing <span className="orange-text">That Scales Brands</span>
             </h1>
             <p className="fade-up stagger-2">
               Our Social Media Experts build engaged communities, scroll-stopping content, and performance-driven campaigns that turn followers into customers — across every platform that matters.
@@ -40,10 +39,10 @@ export default function SocialMediaPage() {
         </section>
 
         {/* WHAT WE DO */}
-        <section id="services">
+        <section id="services" className="section-bg-white">
           <div className="container">
             <div className="section-label fade-up">What We Do For Your Business</div>
-            <h2 className="fade-up stagger-1">Full-Funnel <span className="gradient-text">Social Media Management</span></h2>
+            <h2 className="fade-up stagger-1">Full-Funnel <span className="orange-text">Social Media Management</span></h2>
             <p className="fade-up stagger-2" style={{ color: "var(--muted)", maxWidth: "720px", marginTop: "0.75rem" }}>
               From strategy to execution, we handle everything that goes into making your brand win on social media.
             </p>
@@ -101,7 +100,7 @@ export default function SocialMediaPage() {
         <section className="pr-media">
           <div className="container">
             <div className="section-label fade-up">Social Media Marketing Solutions</div>
-            <h2 className="fade-up stagger-1">Outcomes That <span className="gradient-text">Drive Real Growth</span></h2>
+            <h2 className="fade-up stagger-1">Outcomes That <span className="orange-text">Drive Real Growth</span></h2>
             <div className="benefits-grid">
               <div className="benefit-card fade-up stagger-1">
                 <div className="b-icon">🏗️</div>
@@ -123,15 +122,25 @@ export default function SocialMediaPage() {
                 <h3>Performance Optimization</h3>
                 <p>Constantly test, learn, and improve every part of your social funnel.</p>
               </div>
+              <div className="benefit-card fade-up stagger-2">
+                <div className="b-icon">🎯</div>
+                <h3>Influencer Marketing</h3>
+                <p>Collaborate with key voices to extend your brand&apos;s reach and build authentic connections.</p>
+              </div>
+              <div className="benefit-card fade-up stagger-3">
+                <div className="b-icon">📱</div>
+                <h3>Social Commerce</h3>
+                <p>Enable seamless shopping experiences directly within social media platforms.</p>
+              </div>
             </div>
           </div>
         </section>
 
         {/* SOCIAL ADVERTISING */}
-        <section>
+        <section className="section-bg-white">
           <div className="container">
             <div className="section-label fade-up">Social Advertising Services</div>
-            <h2 className="fade-up stagger-1">Paid Social That <span className="gradient-text">Performs</span></h2>
+            <h2 className="fade-up stagger-1">Paid Social That <span className="orange-text">Performs</span></h2>
             <p className="fade-up stagger-2" style={{ color: "var(--muted)", maxWidth: "720px", marginTop: "0.75rem" }}>
               Strategic paid campaigns across Meta, LinkedIn, YouTube, Twitter (X), and TikTok — with targeting, creative, and budgets tuned to your goals.
             </p>
@@ -161,6 +170,11 @@ export default function SocialMediaPage() {
                 <h4>Faster Growth & Measurable ROI</h4>
                 <p>Track every rupee, every click, and every conversion in real time.</p>
               </div>
+              <div className="reason-card fade-up stagger-1">
+                <div className="b-icon" style={{ margin: "0 auto 0.85rem" }}>🤖</div>
+                <h4>AI-Powered Optimization</h4>
+                <p>Machine learning algorithms that continuously improve your ad performance.</p>
+              </div>
             </div>
           </div>
         </section>
@@ -169,7 +183,7 @@ export default function SocialMediaPage() {
         <section className="pr-media">
           <div className="container">
             <div className="section-label fade-up">Global Insights</div>
-            <h2 className="fade-up stagger-1">Social Media Marketing <span className="gradient-text">Across the Globe</span></h2>
+            <h2 className="fade-up stagger-1">Social Media Marketing <span className="orange-text">Across the Globe</span></h2>
             <p className="fade-up stagger-2" style={{ color: "var(--muted)", maxWidth: "720px", marginTop: "0.75rem" }}>
               Our social media marketing services reach audiences across key global markets — combining cultural insight with platform expertise.
             </p>
@@ -188,10 +202,10 @@ export default function SocialMediaPage() {
         </section>
 
         {/* WHY INVEST */}
-        <section>
+        <section className="section-bg-white">
           <div className="container">
             <div className="section-label fade-up">Why Invest</div>
-            <h2 className="fade-up stagger-1">Why Businesses Invest in <span className="gradient-text">Social Media Marketing</span></h2>
+            <h2 className="fade-up stagger-1">Why Businesses Invest in <span className="orange-text">Social Media Marketing</span></h2>
             <p className="fade-up stagger-2" style={{ color: "var(--muted)", maxWidth: "720px", marginTop: "0.75rem" }}>
               Social media is no longer optional — it's where your customers live, work, and make buying decisions. Every segment of your business benefits from a strong social presence.
             </p>
@@ -216,6 +230,16 @@ export default function SocialMediaPage() {
                 <h3>Marketing Professionals</h3>
                 <p>Stay ahead of trends, run multi-channel campaigns, and prove ROI with detailed analytics.</p>
               </div>
+              <div className="benefit-card fade-up stagger-2">
+                <div className="b-icon">🎓</div>
+                <h3>Startups & Scaleups</h3>
+                <p>Build traction and brand awareness with cost-effective social strategies designed for fast growth.</p>
+              </div>
+              <div className="benefit-card fade-up stagger-3">
+                <div className="b-icon">🏪</div>
+                <h3>Local Businesses</h3>
+                <p>Dominate your local market with hyper-targeted social campaigns and community engagement.</p>
+              </div>
             </div>
           </div>
         </section>
@@ -224,7 +248,7 @@ export default function SocialMediaPage() {
         <section className="pr-media">
           <div className="container">
             <div className="section-label fade-up">Benefits of Social Media Marketing</div>
-            <h2 className="fade-up stagger-1">Why <span className="gradient-text">Social Media Marketing</span> Works</h2>
+            <h2 className="fade-up stagger-1">Why <span className="orange-text">Social Media Marketing</span> Works</h2>
             <div className="benefits-grid">
               <div className="benefit-card fade-up stagger-1">
                 <div className="b-icon">🌟</div>
@@ -276,9 +300,9 @@ export default function SocialMediaPage() {
         </section>
 
         {/* CTA */}
-        <section className="final-cta">
+        <section className="final-cta section-bg-white">
           <div className="cta-box fade-up container">
-            <h2>Start Your <span className="gradient-text">Growth Journey</span></h2>
+            <h2>Start Your <span className="orange-text">Growth Journey</span></h2>
             <p>
               Our demographic analysis approach is used by Digisharks Communications to help you understand the characteristics of the people who buy your products and services. We map your audience by age, location, gender, job title, income, interests, and behaviors — so every social campaign hits the right people with the right message.
             </p>
@@ -292,7 +316,6 @@ export default function SocialMediaPage() {
         <Footer />
       </div>
 
-      <FloatingContact />
     </>
   );
 }

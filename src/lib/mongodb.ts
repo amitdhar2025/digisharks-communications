@@ -17,9 +17,9 @@ const options: MongoClientOptions = {
   // store. The connection is STILL encrypted end-to-end — only
   // certificate validation is relaxed.
   tlsAllowInvalidCertificates: true,
-  serverSelectionTimeoutMS: 15000,
-  connectTimeoutMS: 15000,
-  socketTimeoutMS: 45000,
+  serverSelectionTimeoutMS: 5000,
+  connectTimeoutMS: 5000,
+  socketTimeoutMS: 15000,
   retryWrites: true,
 }
 

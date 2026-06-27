@@ -13,8 +13,6 @@ function AdminLoginForm() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const nextUrl = search.get('next') || '/admin/dashboard'
-
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setError(null)
@@ -25,13 +23,49 @@ function AdminLoginForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
       })
-      const data = await res.json()
-      if (!res.ok) {
-        setError(data.error || 'Login failed')
+
+      // Safely parse the response. The server *should* always reply with
+      // JSON, but in some edge cases (Vercel 502/HTML error pages, network
+      // proxy interference, etc.) the body can be empty or non-JSON, and
+      // a raw `res.json()` call would throw "JSON.parse: unexpected
+      // character at line 1 column 1 of the JSON data" — which is exactly
+      // what users were seeing in production.
+      let data: any = null
+      try {
+        const text = await res.text()
+        data = text ? JSON.parse(text) : null
+      } catch {
+        setError(
+          `Login failed: the server returned a non-JSON response (HTTP ${res.status}). ` +
+            `Please try again in a moment.`
+        )
         setLoading(false)
         return
       }
-      router.push(nextUrl)
+
+      if (!res.ok) {
+        setError(data?.error || `Login failed (HTTP ${res.status}). Please try again.`)
+        setLoading(false)
+        return
+      }
+
+      // Honor ?next= first, then fall back to ?redirect= (the middleware
+      // currently uses `redirect`, the login page historically used `next`;
+      // accepting both keeps both code paths working).
+      const rawNext =
+        (typeof search.get('next') === 'string' && search.get('next')) ||
+        (typeof search.get('redirect') === 'string' && search.get('redirect')) ||
+        '/admin/dashboard'
+
+      // Only allow internal redirects to prevent open-redirect abuse.
+      const safeNext =
+        typeof rawNext === 'string' &&
+        rawNext.startsWith('/') &&
+        !rawNext.startsWith('//')
+          ? rawNext
+          : '/admin/dashboard'
+
+      router.push(safeNext)
       router.refresh()
     } catch (err) {
       setError('Network error. Please try again.')

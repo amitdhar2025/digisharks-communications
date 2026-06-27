@@ -1,21 +1,37 @@
 import type { Metadata } from "next";
-import { DM_Sans, Syne } from "next/font/google";
+import Script from "next/script";
+import { Plus_Jakarta_Sans, Inter } from "next/font/google";
+// ORDER: theme.css first (source of truth), then globals.css (Tailwind + resets),
+// then page-specific CSS.
+import "./theme.css";
 import "./globals.css";
 import "./home.css";
+import "./multi-color.css";
+import "./services.css";
+import "./home-overrides.css";
+// Imported LAST so the standardized stat pattern has the highest priority.
+import "./stat-pattern.css";
+// Homepage redesign — overrides old section styles with orange/navy theme.
+import "./home-redesign.css";
+
 import AlertBar from "../components/AlertBar";
 import Navigation from "../components/Navigation";
 import ClientScripts from "./ClientScripts";
+import ChatWidget from "../components/ChatWidget";
 
-const dmSans = DM_Sans({
+// Body copy -> Inter (400 regular / 600 buttons)
+const inter = Inter({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-dm-sans",
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-inter",
   display: "swap",
 });
-const syne = Syne({
+
+// Headings / nav / brand / stat numbers -> Plus Jakarta Sans (bold 700-800)
+const plusJakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  weight: ["400", "600", "700", "800"],
-  variable: "--font-syne",
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-jakarta",
   display: "swap",
 });
 
@@ -53,19 +69,22 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <script
+      </head>
+      <body
+        suppressHydrationWarning
+        className={`${inter.variable} ${plusJakarta.variable} antialiased`}
+      >
+        <Script
+          id="js-ready-check"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `if (!document.documentElement.classList.contains("js-ready")) document.documentElement.classList.add("js-ready");`,
           }}
         />
-      </head>
-      <body
-        suppressHydrationWarning
-className={`${dmSans.variable} ${syne.variable} antialiased`}
-      >
         <AlertBar />
         <Navigation />
         {children}
+        <ChatWidget />
         <ClientScripts />
       </body>
     </html>

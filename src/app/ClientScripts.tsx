@@ -21,7 +21,7 @@ export default function ClientScripts() {
   // NOTE: Hamburger toggle removed from here.
   // It is now handled entirely by React state inside Navigation.tsx.
 
-  // Fade-up on scroll (intersection observer)
+  // Fade-up on scroll (intersection observer) — with staggered children
   useEffect(() => {
     const reveal = (el: Element) => el.classList.add("visible");
 
@@ -29,12 +29,19 @@ export default function ClientScripts() {
       (entries) => {
         entries.forEach((e) => {
           if (e.isIntersecting) {
+            // Reveal the parent
             reveal(e.target);
+            // Also reveal any stagger children inside
+            const children = e.target.querySelectorAll<HTMLElement>("[data-stagger]");
+            children.forEach((child, i) => {
+              const delay = parseInt(child.dataset.stagger || "0") * 80;
+              setTimeout(() => child.classList.add("visible"), delay);
+            });
             io.unobserve(e.target);
           }
         });
       },
-      { threshold: 0.12 }
+      { threshold: 0.1 }
     );
 
     const observeAll = () => {
@@ -68,13 +75,56 @@ export default function ClientScripts() {
     };
   }, [pathname]);
 
+  // Progress bar fill animation on scroll
+  useEffect(() => {
+    const fillBars = () => {
+      const bars = document.querySelectorAll<HTMLElement>(".progress-fill[data-width]");
+      const progObs = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (!e.isIntersecting) return;
+            const bar = e.target as HTMLElement;
+            const targetWidth = bar.dataset.width || "0%";
+            if (bar.dataset.animated === "true") return;
+            bar.dataset.animated = "true";
+            // Start from 0 and animate to target
+            bar.style.width = "0%";
+            requestAnimationFrame(() => {
+              bar.style.transition = "width 1.2s cubic-bezier(0.4, 0, 0.2, 1)";
+              bar.style.width = targetWidth;
+            });
+            progObs.unobserve(bar);
+          });
+        },
+        { threshold: 0.2 }
+      );
+      bars.forEach((bar) => progObs.observe(bar));
+      return progObs;
+    };
+
+    const obs = fillBars();
+    const mo = new MutationObserver(() => {
+      obs.disconnect();
+      const newObs = fillBars();
+      // Store for cleanup
+      (window as unknown as { __progObs?: IntersectionObserver }).__progObs = newObs;
+    });
+    mo.observe(document.body, { childList: true, subtree: true });
+    (window as unknown as { __progObs?: IntersectionObserver }).__progObs = obs;
+
+    return () => {
+      obs.disconnect();
+      mo.disconnect();
+    };
+  }, [pathname]);
+
   // Count-up animation
   useEffect(() => {
     const countEls = document.querySelectorAll<HTMLElement>("[data-target]");
 
     const runToFinalValue = (el: HTMLElement) => {
       const target = Number(el.dataset.target);
-      const suffix = el.dataset.suffix || "+";
+      const suffix = el.dataset.suffix || "";
       if (!Number.isFinite(target)) return;
       if (el.dataset.animated === "true") return;
       el.textContent = String(Math.round(target)) + suffix;
@@ -105,7 +155,7 @@ export default function ClientScripts() {
           if (!e.isIntersecting) return;
           const el = e.target as HTMLElement;
           const target = Number(el.dataset.target);
-          const suffix = el.dataset.suffix || "+";
+          const suffix = el.dataset.suffix || "";
           if (!Number.isFinite(target)) return;
           if (el.dataset.animated === "true") return;
           el.dataset.animated = "true";

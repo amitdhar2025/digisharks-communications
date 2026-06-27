@@ -26,7 +26,7 @@ const COMPANY = {
   name: 'Digisharks Communications',
   tagline: 'Premium Digital Data Solutions',
   address: 'B-2, C-87, C Block, Sector 63, Noida, Uttar Pradesh 201301',
-  email: 'info@digisharkscommunications.com',
+  email: 'marketing@digisharkscommunications.com',
   supportEmail: 'marketing@digisharkscommunications.com',
   phone: '+91 96273 32332',
   website: 'www.digisharkscommunications.com',

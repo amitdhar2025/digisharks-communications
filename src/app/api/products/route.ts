@@ -14,11 +14,15 @@ export async function GET(req: NextRequest) {
       if (!product) {
         return NextResponse.json({ error: 'Product not found' }, { status: 404 })
       }
-      return NextResponse.json(product, { status: 200 })
+      const res = NextResponse.json(product, { status: 200 })
+      res.headers.set('Cache-Control', 'public, max-age=60, s-maxage=120, stale-while-revalidate=30')
+      return res
     }
 
     const products = await listActiveProducts()
-    return NextResponse.json(products, { status: 200 })
+    const res = NextResponse.json(products, { status: 200 })
+    res.headers.set('Cache-Control', 'public, max-age=60, s-maxage=120, stale-while-revalidate=30')
+    return res
   } catch (err: any) {
     return NextResponse.json(
       { error: 'Failed to load products', detail: err?.message },

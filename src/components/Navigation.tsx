@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export type NavKey =
   | "home"
@@ -17,6 +17,7 @@ export type NavKey =
   | "registrations"
   | "contact"
   | "digital-products"
+  | "career"
   | "none";
 
 interface NavigationProps {
@@ -50,6 +51,8 @@ export default function Navigation({ active = "none" }: NavigationProps) {
   const [socialOpen, setSocialOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLLIElement>(null);
   const pathname = usePathname() || "/";
 
   // Derive active state automatically from the current URL, but allow the
@@ -60,6 +63,7 @@ export default function Navigation({ active = "none" }: NavigationProps) {
     if (pathname.startsWith("/services-top-pr-digital-marketing")) return "services";
     if (pathname.startsWith("/contact-us")) return "contact";
     if (pathname.startsWith("/digital-products")) return "digital-products";
+    if (pathname.startsWith("/career")) return "career";
     for (const l of servicesLinks) {
       if (pathname.startsWith(l.match)) return l.key;
     }
@@ -83,10 +87,21 @@ export default function Navigation({ active = "none" }: NavigationProps) {
     setSocialOpen(false);
   }, [pathname]);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
   // Close social panel when window is resized back to desktop
   useEffect(() => {
     const onResize = () => {
-      if (window.innerWidth > 900) {
+      if (window.innerWidth > 1024) {
         setSocialOpen(false);
         setMobileOpen(false);
       }
@@ -100,7 +115,7 @@ export default function Navigation({ active = "none" }: NavigationProps) {
       <nav id="navbar">
         <Link href="/" className="nav-logo" aria-label="DigiSharks Home">
           <Image
-            src="/dark.png"
+            src="/darks.png"
             alt="DigiSharks Logo"
             width={256}
             height={171}
@@ -111,7 +126,6 @@ export default function Navigation({ active = "none" }: NavigationProps) {
               maxHeight: "60px",
               objectFit: "contain",
               display: "block",
-              filter: "drop-shadow(0 0 10px rgba(0,229,255,.25)) brightness(1.15)",
             }}
           />
         </Link>
@@ -123,7 +137,12 @@ export default function Navigation({ active = "none" }: NavigationProps) {
           <li>
             <Link href="/about-us" className={effective === "about" ? "active" : ""}>About Us</Link>
           </li>
-          <li className="has-dropdown">
+          <li
+            ref={dropdownRef}
+            className={"has-dropdown" + (showDropdown ? " dropdown-open" : "")}
+            onMouseEnter={() => setShowDropdown(true)}
+            onMouseLeave={() => setShowDropdown(false)}
+          >
             <Link
               href="/services-top-pr-digital-marketing/"
               className={isServicesActive ? "active" : ""}
@@ -138,6 +157,7 @@ export default function Navigation({ active = "none" }: NavigationProps) {
                   href={l.href}
                   className={effective === l.key ? "active" : ""}
                   role="menuitem"
+                  onClick={() => setShowDropdown(false)}
                 >
                   {l.label}
                 </Link>
@@ -145,17 +165,16 @@ export default function Navigation({ active = "none" }: NavigationProps) {
             </div>
           </li>
           <li>
-            <Link href="/about-us#portfolio">Portfolio</Link>
+            <Link href="/portfolio">Portfolio</Link>
           </li>
           <li>
-            <Link href="#blog">Blog</Link>
+            <Link href="/blog">Blog</Link>
           </li>
           <li>
             <Link href="/contact-us" className={effective === "contact" ? "active" : ""}>Contact</Link>
           </li>
           <li>
-            <Link
-              href="/digital-products/"
+            <Link href="/digital-products/"
               className={effective === "digital-products" ? "active" : ""}
             >
               Digital Products
@@ -244,9 +263,10 @@ export default function Navigation({ active = "none" }: NavigationProps) {
           ))}
         </div>
 
-        <Link href="/about-us#portfolio">Portfolio</Link>
-        <Link href="#blog">Blog</Link>
+        <Link href="/portfolio">Portfolio</Link>
+        <Link href="/blog">Blog</Link>
         <Link href="/contact-us" className={effective === "contact" ? "active" : ""}>Contact</Link>
+        <Link href="/career" className={effective === "career" ? "active" : ""}>Career</Link>
         <Link
           href="/digital-products/"
           className={effective === "digital-products" ? "active" : ""}

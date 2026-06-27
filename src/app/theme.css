@@ -1,0 +1,305 @@
+/* =========================================================================
+   DIGISHARKS THEME TOKENS — single source of truth
+
+   All visual design properties are defined here. Every other CSS file
+   should reference these variables — never hardcoded values.
+
+   COLOR SYSTEM (approved):
+     Primary Navy:    #0F1628 — headings, nav text, footer text, dark
+                      CTA section backgrounds
+     Action Orange:   #FF5B2E — ALL primary buttons, links on hover,
+                      active states, progress bars, key stat highlights
+     Accent Indigo:   #6366F1 — AI badge tag only (small "AI" pill),
+                      capped at ~5% of visible elements
+     Amber/stat green #16A34A — used sparingly for growth indicators
+
+   FONTS:
+     Headings: Sora (600-800)
+     Body:     Inter (400-500)
+     Numbers:  JetBrains Mono (tabular)
+
+   NAMING CONVENTION
+     --color-*       background/text/border colors
+     --solid colors  (all gradients removed)
+     --shadow-*      box-shadow presets
+     --radius-*      border-radius presets
+     --font-*        font-family stacks
+     --type-*        typography scale tokens
+     --space-*       spacing tokens (8px-based)
+     --anim-*        animation duration/easing tokens
+   ========================================================================= */
+
+:root {
+  /* ===================================================================
+     COLOR TOKENS (canonical names)
+     =================================================================== */
+
+  /* Backgrounds */
+  --color-bg: #F8F9FB;           /* light gray page background (was #FAFAFA) */
+  --color-surface: #FFFFFF;      /* card / panel surface bg */
+  --color-surface-alt: #F1F3F7;  /* light neutral surface (hover / accent panels) */
+
+  /* Primary colors */
+  --color-navy: #0F1628;         /* DARK NAVY — headings, nav, footer text, dark sections (was #0F1628) */
+  --color-navy-light: #1A2236;   /* lighter navy for hover/active states */
+
+  /* Action Orange — primary CTA color */
+  --color-orange: #FF5B2E;       /* ACTION ORANGE — primary buttons, links on hover, active states (was #FF5B2E) */
+  --color-orange-soft: #FF7A5C;  /* softer orange for hover rings / lighter accents */
+  --color-orange-dark: #E04A1F;  /* darker orange for active/depth */
+
+  /* Body text — neutral gray for paragraphs */
+  --color-body: #4A5568;         /* BODY TEXT — used for paragraph copy */
+
+  /* Stat green — retained for occasional growth indicators */
+  --color-stat-green: #16A34A;
+
+  /* Card border — light gray */
+  --color-card-border: #E5E7EB;
+
+  /* Accent Indigo — AI badges only (capped at ~5%) */
+  --color-indigo: #6366F1;       /* ACCENT INDIGO — AI tag badges only */
+  --color-indigo-soft: #818CF8;  /* softer indigo for AI badge borders */
+
+  /* Support colors */
+  --color-amber: #F59E0B;        /* for secondary warm accents */
+  --color-green: #16A34A;        /* stat green — used sparingly for growth indicators */
+
+  /* Neutrals — cool slate-based */
+  --color-text: #4A5568;             /* BODY TEXT — neutral gray for paragraphs (was #4A5568) */
+  --color-text-muted: #6B7280;       /* gray-500 for secondary / caption text */
+  --color-heading: #0F1628;          /* HEADING COLOR — dark navy for h1/h2/h3 */
+
+  /* Borders */
+  --color-border: #E5E7EB;        /* card borders */
+  --color-border-strong: #CBD5E1; /* stronger borders */
+
+  /* Footer background */
+  --color-footer-bg: #0F1628;     /* dark navy footer (matches CTA section) */
+
+  /* Extended palette */
+  --color-violet: #8B5CF6;
+  --color-cyan: #06B6D4;
+  --color-pink: #EC4899;
+  --color-sky: #0EA5E9;
+  --color-red: #ef4444;
+  --color-gold: #F59E0B;
+
+  /* ===================================================================
+     BACKWARD-COMPATIBLE ALIASES
+     (so existing CSS written against the old names still works)
+     =================================================================== */
+  --bg: var(--color-bg);
+  --surface: var(--color-surface);
+  --surface2: var(--color-surface-alt);
+
+  /* Old "cyan" accent → mapped to Action Orange */
+  --orange-dark: var(--color-orange-dark);
+  --cyan: var(--color-orange);
+  --cyan-soft: var(--color-orange-soft);
+  --emerald: var(--color-indigo);
+  --emerald-soft: var(--color-indigo-soft);
+
+  /* Old "violet" → kept for optional use, but visually mapped */
+  --violet: var(--color-indigo);
+  --violet-soft: var(--color-indigo-soft);
+
+  /* Old "pink" / "magenta" → mapped to orange for bright accent */
+  --pink: var(--color-orange);
+  --pink-soft: var(--color-orange-soft);
+  --magenta: var(--color-orange);
+
+  /* Navy */
+  --navy: var(--color-navy);
+
+  /* Text */
+  --text: var(--color-text);
+  --muted: var(--color-text-muted);
+
+  /* Borders */
+  --border: var(--color-border);
+  --border2: var(--color-border-strong);
+
+  /* Secondary colors */
+  --amber: var(--color-amber);
+  --orange: var(--color-orange);
+  --red: var(--color-red);
+  --lime: var(--color-navy);
+  --sky: var(--color-sky);
+  --teal: var(--color-indigo);
+  --fuchsia: var(--color-indigo-soft);
+  --rose: var(--color-orange);
+  --indigo: var(--color-indigo);
+
+  /* ===================================================================
+     FONT FAMILIES
+     =================================================================== */
+
+  /* Font stacks — set by next/font in layout.tsx */
+  --font-body: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
+               "Segoe UI", Roboto, Arial, "Helvetica Neue", Helvetica, sans-serif;
+  --font-heading: var(--font-jakarta), ui-sans-serif, system-ui, -apple-system,
+                  "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-stat: var(--font-jakarta), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas,
+               "Liberation Mono", "Courier New", monospace;
+
+  /* Backward-compat aliases (Sora → Plus Jakarta, JetBrains → Inter fallback) */
+  --font-sans: var(--font-body);
+  --font-dm-sans: var(--font-inter);
+  --font-syne: var(--font-jakarta);
+  --font-sora: var(--font-jakarta);
+  --font-jetbrains: var(--font-jakarta);
+
+  /* ===================================================================
+     TYPOGRAPHY SCALE (type tokens)
+     Use these for consistent heading/body sizing across all pages.
+     =================================================================== */
+
+  /* H1 — Hero headline */
+  --type-h1-size: clamp(2rem, 4.5vw, 3.5rem);   /* 32px → ~56px */
+  --type-h1-weight: 700;
+  --type-h1-line-height: 1.1;
+  --type-h1-letter-spacing: -0.02em;
+
+  /* H2 — Section headings */
+  --type-h2-size: clamp(1.5rem, 3vw, 2.25rem);   /* 24px → 36px */
+  --type-h2-weight: 700;
+  --type-h2-line-height: 1.2;
+  --type-h2-letter-spacing: -0.015em;
+
+  /* H3 — Card titles */
+  --type-h3-size: clamp(1.1rem, 1.4vw, 1.25rem); /* ~18px → 20px */
+  --type-h3-weight: 600;
+  --type-h3-line-height: 1.3;
+  --type-h3-letter-spacing: normal;
+
+  /* Body large — Hero subtext / intro paragraphs */
+  --type-body-lg-size: clamp(1rem, 1.2vw, 1.125rem); /* 16px → 18px */
+  --type-body-lg-weight: 400;
+  --type-body-lg-line-height: 1.6;
+
+  /* Body regular — Card descriptions, general content */
+  --type-body-size: clamp(0.9375rem, 1vw, 1rem); /* 15px → 16px */
+  --type-body-weight: 400;
+  --type-body-line-height: 1.6;
+
+  /* Small / caption — Labels, stat captions, eyebrow text */
+  --type-small-size: 0.8125rem;  /* 13px */
+  --type-small-weight: 500;
+  --type-small-letter-spacing: 0.03em;
+
+  /* Stat numbers — Big numeric values */
+  --type-stat-size: clamp(1.75rem, 2.5vw, 2.25rem); /* 28px → 36px */
+  --type-stat-weight: 800;
+  --type-stat-line-height: 1.1;
+
+  /* Eyebrow labels — Small uppercase tags above headings */
+  --type-eyebrow-size: 0.8125rem;
+  --type-eyebrow-weight: 700;
+  --type-eyebrow-letter-spacing: 0.12em;
+
+  /* ===================================================================
+     SPACING SYSTEM (8px-based scale)
+     =================================================================== */
+  --space-1: 0.25rem;   /*  4px */
+  --space-2: 0.5rem;    /*  8px */
+  --space-3: 0.75rem;   /* 12px */
+  --space-4: 1rem;      /* 16px */
+  --space-5: 1.25rem;   /* 20px */
+  --space-6: 1.5rem;    /* 24px */
+  --space-8: 2rem;      /* 32px */
+  --space-10: 2.5rem;   /* 40px */
+  --space-12: 3rem;     /* 48px */
+  --space-16: 4rem;     /* 64px */
+  --space-20: 5rem;     /* 80px */
+
+  /* Section vertical padding */
+  --section-padding-y: clamp(3rem, 6vw, 6rem);   /* 48px → 96px */
+  --section-padding-x: 5%;
+
+  /* Max content width */
+  --content-max-width: 1200px;
+
+  /* Card padding */
+  --card-padding: clamp(1.5rem, 2vw, 2rem);     /* 24px → 32px */
+
+  /* ===================================================================
+     RADIUS
+     =================================================================== */
+  --radius-card: 14px;
+  --radius-btn: 8px;
+
+  /* Backward-compat short-name aliases */
+  --r-card: var(--radius-card);
+  --r-btn: var(--radius-btn);
+
+  /* ===================================================================
+     SHADOWS
+     =================================================================== */
+  --shadow-card: 0 1px 3px rgba(15, 22, 40, 0.06),
+                 0 4px 12px rgba(15, 22, 40, 0.04);
+  --shadow-card-hover: 0 8px 30px rgba(15, 22, 40, 0.10),
+                       0 2px 8px rgba(15, 22, 40, 0.06);
+  --shadow-button: 0 4px 14px rgba(255, 91, 46, 0.20);
+  --shadow-button-hover: 0 8px 24px rgba(255, 91, 46, 0.30);
+  --shadow-nav: 0 2px 20px rgba(15, 22, 40, 0.06);
+
+  /* CTA section shadow */
+  --shadow-cta: 0 30px 80px rgba(15, 22, 40, 0.30);
+
+  /* ===================================================================
+     ANIMATION & TRANSITION TOKENS
+     =================================================================== */
+
+  /* Easing curves */
+  --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Duration presets (in ms) */
+  --anim-fast: 150ms;
+  --anim-base: 250ms;
+  --anim-slow: 400ms;
+  --anim-enter: 600ms;
+
+  /* Scroll animation defaults */
+  --anim-stagger-delay: 80ms;
+
+  /* Counter animation duration */
+  --anim-counter: 1400ms;
+
+  /* Progress bar animation duration */
+  --anim-progress: 1000ms;
+
+  /* Default transition shorthand */
+  --transition-default: all var(--anim-base) var(--ease-out);
+  --transition-slow: all var(--anim-slow) var(--ease-out);
+
+  /* ===================================================================
+     MICRO-INTERACTIONS
+     =================================================================== */
+
+  /* Button hover lift */
+  --btn-hover-scale: 1.03;
+  --btn-active-scale: 0.97;
+  --btn-hover-brightness: 1.1;
+
+  /* Card hover lift */
+  --card-hover-y: -4px;
+  --card-hover-shadow: 0 12px 32px rgba(15, 22, 40, 0.10);
+  --card-hover-border: rgba(255, 91, 46, 0.20);
+
+  /* ===================================================================
+     MULTI-COLOR (card category palette)
+     =================================================================== */
+  --mc-1: var(--color-orange);
+  --mc-2: var(--color-orange-soft);
+  --mc-3: var(--color-navy);
+  --mc-4: var(--color-indigo);
+  --mc-5: #818CF8;
+  --mc-6: var(--color-navy-light);
+  --mc-7: var(--color-orange);
+  --mc-8: #FFE2D5;                /* warm light tint of new orange */
+  --mc-9: var(--color-navy);
+  --mc-10: var(--color-amber);
+}
