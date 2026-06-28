@@ -5,6 +5,7 @@ import BlogPost from '@/lib/models/BlogPost'
 import slugify from 'slugify'
 import { v2 as cloudinary } from 'cloudinary'
 import DOMPurify from 'isomorphic-dompurify'
+import { sanitizePlainTextFields } from '@/lib/sanitize'
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME || '',
@@ -98,8 +99,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Title and content are required' }, { status: 400 })
     }
 
-    // Sanitize content
+    // Sanitize content (rich-text via DOMPurify)
     const sanitizedContent = DOMPurify.sanitize(body.content || '')
+
+    // Sanitize plain-text fields (title, excerpt, etc.)
+    const safeBody = sanitizePlainTextFields(
+      body,
+      ['title', 'excerpt', 'shortDescription', 'author', 'authorImage', 'seoAltTag', 'seoTitle', 'seoDescription', 'canonicalUrl', 'ogTitle', 'ogDescription', 'ogImage', 'twitterTitle', 'twitterDescription', 'twitterImage', 'breadcrumbTitle'],
+    )
 
     // Generate slug from title or use provided slug
     let slug = body.slug
@@ -115,15 +122,15 @@ export async function POST(req: NextRequest) {
     const readingTime = body.readingTime || Math.max(1, Math.ceil((sanitizedContent.split(/\\s+/).filter(Boolean).length || 1) / 250))
 
     const postData: any = {
-      title: body.title,
+      title: safeBody.title,
       slug,
       content: sanitizedContent,
-      excerpt: body.excerpt || body.title.substring(0, 160),
-      shortDescription: body.shortDescription || '',
+      excerpt: safeBody.excerpt || safeBody.title.substring(0, 160),
+      shortDescription: safeBody.shortDescription || '',
       featuredImage: body.featuredImage || null,
       bannerImage: body.bannerImage || null,
-      author: body.author || 'Digisharks Team',
-      authorImage: body.authorImage || '',
+      author: safeBody.author || 'Digisharks Team',
+      authorImage: safeBody.authorImage || '',
       categories: body.categories || [],
       tags: body.tags || [],
       status: body.status || 'draft',
@@ -133,20 +140,20 @@ export async function POST(req: NextRequest) {
       scheduledAt: body.status === 'scheduled' && body.scheduledAt ? new Date(body.scheduledAt) : undefined,
       readingTime,
       // SEO
-      seoAltTag: body.seoAltTag || '',
-      seoTitle: body.seoTitle || '',
+      seoAltTag: safeBody.seoAltTag || '',
+      seoTitle: safeBody.seoTitle || '',
       seoKeywords: body.seoKeywords || [],
-      seoDescription: body.seoDescription || '',
+      seoDescription: safeBody.seoDescription || '',
       metaRobots: body.metaRobots || 'index',
       metaFollow: body.metaFollow || 'follow',
-      canonicalUrl: body.canonicalUrl || '',
-      ogTitle: body.ogTitle || '',
-      ogDescription: body.ogDescription || '',
-      ogImage: body.ogImage || '',
-      twitterTitle: body.twitterTitle || '',
-      twitterDescription: body.twitterDescription || '',
-      twitterImage: body.twitterImage || '',
-      breadcrumbTitle: body.breadcrumbTitle || '',
+      canonicalUrl: safeBody.canonicalUrl || '',
+      ogTitle: safeBody.ogTitle || '',
+      ogDescription: safeBody.ogDescription || '',
+      ogImage: safeBody.ogImage || '',
+      twitterTitle: safeBody.twitterTitle || '',
+      twitterDescription: safeBody.twitterDescription || '',
+      twitterImage: safeBody.twitterImage || '',
+      breadcrumbTitle: safeBody.breadcrumbTitle || '',
       schemaType: body.schemaType || 'BlogPosting',
     }
 

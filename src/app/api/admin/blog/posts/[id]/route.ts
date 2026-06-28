@@ -6,6 +6,7 @@ import mongoose from 'mongoose'
 import DOMPurify from 'isomorphic-dompurify'
 import slugify from 'slugify'
 import { v2 as cloudinary } from 'cloudinary'
+import { stripHtml } from '@/lib/sanitize'
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME || '',
@@ -72,17 +73,17 @@ export async function PUT(
     const updateData: any = {}
 
     // Basic Info
-    if (body.title !== undefined) updateData.title = body.title
+    if (body.title !== undefined) updateData.title = stripHtml(body.title)
     if (body.slug !== undefined) {
       updateData.slug = slugify(body.slug, { lower: true, strict: true })
     }
     if (body.content !== undefined) {
       updateData.content = DOMPurify.sanitize(body.content || '')
     }
-    if (body.excerpt !== undefined) updateData.excerpt = body.excerpt
-    if (body.shortDescription !== undefined) updateData.shortDescription = body.shortDescription
-    if (body.author !== undefined) updateData.author = body.author
-    if (body.authorImage !== undefined) updateData.authorImage = body.authorImage
+    if (body.excerpt !== undefined) updateData.excerpt = stripHtml(body.excerpt)
+    if (body.shortDescription !== undefined) updateData.shortDescription = stripHtml(body.shortDescription)
+    if (body.author !== undefined) updateData.author = stripHtml(body.author)
+    if (body.authorImage !== undefined) updateData.authorImage = stripHtml(body.authorImage)
     if (body.publishedAt !== undefined) updateData.publishedAt = body.publishedAt ? new Date(body.publishedAt) : undefined
     if (body.readingTime !== undefined) updateData.readingTime = body.readingTime
 
@@ -101,20 +102,20 @@ export async function PUT(
     if (body.bannerImage !== undefined) updateData.bannerImage = body.bannerImage
 
     // SEO
-    if (body.seoAltTag !== undefined) updateData.seoAltTag = body.seoAltTag
-    if (body.seoTitle !== undefined) updateData.seoTitle = body.seoTitle
+    if (body.seoAltTag !== undefined) updateData.seoAltTag = stripHtml(body.seoAltTag)
+    if (body.seoTitle !== undefined) updateData.seoTitle = stripHtml(body.seoTitle)
     if (body.seoKeywords !== undefined) updateData.seoKeywords = body.seoKeywords
-    if (body.seoDescription !== undefined) updateData.seoDescription = body.seoDescription
+    if (body.seoDescription !== undefined) updateData.seoDescription = stripHtml(body.seoDescription)
     if (body.metaRobots !== undefined) updateData.metaRobots = body.metaRobots
     if (body.metaFollow !== undefined) updateData.metaFollow = body.metaFollow
-    if (body.canonicalUrl !== undefined) updateData.canonicalUrl = body.canonicalUrl
-    if (body.ogTitle !== undefined) updateData.ogTitle = body.ogTitle
-    if (body.ogDescription !== undefined) updateData.ogDescription = body.ogDescription
-    if (body.ogImage !== undefined) updateData.ogImage = body.ogImage
-    if (body.twitterTitle !== undefined) updateData.twitterTitle = body.twitterTitle
-    if (body.twitterDescription !== undefined) updateData.twitterDescription = body.twitterDescription
-    if (body.twitterImage !== undefined) updateData.twitterImage = body.twitterImage
-    if (body.breadcrumbTitle !== undefined) updateData.breadcrumbTitle = body.breadcrumbTitle
+    if (body.canonicalUrl !== undefined) updateData.canonicalUrl = stripHtml(body.canonicalUrl)
+    if (body.ogTitle !== undefined) updateData.ogTitle = stripHtml(body.ogTitle)
+    if (body.ogDescription !== undefined) updateData.ogDescription = stripHtml(body.ogDescription)
+    if (body.ogImage !== undefined) updateData.ogImage = stripHtml(body.ogImage)
+    if (body.twitterTitle !== undefined) updateData.twitterTitle = stripHtml(body.twitterTitle)
+    if (body.twitterDescription !== undefined) updateData.twitterDescription = stripHtml(body.twitterDescription)
+    if (body.twitterImage !== undefined) updateData.twitterImage = stripHtml(body.twitterImage)
+    if (body.breadcrumbTitle !== undefined) updateData.breadcrumbTitle = stripHtml(body.breadcrumbTitle)
     if (body.schemaType !== undefined) updateData.schemaType = body.schemaType
 
     // If publishing for the first time, set publishedAt

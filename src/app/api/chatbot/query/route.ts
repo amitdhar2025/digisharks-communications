@@ -3,23 +3,10 @@ import { connectMongoose } from '@/lib/mongoose'
 import ChatbotQA from '@/lib/models/ChatbotQA'
 import ChatbotSettings from '@/lib/models/ChatbotSettings'
 import Fuse from 'fuse.js'
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit'
+import { stripHtml } from '@/lib/sanitize'
 
 export const dynamic = 'force-dynamic'
-
-const RATE_LIMIT_WINDOW = 60 * 1000 // 1 minute
-const RATE_LIMIT_MAX = 30
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>()
-
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now()
-  const entry = rateLimitMap.get(ip)
-  if (!entry || now > entry.resetAt) {
-    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW })
-    return true
-  }
-  entry.count++
-  return entry.count <= RATE_LIMIT_MAX
-}
 
 // Words we ignore when judging whether two questions actually overlap.
 // Keeping this fairly conservative so we don't silently filter
@@ -38,10 +25,19 @@ function meaningfulWords(s: string): string[] {
   return s.toLowerCase().split(/\s+/).map(w => w.replace(/[^a-z0-9]/g, '')).filter(w => w.length >= 3 && !STOP_WORDS.has(w))
 }
 
+/**
+ * Escape all special regex characters so a plain-text string can be
+ * safely interpolated into a `new RegExp()` constructor.
+ */
+function escapeRegex(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
 export async function POST(req: NextRequest) {
   try {
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
-    if (!checkRateLimit(ip)) {
+    const ip = getClientIp(req)
+    const rateCheck = checkRateLimit(ip, 30)
+    if (!rateCheck.allowed) {
       return NextResponse.json({ error: 'Too many requests. Please slow down.' }, { status: 429 })
     }
 
@@ -53,7 +49,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Message is required' }, { status: 400 })
     }
 
-    const trimmed = message.trim()
+    const trimmed = stripHtml(message).trim()
     if (trimmed.length < 2 || trimmed.length > 500) {
       return NextResponse.json({ error: 'Message must be between 2 and 500 characters' }, { status: 400 })
     }
@@ -84,8 +80,9 @@ export async function POST(req: NextRequest) {
     const exactPhraseMatch = items.find((item) => {
       const q = item.question.toLowerCase()
       if (q === lowerMsg) return true
-      const escapedQuery = lowerMsg.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-      if (new RegExp(`\\b${escapedQuery}\\b`, 'i').test(q) && lowerMsg.length / q.length >= 0.5) return true
+      // Input is sanitised (stripHtml) and regex-escaped — safe for RegExp
+      // eslint-disable-next-line security/detect-non-literal-regexp
+      if (new RegExp(`\\b${escapeRegex(lowerMsg)}\\b`, 'i').test(q) && lowerMsg.length / q.length >= 0.5) return true
       if (q.length >= 5 && lowerMsg.includes(q)) return true
       return false
     })
@@ -131,8 +128,10 @@ export async function POST(req: NextRequest) {
       const qWords = meaningfulWords(item.question)
 
       const wordBoundaryTest = (word: string, text: string): boolean => {
-        const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-        return new RegExp(`\\b${escaped}\\b`, 'i').test(text)
+        // Input is a single meaningful word (alphanumeric only via meaningfulWords)
+        // and additionally regex-escaped — safe for RegExp
+        // eslint-disable-next-line security/detect-non-literal-regexp
+        return new RegExp(`\\b${escapeRegex(word)}\\b`, 'i').test(text)
       }
       const questionMatches = userWords.filter(w => wordBoundaryTest(w, qLower)).length
       const answerMatches = userWords.filter(w => wordBoundaryTest(w, aLower)).length

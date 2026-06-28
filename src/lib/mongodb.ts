@@ -11,16 +11,18 @@ if (!uri) {
 // behaviour is identical whether or not the URI contains `tls=true`.
 const options: MongoClientOptions = {
   tls: true,
-  // Required in many Windows / older Node environments where the system
-  // CA bundle is missing the MongoDB Atlas root certificate. Setting
-  // this to `true` tells the driver to fall back to its own trust
-  // store. The connection is STILL encrypted end-to-end — only
-  // certificate validation is relaxed.
-  tlsAllowInvalidCertificates: true,
+  // Validate server certificate against the CA bundle. In production this
+  // MUST be `false` to prevent man-in-the-middle attacks. If you run into
+  // TLS handshake errors on Windows / older Node, set this to `true` as a
+  // temporary workaround — the connection is STILL encrypted end-to-end,
+  // only certificate validation is relaxed.
+  tlsAllowInvalidCertificates: false,
   serverSelectionTimeoutMS: 5000,
   connectTimeoutMS: 5000,
   socketTimeoutMS: 15000,
   retryWrites: true,
+  // Limit concurrent connections to the database.
+  maxPoolSize: 10,
 }
 
 let client: MongoClient

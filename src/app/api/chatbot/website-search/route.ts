@@ -2,28 +2,16 @@ import { NextRequest, NextResponse } from 'next/server'
 import { connectMongoose } from '@/lib/mongoose'
 import BlogPost from '@/lib/models/BlogPost'
 import { listActiveProducts } from '@/lib/products'
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit'
+import { stripHtml } from '@/lib/sanitize'
 
 export const dynamic = 'force-dynamic'
 
-const RATE_LIMIT_WINDOW = 60 * 1000
-const RATE_LIMIT_MAX = 30
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>()
-
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now()
-  const entry = rateLimitMap.get(ip)
-  if (!entry || now > entry.resetAt) {
-    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW })
-    return true
-  }
-  entry.count++
-  return entry.count <= RATE_LIMIT_MAX
-}
-
 export async function POST(req: NextRequest) {
   try {
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
-    if (!checkRateLimit(ip)) {
+    const ip = getClientIp(req)
+    const rateCheck = checkRateLimit(ip, 30)
+    if (!rateCheck.allowed) {
       return NextResponse.json({ error: 'Too many requests. Please slow down.' }, { status: 429 })
     }
 
@@ -34,7 +22,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Message is required' }, { status: 400 })
     }
 
-    const trimmed = message.trim().toLowerCase()
+    const trimmed = stripHtml(message).trim().toLowerCase()
     if (trimmed.length < 2 || trimmed.length > 500) {
       return NextResponse.json({ error: 'Message must be between 2 and 500 characters' }, { status: 400 })
     }

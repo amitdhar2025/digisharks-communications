@@ -2,9 +2,18 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createPendingAudit, runAuditAndUpdate, markAuditFailed } from '@/lib/seo-audit'
 import { sendMail } from '@/lib/mailer'
 import { buildSeoAuditReportEmail } from '@/lib/email-templates'
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit'
+import { sanitizePlainTextFields } from '@/lib/sanitize'
 
 export async function POST(req: NextRequest) {
   try {
+    // Rate limit: 5 audit requests per minute per IP
+    const ip = getClientIp(req)
+    const rateCheck = checkRateLimit(ip, 5)
+    if (!rateCheck.allowed) {
+      return NextResponse.json({ error: 'Too many requests. Please slow down.' }, { status: 429 })
+    }
+
     const body = await req.json()
     const { url, name, email, phone } = body
 
@@ -21,8 +30,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Please provide your phone number.' }, { status: 400 })
     }
 
+    // Sanitize plain-text user input
+    const sanitized = sanitizePlainTextFields(
+      { url: url.trim(), name: name.trim(), email: email.trim(), phone: phone.trim() },
+      ['name', 'phone'],
+    )
+
     // 1. Save user details instantly (pending audit)
-    const pending = await createPendingAudit(url, name, email, phone)
+    const pending = await createPendingAudit(sanitized.url, sanitized.name, sanitized.email, sanitized.phone)
 
     // 2. Fire off the full audit in the background (don't await)
     runAuditAndUpdate(pending.id, url)

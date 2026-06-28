@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getAdminFromCookies } from '@/lib/auth'
 import { v2 as cloudinary } from 'cloudinary'
 import sharp from 'sharp'
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit'
+import { validateFile } from '@/lib/validateFile'
 
 export const dynamic = 'force-dynamic'
 
@@ -64,6 +66,13 @@ export async function POST(req: NextRequest) {
   const admin = await getAdminFromCookies()
   if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+  // Rate limit: 30 uploads per minute per IP
+  const ip = getClientIp(req)
+  const rateCheck = checkRateLimit(ip, 30)
+  if (!rateCheck.allowed) {
+    return NextResponse.json({ error: 'Too many uploads. Please slow down.' }, { status: 429 })
+  }
+
   try {
     const formData = await req.formData()
     const file = formData.get('image') as File | null
@@ -72,19 +81,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'No image file provided' }, { status: 400 })
     }
 
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      return NextResponse.json({ error: 'File must be an image' }, { status: 400 })
-    }
-
-    // Validate file size (max 10MB after compression overhead)
-    if (file.size > 10 * 1024 * 1024) {
-      return NextResponse.json({ error: 'Image must be less than 10MB' }, { status: 400 })
-    }
-
     // Read the raw file buffer
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
+
+    // Validate file type via magic bytes
+    const fileCheck = await validateFile(buffer, file.type)
+    if (!fileCheck.valid) {
+      return NextResponse.json({ error: fileCheck.error }, { status: 400 })
+    }
 
     // Determine the file extension from MIME type
     const extMap: Record<string, string> = {

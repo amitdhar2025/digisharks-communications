@@ -3,6 +3,8 @@ import { connectMongoose } from '@/lib/mongoose'
 import ChatbotQA from '@/lib/models/ChatbotQA'
 import { getAdminFromRequest } from '@/lib/auth'
 import * as XLSX from 'xlsx'
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit'
+import { stripHtml } from '@/lib/sanitize'
 
 export const dynamic = 'force-dynamic'
 
@@ -10,6 +12,13 @@ export async function POST(req: NextRequest) {
   const admin = getAdminFromRequest(req)
   if (!admin) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  // Rate limit: 10 uploads per minute per IP
+  const ip = getClientIp(req)
+  const rateCheck = checkRateLimit(ip, 10)
+  if (!rateCheck.allowed) {
+    return NextResponse.json({ error: 'Too many uploads. Please slow down.' }, { status: 429 })
   }
 
   try {
@@ -64,6 +73,13 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
+  // Rate limit: 10 saves per minute per IP
+  const ip = getClientIp(req)
+  const rateCheck = checkRateLimit(ip, 10)
+  if (!rateCheck.allowed) {
+    return NextResponse.json({ error: 'Too many requests. Please slow down.' }, { status: 429 })
+  }
+
   try {
     const body = await req.json()
     const { items } = body
@@ -75,9 +91,9 @@ export async function PUT(req: NextRequest) {
     await connectMongoose()
 
     const qaDocs = items.map((item: { question: string; answer: string; category?: string }) => ({
-      question: item.question.trim(),
-      answer: item.answer.trim(),
-      category: item.category?.trim() || '',
+      question: stripHtml(item.question).trim(),
+      answer: stripHtml(item.answer).trim(),
+      category: stripHtml(item.category?.trim() || ''),
       isActive: true,
       hitCount: 0,
     }))

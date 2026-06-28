@@ -2,11 +2,20 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getQueriesCollection, ContactQuery } from '@/lib/db'
 import { buildContactConfirmationEmail } from '@/lib/email-templates'
 import { sendMail } from '@/lib/mailer'
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit'
+import { sanitizePlainTextFields } from '@/lib/sanitize'
 
 export const dynamic = 'force-dynamic'
 
 export async function POST(req: NextRequest) {
   try {
+    // Rate limit: 10 submissions per minute per IP
+    const ip = getClientIp(req)
+    const rateCheck = checkRateLimit(ip, 10)
+    if (!rateCheck.allowed) {
+      return NextResponse.json({ error: 'Too many requests. Please slow down.' }, { status: 429 })
+    }
+
     const body = await req.json()
     const { fullName, email, phone, service, message } = body || {}
 
@@ -26,13 +35,25 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    // Sanitize all plain-text user input to prevent XSS
+    const sanitized = sanitizePlainTextFields(
+      {
+        fullName: String(fullName).trim(),
+        email: String(email).trim().toLowerCase(),
+        phone: phone ? String(phone).trim() : '',
+        service: service ? String(service).trim() : 'Other',
+        message: String(message).trim(),
+      },
+      ['fullName', 'phone', 'service', 'message'],
+    )
+
     const now = new Date()
     const doc: ContactQuery = {
-      fullName: String(fullName).trim(),
-      email: String(email).trim().toLowerCase(),
-      phone: phone ? String(phone).trim() : '',
-      service: service ? String(service).trim() : 'Other',
-      message: String(message).trim(),
+      fullName: sanitized.fullName,
+      email: sanitized.email,
+      phone: sanitized.phone,
+      service: sanitized.service,
+      message: sanitized.message,
       status: 'pending',
       comments: [],
       createdAt: now,

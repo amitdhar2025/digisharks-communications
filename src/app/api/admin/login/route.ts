@@ -3,14 +3,21 @@ import bcrypt from 'bcryptjs'
 import { signAdminToken, setAdminCookie } from '@/lib/auth'
 import { getAdminsCollection } from '@/lib/db'
 import { ensureAdminExists } from '@/lib/admin-seed'
+import logger, { logAuthEvent } from '@/lib/logger'
+import { getClientIp } from '@/lib/rateLimit'
 
 export const dynamic = 'force-dynamic'
 
 export async function POST(req: NextRequest) {
+  const ip = getClientIp(req)
+
   try {
     const { username, password } = await req.json()
+    const user = String(username || '').trim()
+    const pwd = String(password || '')
 
     if (!username || !password) {
+      logAuthEvent('login_failed', user || 'unknown', ip, { reason: 'missing_credentials' })
       return NextResponse.json(
         { error: 'Username and password are required' },
         { status: 400 }
@@ -22,8 +29,6 @@ export async function POST(req: NextRequest) {
     await ensureAdminExists()
 
     const admins = await getAdminsCollection()
-    const user = String(username).trim()
-    const pwd = String(password)
 
     // 1) Look up the admin in the DB and verify the password.
     const admin = await admins.findOne({ username: user })
@@ -31,6 +36,7 @@ export async function POST(req: NextRequest) {
     if (admin) {
       const ok = await bcrypt.compare(pwd, admin.passwordHash)
       if (!ok) {
+        logAuthEvent('login_failed', user, ip, { reason: 'invalid_password' })
         return NextResponse.json(
           { error: 'Invalid username or password' },
           { status: 401 }
@@ -38,6 +44,7 @@ export async function POST(req: NextRequest) {
       }
       const token = signAdminToken(admin.username)
       await setAdminCookie(token)
+      logAuthEvent('login', admin.username, ip, { method: 'database' })
       return NextResponse.json({
         success: true,
         username: admin.username,
@@ -54,6 +61,7 @@ export async function POST(req: NextRequest) {
     if (envUser && envPass && envUser === user && envPass === pwd) {
       const token = signAdminToken(envUser)
       await setAdminCookie(token)
+      logAuthEvent('login', envUser, ip, { method: 'env_fallback' })
       return NextResponse.json({
         success: true,
         username: envUser,
@@ -61,12 +69,13 @@ export async function POST(req: NextRequest) {
       })
     }
 
+    logAuthEvent('login_failed', user, ip, { reason: 'invalid_credentials' })
     return NextResponse.json(
       { error: 'Invalid username or password' },
       { status: 401 }
     )
   } catch (err) {
-    console.error('POST /api/admin/login error', err)
+    logger.error('POST /api/admin/login error', { ip, error: String(err) })
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

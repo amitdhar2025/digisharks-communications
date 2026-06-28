@@ -6,6 +6,9 @@ import { sendMail } from '@/lib/mailer'
 import { buildAdminNewApplicationEmail } from '@/lib/email-templates'
 import slugify from 'slugify'
 import { v2 as cloudinary } from 'cloudinary'
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit'
+import { validateFile } from '@/lib/validateFile'
+import { stripHtml } from '@/lib/sanitize'
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME || '',
@@ -19,6 +22,13 @@ export const runtime = 'nodejs'
 // POST /api/career/apply - Submit a job application
 export async function POST(req: NextRequest) {
   try {
+    // Rate limit: 5 applications per minute per IP
+    const ip = getClientIp(req)
+    const rateCheck = checkRateLimit(ip, 5)
+    if (!rateCheck.allowed) {
+      return NextResponse.json({ error: 'Too many requests. Please slow down.' }, { status: 429 })
+    }
+
     await connectMongoose()
 
     const formData = await req.formData()
@@ -38,6 +48,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Resume/CV is required' }, { status: 400 })
     }
 
+    // Validate resume file type via magic bytes
+    const resumeBuffer = Buffer.from(await resumeFile.arrayBuffer())
+    const fileCheck = await validateFile(resumeBuffer, resumeFile.type)
+    if (!fileCheck.valid) {
+      return NextResponse.json({ error: fileCheck.error }, { status: 400 })
+    }
+
     // Validate job exists and is active
     const job = await CareerJob.findById(jobId).lean()
     if (!job) {
@@ -47,10 +64,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'This position is no longer accepting applications' }, { status: 400 })
     }
 
+    // Sanitize plain-text input fields
+    const safeName = stripHtml(applicantName)
+    const safeEmail = stripHtml(email)
+    const safePhone = stripHtml(phone)
+    const safeCoverLetter = stripHtml(coverLetter)
+
     // Upload resume to Cloudinary
-    const buffer = Buffer.from(await resumeFile.arrayBuffer())
+    const buffer = resumeBuffer
     const fileExt = resumeFile.name.split('.').pop() || 'pdf'
-    const fileName = `career/${slugify(applicantName, { lower: true })}-${Date.now()}.${fileExt}`
+    const fileName = `career/${slugify(safeName, { lower: true })}-${Date.now()}.${fileExt}`
 
     let resumeUrl = ''
     let resumePublicId = ''
@@ -81,10 +104,10 @@ export async function POST(req: NextRequest) {
     // Create application
     const application = new CareerApplication({
       jobId,
-      applicantName,
-      email,
-      phone,
-      coverLetter,
+      applicantName: safeName,
+      email: safeEmail,
+      phone: safePhone,
+      coverLetter: safeCoverLetter,
       resumeUrl,
       resumePublicId,
       status: 'under-review',
