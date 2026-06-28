@@ -41,7 +41,7 @@ export default function Footer() {
         <div>
           <Link href="/" className="footer-logo" aria-label="DigiSharks Home">
             <Image
-              src="/darks.png"
+              src="/darks.webp"
               alt="DigiSharks Logo"
               width={256}
               height={171}

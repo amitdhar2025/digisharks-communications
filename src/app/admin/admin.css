@@ -81,6 +81,7 @@
   transition: border-color 0.15s, box-shadow 0.15s;
   width: 100%;
   font-family: inherit;
+  box-sizing: border-box;
 }
 
 .admin-shell .field input:focus,
@@ -108,6 +109,7 @@
   border: 1px solid transparent;
   transition: transform 0.05s, background 0.15s, border-color 0.15s, opacity 0.15s;
   font-family: inherit;
+  white-space: nowrap;
 }
 
 .admin-shell .btn:active {
@@ -182,12 +184,14 @@
   border: 1px solid rgba(34, 197, 94, 0.3);
 }
 
+/* ────────── LAYOUT ────────── */
 .admin-layout {
   display: grid;
   grid-template-columns: 240px 1fr;
   min-height: 100vh;
 }
 
+/* ────────── SIDEBAR ────────── */
 .admin-sidebar {
   background: #0f172a;
   border-right: 1px solid #1e293b;
@@ -226,6 +230,10 @@
   cursor: pointer;
   border: 1px solid transparent;
   background: transparent;
+  text-align: left;
+  width: 100%;
+  font-family: inherit;
+  box-sizing: border-box;
 }
 
 .admin-sidebar .nav-item:hover {
@@ -251,11 +259,41 @@
   flex: 1;
 }
 
+/* ────────── SIDEBAR OVERLAY BACKDROP ────────── */
+.admin-shell .sidebar-backdrop {
+  display: none;
+}
+
+/* ────────── MAIN CONTENT ────────── */
 .admin-main {
   padding: 24px 28px 48px;
   overflow-x: auto;
 }
 
+/* ────────── TOGGLE BUTTON (hidden on desktop) ────────── */
+.admin-shell .sidebar-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: #0f172a;
+  border: 1px solid #1e293b;
+  border-radius: 10px;
+  color: #cbd5e1;
+  cursor: pointer;
+  font-size: 20px;
+  flex-shrink: 0;
+  font-family: inherit;
+  position: relative;
+  z-index: 10001;
+}
+
+.admin-shell .sidebar-toggle:hover {
+  background: #1e293b;
+}
+
+/* ────────── TOP BAR ────────── */
 .admin-topbar {
   display: flex;
   align-items: center;
@@ -296,6 +334,7 @@
   font-weight: 700;
 }
 
+/* ────────── STAT CARDS ────────── */
 .admin-shell .stat-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -339,6 +378,7 @@
   color: #7dd3fc;
 }
 
+/* ────────── TOOLBAR ────────── */
 .admin-shell .toolbar {
   display: flex;
   align-items: center;
@@ -373,6 +413,7 @@
   border-color: #0ea5e9;
 }
 
+/* ────────── TABLE ────────── */
 .admin-shell .table-wrap {
   background: #0f172a;
   border: 1px solid #1e293b;
@@ -414,6 +455,7 @@
   border-bottom: none;
 }
 
+/* ────────── STATUS PILLS ────────── */
 .admin-shell .status-pill {
   display: inline-flex;
   align-items: center;
@@ -476,6 +518,7 @@
   background: #f59e0b;
 }
 
+/* ────────── CELL ACTIONS ────────── */
 .admin-shell .cell-actions {
   display: flex;
   gap: 6px;
@@ -496,6 +539,7 @@
   gap: 5px;
   font-family: inherit;
   text-decoration: none;
+  white-space: nowrap;
 }
 
 .admin-shell a.icon-btn {
@@ -520,6 +564,7 @@
   background: rgba(239, 68, 68, 0.08);
 }
 
+/* ────────── PAGINATION ────────── */
 .admin-shell .pager {
   display: flex;
   align-items: center;
@@ -536,6 +581,7 @@
   gap: 6px;
 }
 
+/* ────────── MODALS ────────── */
 .admin-shell .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -581,12 +627,6 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
-}
-
-@media (max-width: 600px) {
-  .admin-shell .modal .grid-2 {
-    grid-template-columns: 1fr;
-  }
 }
 
 .admin-shell .modal .row {
@@ -643,6 +683,7 @@
   font-size: 12px;
 }
 
+/* ────────── EMPTY / SPINNER / BADGE ────────── */
 .admin-shell .empty {
   padding: 40px 20px;
   text-align: center;
@@ -666,9 +707,7 @@
 }
 
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
 
 .admin-shell .badge {
@@ -682,6 +721,11 @@
   color: #94a3b8;
 }
 
+/* ===================================================================
+   MOBILE RESPONSIVE STYLES
+   =================================================================== */
+
+/* ── Tablet: collapse sidebar to top nav ── */
 @media (max-width: 900px) {
   .admin-layout {
     grid-template-columns: 1fr;
@@ -690,5 +734,225 @@
   .admin-sidebar {
     border-right: none;
     border-bottom: 1px solid #1e293b;
+  }
+
+  .admin-topbar {
+    margin-top: 0;
+  }
+}
+
+/* ── Mobile: sidebar becomes overlay ── */
+@media (max-width: 768px) {
+  .admin-layout {
+    grid-template-columns: 1fr;
+    position: relative;
+  }
+
+  /* Sidebar: hidden off-screen by default, slides in when open */
+  .admin-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 270px;
+    max-width: 85vw;
+    z-index: 10000;
+    transform: translateX(-100%);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border-right: 1px solid #1e293b;
+    border-bottom: none;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
+  }
+
+  .admin-sidebar.open {
+    transform: translateX(0);
+  }
+
+  /* Backdrop overlay when sidebar is open */
+  .admin-shell .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(2, 6, 23, 0.6);
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+
+  .admin-shell .sidebar-backdrop.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Show toggle button on mobile */
+  .admin-shell .sidebar-toggle {
+    display: inline-flex;
+  }
+
+  /* Top bar adjustments */
+  .admin-topbar {
+    margin-top: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    margin-top: 30px !important
+  }
+
+  .admin-topbar h1 {
+    font-size: 18px !important;
+  }
+
+  .admin-topbar .cell-actions {
+    width: 100%;
+  }
+
+  /* Main content padding reduced */
+  .admin-main {
+    padding: 16px 14px 36px;
+  }
+
+  /* Stat cards: 2-column grid on mobile */
+  .admin-shell .stat-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .admin-shell .stat-card {
+    padding: 12px 14px;
+  }
+
+  .admin-shell .stat-card .value {
+    font-size: 20px;
+  }
+
+  /* Toolbar: stack inputs vertically */
+  .admin-shell .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 10px;
+  }
+
+  .admin-shell .toolbar .grow {
+    min-width: unset;
+    width: 100%;
+  }
+
+  .admin-shell .toolbar input,
+  .admin-shell .toolbar select {
+    width: 100%;
+  }
+
+  .admin-shell .toolbar form {
+    width: 100%;
+  }
+
+  .admin-shell .toolbar form input.grow {
+    width: 100%;
+    min-width: unset;
+  }
+
+  /* Table: horizontal scroll */
+  .admin-shell .table-wrap {
+    border-radius: 10px;
+    margin-left: -14px;
+    margin-right: -14px;
+    border-left: none;
+    border-right: none;
+  }
+
+  .admin-shell table.queries {
+    font-size: 12px;
+  }
+
+  .admin-shell table.queries thead th,
+  .admin-shell table.queries tbody td {
+    padding: 8px 10px;
+  }
+
+  /* Pagination: simpler on mobile */
+  .admin-shell .pager {
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+    text-align: center;
+  }
+
+  /* Modal: full-width on mobile */
+  .admin-shell .modal-backdrop {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .admin-shell .modal {
+    max-width: 100%;
+    max-height: 90vh;
+    border-radius: 16px 16px 0 0;
+    padding: 18px;
+    margin: 0;
+  }
+
+  .admin-shell .modal.lg {
+    max-width: 100%;
+  }
+
+  /* Grid 2 columns → 1 column on small screens */
+  .admin-shell .modal .grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  /* Cell actions: wrap better */
+  .admin-shell .cell-actions {
+    gap: 4px;
+  }
+
+  .admin-shell .icon-btn {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+}
+
+/* ── Very small phones ── */
+@media (max-width: 480px) {
+  .admin-shell .stat-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .admin-shell .stat-card .value {
+    font-size: 18px;
+  }
+
+  .admin-shell table.queries thead th,
+  .admin-shell table.queries tbody td {
+    padding: 6px 8px;
+    font-size: 11px;
+  }
+
+  .admin-shell .btn {
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+
+  .admin-shell .icon-btn {
+    font-size: 11px;
+    padding: 6px 8px;
+  }
+
+  .admin-login-card {
+    padding: 24px 18px;
+  }
+
+  .admin-login-wrap {
+    padding: 16px;
+  }
+}
+
+/* ── 2-column grid in modals: collapse early ── */
+@media (max-width: 600px) {
+  .admin-shell .modal .grid-2 {
+    grid-template-columns: 1fr;
   }
 }

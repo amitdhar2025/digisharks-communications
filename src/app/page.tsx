@@ -145,7 +145,7 @@ export default async function Home() {
               <div className="award-card-light fade-up stagger-1">
                 <div className="award-img-wrap">
                   <Image
-                    src="/google partner.png"
+                    src="/google partner.webp"
                     alt="Google Partner"
                     width={160}
                     height={80}
@@ -159,7 +159,7 @@ export default async function Home() {
               <div className="award-card-light fade-up stagger-2">
                 <div className="award-img-wrap">
                   <Image
-                    src="/meta partner.png"
+                    src="/meta partner.webp"
                     alt="Meta Business Partner"
                     width={160}
                     height={80}
@@ -339,7 +339,7 @@ export default async function Home() {
             <div>
               <Link href="/" className="footer-logo" aria-label="DigiSharks Home">
   <Image
-    src="/darks.png"
+    src="/darks.webp"
     alt="DigiSharks Logo"
     width={256}
     height={171}

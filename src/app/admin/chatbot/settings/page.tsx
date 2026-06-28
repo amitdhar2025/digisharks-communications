@@ -2,6 +2,7 @@
 
 import { useEffect, useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
+import AdminSidebar from '@/components/admin/Sidebar'
 import toast, { Toaster } from 'react-hot-toast'
 import ChatBotIcon from '@/components/ChatBotIcon'
 
@@ -114,26 +115,16 @@ export default function ChatbotSettingsPage() {
     }
   }
 
+  const [loadingSidebar, setLoadingSidebar] = useState(false)
+
   if (loading) {
     return (
       <div className="admin-layout">
-        <aside className="admin-sidebar">
-          <div className="brand"><span className="dot" /> Digisharks</div>
-          <a className="nav-item" href="/admin/dashboard">📋 Queries</a>
-          <a className="nav-item" href="/admin/store">🛒 Products</a>
-          <a className="nav-item" href="/admin/blog">📝 Blog</a>
-          <a className="nav-item" href="/admin/rss">📡 RSS</a>
-          <div className="nav-section">🤖 Chatbot</div>
-          <a className="nav-item" href="/admin/chatbot">📊 Dashboard</a>
-          <a className="nav-item" href="/admin/chatbot/qna">💬 Q&A Manager</a>
-          <a className="nav-item" href="/admin/chatbot/upload">📤 Upload</a>
-          <a className="nav-item active" href="/admin/chatbot/settings">⚙ Settings</a>
-          <div className="spacer" />
-          <a className="nav-item" href="/" target="_blank">🌐 View Site</a>
-          <div className="nav-section">Account</div>
-          <button className="nav-item" onClick={async () => { await fetch('/api/admin/logout', { method: 'POST' }); router.push('/admin/login'); router.refresh() }} style={{ color: '#fca5a5' }}>🚪 Sign out</button>
-          <div style={{ padding: '10px 12px', fontSize: 11, color: '#64748b', borderTop: '1px solid #1e293b' }}>v1.0 · Chatbot</div>
-        </aside>
+        <div className={`sidebar-backdrop${loadingSidebar ? ' open' : ''}`} onClick={() => setLoadingSidebar(false)} />
+        <button className="sidebar-toggle" onClick={() => setLoadingSidebar(!loadingSidebar)} aria-label="Toggle sidebar">
+          ☰
+        </button>
+        <AdminSidebar isOpen={loadingSidebar} onNavClick={() => setLoadingSidebar(false)} />
         <main className="admin-main">
           <div className="empty"><span className="spinner" /> Loading settings…</div>
         </main>
@@ -300,26 +291,16 @@ export default function ChatbotSettingsPage() {
     )
   }
 
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+
   return (
     <div className="admin-layout">
       <Toaster position="top-right" toastOptions={{ style: { background: '#1e293b', color: '#e2e8f0', border: '1px solid #334155' } }} />
-      <aside className="admin-sidebar">
-        <div className="brand"><span className="dot" /> Digisharks</div>
-        <a className="nav-item" href="/admin/dashboard">📋 Queries</a>
-        <a className="nav-item" href="/admin/store">🛒 Products</a>
-        <a className="nav-item" href="/admin/blog">📝 Blog</a>
-        <a className="nav-item" href="/admin/rss">📡 RSS</a>
-        <div className="nav-section">🤖 Chatbot</div>
-        <a className="nav-item" href="/admin/chatbot">📊 Dashboard</a>
-        <a className="nav-item" href="/admin/chatbot/qna">💬 Q&A Manager</a>
-        <a className="nav-item" href="/admin/chatbot/upload">📤 Upload</a>
-        <a className="nav-item active" href="/admin/chatbot/settings">⚙ Settings</a>
-        <div className="spacer" />
-        <a className="nav-item" href="/" target="_blank">🌐 View Site</a>
-        <div className="nav-section">Account</div>
-        <button className="nav-item" onClick={async () => { await fetch('/api/admin/logout', { method: 'POST' }); router.push('/admin/login'); router.refresh() }} style={{ color: '#fca5a5' }}>🚪 Sign out</button>
-        <div style={{ padding: '10px 12px', fontSize: 11, color: '#64748b', borderTop: '1px solid #1e293b' }}>v1.0 · Chatbot</div>
-      </aside>
+      <div className={`sidebar-backdrop${sidebarOpen ? ' open' : ''}`} onClick={() => setSidebarOpen(false)} />
+      <button className="sidebar-toggle" onClick={() => setSidebarOpen(!sidebarOpen)} aria-label="Toggle sidebar">
+        ☰
+      </button>
+      <AdminSidebar isOpen={sidebarOpen} onNavClick={() => setSidebarOpen(false)} />
 
       <main className="admin-main">
         <div className="admin-topbar" style={{ marginTop: 0 }}>

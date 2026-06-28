@@ -261,7 +261,7 @@ export default function AboutUs() {
 
             <div className="leader-card fade-up" style={{ marginTop: "2.5rem" }}>
               <div className="leader-avatar-wrap">
-                <img src="/Vansh.png" alt="Vansh Mehra" />
+                <img src="/Vansh.webp" alt="Vansh Mehra" />
               </div>
               <div>
                 <div className="leader-name">Vansh Mehra</div>

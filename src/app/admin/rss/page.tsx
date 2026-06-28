@@ -2,6 +2,7 @@
 
 import { useEffect, useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
+import AdminSidebar from '@/components/admin/Sidebar'
 
 interface RssFeedItem {
   _id: string
@@ -162,25 +163,15 @@ export default function RssManagerPage() {
     } catch { return iso }
   }
 
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+
   return (
     <div className="admin-layout">
-      <aside className="admin-sidebar">
-        <div className="brand"><span className="dot" /> Digisharks</div>
-        <a className="nav-item" href="/admin/dashboard">📋 Queries</a>
-        <a className="nav-item" href="/admin/store">🛒 Store</a>
-        <a className="nav-item" href="/admin/blog">📝 Blog</a>
-        <a className="nav-item active" href="/admin/rss">📡 RSS Feeds</a>
-        <a className="nav-item" href="/contact-us" target="_blank" rel="noreferrer">🌐 View Site</a>
-        <div className="nav-section">Account</div>
-        <div style={{ padding: '8px 12px', fontSize: 13, color: '#94a3b8' }}>
-          Signed in as <span style={{ color: '#7dd3fc' }}>{username || '…'}</span>
-        </div>
-        <button className="nav-item" onClick={handleLogout} style={{ color: '#fca5a5' }}>🚪 Sign out</button>
-        <div className="spacer" />
-        <div style={{ padding: '10px 12px', fontSize: 11, color: '#64748b', borderTop: '1px solid #1e293b' }}>
-          v1.0 · RSS Manager
-        </div>
-      </aside>
+      <div className={`sidebar-backdrop${sidebarOpen ? ' open' : ''}`} onClick={() => setSidebarOpen(false)} />
+      <button className="sidebar-toggle" onClick={() => setSidebarOpen(!sidebarOpen)} aria-label="Toggle sidebar">
+        ☰
+      </button>
+      <AdminSidebar isOpen={sidebarOpen} onNavClick={() => setSidebarOpen(false)} />
 
       <main className="admin-main">
         <div className="admin-topbar">

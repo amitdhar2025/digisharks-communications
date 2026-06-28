@@ -4,9 +4,19 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npm run convert:avif && npm run convert:webp && npm run optimize:assets && next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "optimize:assets": "node scripts/optimize-assets.js",
+    "optimize:assets:dry": "node scripts/optimize-assets.js --dry-run --verbose",
+    "optimize:assets:verbose": "node scripts/optimize-assets.js --verbose",
+    "convert:webp": "node scripts/convert-to-webp.js",
+    "convert:webp:verbose": "node scripts/convert-to-webp.js --verbose",
+    "watch:public": "node scripts/watch-public.js",
+    "watch:public:verbose": "node scripts/watch-public.js --verbose",
+    "convert:avif": "node scripts/convert-to-avif.js",
+    "convert:avif:verbose": "node scripts/convert-to-avif.js --verbose",
+    "convert:avif:dry": "node scripts/convert-to-avif.js --dry-run --verbose"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
@@ -50,6 +60,7 @@
     "react-hook-form": "^7.79.0",
     "react-hot-toast": "^2.6.0",
     "rss-parser": "^3.13.0",
+    "sharp": "^0.34.5",
     "slugify": "^1.6.9",
     "xlsx": "^0.18.5",
     "zod": "^4.4.3"

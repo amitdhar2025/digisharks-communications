@@ -115,7 +115,7 @@ export default function Navigation({ active = "none" }: NavigationProps) {
       <nav id="navbar">
         <Link href="/" className="nav-logo" aria-label="DigiSharks Home">
           <Image
-            src="/darks.png"
+            src="/darks.webp"
             alt="DigiSharks Logo"
             width={256}
             height={171}

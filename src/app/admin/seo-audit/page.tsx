@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
+import AdminSidebar from '@/components/admin/Sidebar'
 
 /* ─── Types ─── */
 
@@ -170,34 +171,15 @@ export default function SeoAuditAdminPage() {
     router.refresh()
   }
 
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+
   return (
     <div className="admin-layout">
-      <aside className="admin-sidebar">
-        <div className="brand">
-          <span className="dot" /> Digisharks
-        </div>
-        <a className="nav-item" href="/admin/dashboard">📋 Queries</a>
-        <a className="nav-item" href="/admin/store">🛒 Digital Products Sales</a>
-        <a className="nav-item" href="/admin/blog">📝 Blog</a>
-        <a className="nav-item" href="/admin/rss">📡 RSS Feeds</a>
-        <div className="nav-section">🤖 Chatbot</div>
-        <a className="nav-item" href="/admin/chatbot">📊 Dashboard</a>
-        <a className="nav-item" href="/admin/chatbot/qna">💬 Q&A Manager</a>
-        <a className="nav-item" href="/admin/chatbot/upload">📤 Upload</a>
-        <a className="nav-item" href="/admin/chatbot/settings">⚙ Settings</a>
-        <div className="nav-section">🔍 SEO</div>
-        <a className="nav-item active" href="/admin/seo-audit">📊 Audit Dashboard</a>
-        <a className="nav-item" href="/admin/seo-audit/settings">⚙ Audit Settings</a>
-        <a className="nav-item" href="/" target="_blank" rel="noreferrer">🏠 Home</a>
-        <div className="nav-section">Account</div>
-        <button className="nav-item" onClick={handleLogout} style={{ color: '#fca5a5' }}>
-          🚪 Sign out
-        </button>
-        <div className="spacer" />
-        <div style={{ padding: '10px 12px', fontSize: 11, color: '#64748b', borderTop: '1px solid #1e293b' }}>
-          v1.0 · SEO Audit Tool
-        </div>
-      </aside>
+      <div className={`sidebar-backdrop${sidebarOpen ? ' open' : ''}`} onClick={() => setSidebarOpen(false)} />
+      <button className="sidebar-toggle" onClick={() => setSidebarOpen(!sidebarOpen)} aria-label="Toggle sidebar">
+        ☰
+      </button>
+      <AdminSidebar isOpen={sidebarOpen} onNavClick={() => setSidebarOpen(false)} />
 
       <main className="admin-main">
         <div className="admin-topbar">

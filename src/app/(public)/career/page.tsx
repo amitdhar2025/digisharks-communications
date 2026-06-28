@@ -184,10 +184,10 @@ export default function CareerPage() {
           <picture>
             <source
               media="(max-width: 600px)"
-              srcSet="/career%20hero%20mobile%20image.png"
+              srcSet="/career%20hero%20mobile%20image.webp"
             />
             <img
-              src="/career%20hero%20image.png"
+              src="/career%20hero%20image.webp"
               alt="Join the DigiSharks Team — We are always looking for passionate, creative, and driven individuals to help us deliver exceptional digital PR and marketing solutions"
               className="career-hero-image"
             />
