@@ -42,6 +42,37 @@ const categoryLabels: Record<string, string> = {
   'remote': 'Remote',
 }
 
+const valueItems = [
+  {
+    icon: '🚀',
+    iconBg: '#FFF1EB',
+    iconColor: '#FF5B2E',
+    title: 'Growth',
+    desc: 'Continuous learning & career advancement opportunities.',
+  },
+  {
+    icon: '💡',
+    iconBg: '#EEF4FF',
+    iconColor: '#3B82F6',
+    title: 'Innovation',
+    desc: 'Work with cutting-edge tools and creative strategies.',
+  },
+  {
+    icon: '🤝',
+    iconBg: '#FFF8E5',
+    iconColor: '#E0A91D',
+    title: 'Culture',
+    desc: 'Collaborative, supportive, and inclusive environment.',
+  },
+  {
+    icon: '🎯',
+    iconBg: '#E8F8EE',
+    iconColor: '#22A565',
+    title: 'Impact',
+    desc: 'Make a real difference for 500+ clients.',
+  },
+]
+
 export default function CareerPage() {
   const [jobs, setJobs] = useState<CareerJob[]>([])
   const [categories, setCategories] = useState<string[]>([])
@@ -150,33 +181,50 @@ export default function CareerPage() {
       <div className="career-container">
         {/* Hero Section */}
         <div className="career-hero">
-          <div className="career-hero-bg" />
-          <h1 className="career-hero-title">
-            Join the <span className="career-hero-accent">Digisharks</span> Team
-          </h1>
-          <p className="career-hero-sub">
-            We are always looking for passionate, creative, and driven individuals 
-            to help us deliver exceptional digital PR and marketing solutions.
-          </p>
+          <img
+            src="/career%20hero%20image.png"
+            alt="Join the DigiSharks Team — We are always looking for passionate, creative, and driven individuals to help us deliver exceptional digital PR and marketing solutions"
+            className="career-hero-image"
+          />
         </div>
 
         {/* Stats */}
         <div className="career-stats-row">
           <div className="career-stat-card">
-            <div className="career-stat-number">{jobs.length}</div>
-            <div className="career-stat-label">Open Positions</div>
+            <div className="career-stat-icon career-stat-icon--orange">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 13h18"/></svg>
+            </div>
+            <div className="career-stat-meta">
+              <div className="career-stat-number">{jobs.length}</div>
+              <div className="career-stat-label">Open Positions</div>
+            </div>
           </div>
           <div className="career-stat-card">
-            <div className="career-stat-number career-stat-number--purple">{categories.length}</div>
-            <div className="career-stat-label">Job Categories</div>
+            <div className="career-stat-icon career-stat-icon--blue">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+            </div>
+            <div className="career-stat-meta">
+              <div className="career-stat-number career-stat-number--blue">{categories.length}</div>
+              <div className="career-stat-label">Job Categories</div>
+            </div>
           </div>
           <div className="career-stat-card">
-            <div className="career-stat-number career-stat-number--yellow">{jobs.reduce((sum, j) => sum + j.numberOfPositions, 0)}</div>
-            <div className="career-stat-label">Hiring For</div>
+            <div className="career-stat-icon career-stat-icon--yellow">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M21 21v-2a4 4 0 0 0-3-3.87"/><path d="M17 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <div className="career-stat-meta">
+              <div className="career-stat-number career-stat-number--yellow">{jobs.reduce((sum, j) => sum + j.numberOfPositions, 0)}</div>
+              <div className="career-stat-label">Hiring For</div>
+            </div>
           </div>
           <div className="career-stat-card">
-            <div className="career-stat-number career-stat-number--green">{jobs.filter((j) => j.location).length}</div>
-            <div className="career-stat-label">Locations</div>
+            <div className="career-stat-icon career-stat-icon--green">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            </div>
+            <div className="career-stat-meta">
+              <div className="career-stat-number career-stat-number--green">{jobs.filter((j) => j.location).length}</div>
+              <div className="career-stat-label">Locations</div>
+            </div>
           </div>
         </div>
 
@@ -209,7 +257,9 @@ export default function CareerPage() {
           </div>
         ) : filteredJobs.length === 0 ? (
           <div className="career-empty-state">
-            <div className="career-empty-state-icon">🔍</div>
+            <div className="career-empty-state-icon-circle">
+              <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+            </div>
             <h3 className="career-empty-state-title">No open positions</h3>
             <p className="career-empty-state-text">
               {activeCategory !== 'all'
@@ -327,25 +377,38 @@ export default function CareerPage() {
 
         {/* Company Values Section */}
         <div className="career-values-section">
+          <div className="career-values-decor-dots" aria-hidden="true" />
           <h2 className="career-values-title">
-            Why Work at Digisharks?
+            Why Work at <span className="career-values-accent">Digisharks</span>?
           </h2>
           <p className="career-values-sub">
             We foster a culture of innovation, growth, and collaboration.
           </p>
           <div className="career-values-grid">
-            {[
-              { icon: '🚀', title: 'Growth', desc: 'Continuous learning & career advancement opportunities' },
-              { icon: '💡', title: 'Innovation', desc: 'Work with cutting-edge tools and creative strategies' },
-              { icon: '🤝', title: 'Culture', desc: 'Collaborative, supportive, and inclusive environment' },
-              { icon: '🎯', title: 'Impact', desc: 'Make a real difference for 500+ clients' },
-            ].map((item) => (
+            {valueItems.map((item) => (
               <div key={item.title} className="career-value-card">
-                <div className="career-value-icon">{item.icon}</div>
-                <h3 className="career-value-card-title">{item.title}</h3>
-                <p className="career-value-card-desc">{item.desc}</p>
+                <div
+                  className="career-value-icon"
+                  style={{ background: item.iconBg, color: item.iconColor }}
+                >
+                  <span>{item.icon}</span>
+                </div>
+                <div className="career-value-card-body">
+                  <h3 className="career-value-card-title">{item.title}</h3>
+                  <p className="career-value-card-desc">{item.desc}</p>
+                </div>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* CTA Banner */}
+        <div className="career-cta-banner">
+          <div className="career-cta-banner-inner">
+            <h2 className="career-cta-title">Ready to Make Waves With Us?</h2>
+            <p className="career-cta-sub">
+              Send your resume to <a href="mailto:marketing@digisharkscommunications.com">marketing@digisharkscommunications.com</a> and we'll get back to you when the right opportunity opens up.
+            </p>
           </div>
         </div>
       </div>
