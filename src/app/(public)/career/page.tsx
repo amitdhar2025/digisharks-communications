@@ -181,11 +181,17 @@ export default function CareerPage() {
       <div className="career-container">
         {/* Hero Section */}
         <div className="career-hero">
-          <img
-            src="/career%20hero%20image.png"
-            alt="Join the DigiSharks Team — We are always looking for passionate, creative, and driven individuals to help us deliver exceptional digital PR and marketing solutions"
-            className="career-hero-image"
-          />
+          <picture>
+            <source
+              media="(max-width: 600px)"
+              srcSet="/career%20hero%20mobile%20image.png"
+            />
+            <img
+              src="/career%20hero%20image.png"
+              alt="Join the DigiSharks Team — We are always looking for passionate, creative, and driven individuals to help us deliver exceptional digital PR and marketing solutions"
+              className="career-hero-image"
+            />
+          </picture>
         </div>
 
         {/* Stats */}

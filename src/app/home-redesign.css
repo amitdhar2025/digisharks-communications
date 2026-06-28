@@ -750,6 +750,11 @@
   .seo-audit-details-grid {
     grid-template-columns: 1fr !important;
   }
+  .seo-audit-details-form .btn-large {
+    padding: 0.85rem 1.5rem !important;
+    font-size: 0.95rem !important;
+    border-radius: 10px !important;
+  }
   .seo-audit-pagespeed-grid {
     grid-template-columns: 1fr !important;
   }
