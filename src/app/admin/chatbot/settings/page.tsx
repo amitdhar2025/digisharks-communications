@@ -303,7 +303,7 @@ export default function ChatbotSettingsPage() {
       <AdminSidebar isOpen={sidebarOpen} onNavClick={() => setSidebarOpen(false)} />
 
       <main className="admin-main">
-        <div className="admin-topbar" style={{ marginTop: 0 }}>
+        <div className="admin-topbar">
           <div>
             <h1>⚙ Chatbot Settings</h1>
             <div className="sub">Configure your chatbot appearance and behavior — all colors are dynamic</div>

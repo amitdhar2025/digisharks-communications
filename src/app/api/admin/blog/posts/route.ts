@@ -1,26 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getAdminFromCookies } from '@/lib/auth'
+import { getAdminFromCookies, isSuperAdmin, getSubAdminPermissions } from '@/lib/auth'
+import { requirePermission } from '@/lib/permissions'
 import { connectMongoose } from '@/lib/mongoose'
 import BlogPost from '@/lib/models/BlogPost'
-import slugify from 'slugify'
-import { v2 as cloudinary } from 'cloudinary'
-import DOMPurify from 'isomorphic-dompurify'
 import { sanitizePlainTextFields } from '@/lib/sanitize'
-
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME || '',
-  api_key: process.env.CLOUDINARY_API_KEY || '',
-  api_secret: process.env.CLOUDINARY_API_SECRET || '',
-})
 
 export const dynamic = 'force-dynamic'
 
 // GET /api/admin/blog/posts - List posts with filtering, sorting, search
 export async function GET(req: NextRequest) {
-  const admin = await getAdminFromCookies()
-  if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
   try {
+    const admin = await getAdminFromCookies()
+    if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+    // Check permission for sub-admins
+    let subPerms = null
+    if (!isSuperAdmin(admin) && admin.subAdminId) {
+      subPerms = await getSubAdminPermissions(admin.subAdminId)
+      const denied = await requirePermission(admin, 'blog', 'view', subPerms)
+      if (denied) return denied
+    }
+
     await connectMongoose()
     const { searchParams } = new URL(req.url)
     const page = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10))
@@ -79,9 +79,9 @@ export async function GET(req: NextRequest) {
       pages: Math.ceil(total / limit),
       page,
     })
-  } catch (err) {
+  } catch (err: any) {
     console.error('GET /api/admin/blog/posts error', err)
-    return NextResponse.json({ error: 'Failed to fetch posts' }, { status: 500 })
+    return NextResponse.json({ error: err?.message || 'Failed to fetch posts' }, { status: 500 })
   }
 }
 
@@ -89,6 +89,13 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const admin = await getAdminFromCookies()
   if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  // Check create permission for sub-admins
+  if (!isSuperAdmin(admin)) {
+    const subPerms = admin.subAdminId ? await getSubAdminPermissions(admin.subAdminId) : null
+    const denied = await requirePermission(admin, 'blog', 'create', subPerms)
+    if (denied) return denied
+  }
 
   try {
     await connectMongoose()
@@ -98,6 +105,12 @@ export async function POST(req: NextRequest) {
     if (!body.title || !body.content) {
       return NextResponse.json({ error: 'Title and content are required' }, { status: 400 })
     }
+
+    // Lazy-import heavy packages so the GET handler (and module init) never loads them
+    const [{ default: DOMPurify }, { default: slugifyFn }] = await Promise.all([
+      import('isomorphic-dompurify'),
+      import('slugify'),
+    ])
 
     // Sanitize content (rich-text via DOMPurify)
     const sanitizedContent = DOMPurify.sanitize(body.content || '')
@@ -110,8 +123,8 @@ export async function POST(req: NextRequest) {
 
     // Generate slug from title or use provided slug
     let slug = body.slug
-      ? slugify(body.slug, { lower: true, strict: true })
-      : slugify(body.title, { lower: true, strict: true })
+      ? slugifyFn(body.slug, { lower: true, strict: true })
+      : slugifyFn(body.title, { lower: true, strict: true })
 
     // Ensure unique slug
     const existing = await BlogPost.findOne({ slug })
@@ -186,6 +199,13 @@ export async function DELETE(req: NextRequest) {
   const admin = await getAdminFromCookies()
   if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+  // Check delete permission for sub-admins
+  if (!isSuperAdmin(admin)) {
+    const subPerms = admin.subAdminId ? await getSubAdminPermissions(admin.subAdminId) : null
+    const denied = await requirePermission(admin, 'blog', 'delete', subPerms)
+    if (denied) return denied
+  }
+
   try {
     await connectMongoose()
     const { searchParams } = new URL(req.url)
@@ -211,6 +231,14 @@ export async function DELETE(req: NextRequest) {
 
     // Find posts to get Cloudinary publicIds for cleanup
     const postsToDelete = await BlogPost.find(query).select('featuredImage bannerImage content').lean()
+
+    // Lazy-import cloudinary so the GET handler never loads it
+    const { v2: cloudinary } = await import('cloudinary')
+    cloudinary.config({
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME || '',
+      api_key: process.env.CLOUDINARY_API_KEY || '',
+      api_secret: process.env.CLOUDINARY_API_SECRET || '',
+    })
 
     // Delete Cloudinary resources
     const publicIds: string[] = []

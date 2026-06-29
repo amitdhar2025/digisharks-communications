@@ -119,7 +119,7 @@ export default function UploadPage() {
       <AdminSidebar isOpen={sidebarOpen} onNavClick={() => setSidebarOpen(false)} />
 
       <main className="admin-main">
-        <div className="admin-topbar" style={{ marginTop: 0 }}>
+        <div className="admin-topbar">
           <div>
             <h1>📤 Upload Q&A</h1>
             <div className="sub">Import questions and answers from Excel or add manually</div>

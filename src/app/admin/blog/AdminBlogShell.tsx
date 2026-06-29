@@ -3,19 +3,17 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import AdminSidebar from '@/components/admin/Sidebar'
+import { adminFetch } from '@/lib/admin-fetch'
 
 export default function AdminBlogShell({ children }: { children: React.ReactNode }) {
   const router = useRouter()
 
   useEffect(() => {
-    fetch('/api/admin/me')
-      .then((r) => r.json())
-      .then((d) => {
-        if (!d?.authenticated) {
-          router.push('/admin/login?next=/admin/blog')
-        }
-      })
-      .catch(() => router.push('/admin/login?next=/admin/blog'))
+    adminFetch('/api/admin/me').then(({ data, error }) => {
+      if (error || !data?.authenticated) {
+        router.push('/admin/login?next=/admin/blog')
+      }
+    })
   }, [router])
 
   const [sidebarOpen, setSidebarOpen] = useState(false)

@@ -1,9 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { ObjectId } from 'mongodb'
 import ExcelJS from 'exceljs'
-import { getAdminFromRequest } from '@/lib/auth'
-import { getQueriesCollection } from '@/lib/db'
+import { getAdminFromRequest, isSuperAdmin, getSubAdminPermissions } from '@/lib/auth'
+import { requirePermission } from '@/lib/permissions'
+import { getQueriesCollection, getSubAdminsCollection } from '@/lib/db'
 
 export const dynamic = 'force-dynamic'
+
+/**
+ * Return the sub-admin's allowed query categories (services they can export).
+ * Empty array = no access. Only meaningful for sub-admins.
+ */
+async function getSubAdminQueryCategories(subAdminId: string): Promise<string[]> {
+  try {
+    const col = await getSubAdminsCollection()
+    const sub = await col.findOne({ _id: new ObjectId(subAdminId) })
+    if (!sub) return []
+    return Array.isArray(sub.queryCategories) ? sub.queryCategories : []
+  } catch {
+    return []
+  }
+}
 
 function statusLabel(s: string) {
   if (s === 'follow-up') return 'Follow-up'
@@ -28,11 +45,31 @@ export async function GET(req: NextRequest) {
   const id = searchParams.get('id')
   const status = searchParams.get('status')
 
+  // Sub-admin: enforce export permission + category restriction
+  if (!isSuperAdmin(admin) && admin.subAdminId) {
+    const subPerms = await getSubAdminPermissions(admin.subAdminId)
+    const denied = await requirePermission(admin, 'queries', 'export', subPerms)
+    if (denied) return denied
+  }
+
   const collection = await getQueriesCollection()
   const filter: any = {}
+
+  // Resolve sub-admin allowed categories (empty = no access)
+  let allowedCategories: string[] | null = null
+  if (!isSuperAdmin(admin) && admin.subAdminId) {
+    allowedCategories = await getSubAdminQueryCategories(admin.subAdminId)
+    if (allowedCategories.length === 0) {
+      // Empty allow-list => deny export entirely
+      return NextResponse.json(
+        { error: 'No categories assigned to your account. Contact a super admin to be granted categories.' },
+        { status: 403 },
+      )
+    }
+  }
+
   if (id) {
     try {
-      const { ObjectId } = await import('mongodb')
       filter._id = new ObjectId(id)
     } catch {
       return NextResponse.json({ error: 'Invalid id' }, { status: 400 })
@@ -41,8 +78,26 @@ export async function GET(req: NextRequest) {
   if (status && status !== 'all') {
     filter.status = status
   }
-
+  if (allowedCategories !== null) {
+    // Sub-admin: enforce that single-id export is also within their categories.
+    if (id) {
+      // Need to also match the service category. Defer final decision below.
+    } else {
+      filter.service = { $in: allowedCategories }
+    }
+  }
   const items = await collection.find(filter).sort({ createdAt: -1 }).toArray()
+
+  // Single-id export: still filter by category restriction
+  if (id && allowedCategories !== null) {
+    const filtered = items.filter((q) => allowedCategories!.includes(q.service))
+    if (filtered.length === 0) {
+      return NextResponse.json(
+        { error: 'You do not have permission to export this query.' },
+        { status: 403 },
+      )
+    }
+  }
 
   const workbook = new ExcelJS.Workbook()
   workbook.creator = 'Digisharks Admin'

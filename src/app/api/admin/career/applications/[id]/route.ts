@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getAdminFromCookies } from '@/lib/auth'
+import { getAdminFromCookies, isSuperAdmin, getSubAdminPermissions } from '@/lib/auth'
+import { requirePermission } from '@/lib/permissions'
 import { connectMongoose } from '@/lib/mongoose'
 import CareerApplication from '@/lib/models/CareerApplication'
 import mongoose from 'mongoose'
@@ -13,6 +14,13 @@ export async function DELETE(
 ) {
   const admin = await getAdminFromCookies()
   if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  // Check delete permission for sub-admins
+  if (!isSuperAdmin(admin)) {
+    const subPerms = admin.subAdminId ? await getSubAdminPermissions(admin.subAdminId) : null
+    const denied = await requirePermission(admin, 'career', 'delete', subPerms)
+    if (denied) return denied
+  }
 
   try {
     await connectMongoose()

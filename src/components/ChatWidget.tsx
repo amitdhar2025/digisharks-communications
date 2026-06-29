@@ -271,8 +271,8 @@ export default function ChatWidget() {
   const showPillBorder = pillBorder && pillBorder !== 'transparent' && pillBorder !== 'rgba(0,0,0,0)'
 
   return (
-    <>
-      <style>{`
+      <div id="chat-widget-host">
+        <style>{`
         @keyframes slideIn { from { opacity: 0; transform: translateY(16px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
         @keyframes chatBubbleBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
         @keyframes chatBubblePulse { 0% { box-shadow: 0 6px 18px ${bubbleShadow}, 0 0 0 0 ${bubbleBg}55; } 70% { box-shadow: 0 6px 18px ${bubbleShadow}, 0 0 0 18px ${bubbleBg}00; } 100% { box-shadow: 0 6px 18px ${bubbleShadow}, 0 0 0 0 ${bubbleBg}00; } }
@@ -355,6 +355,7 @@ export default function ChatWidget() {
             style={{ background: primaryColor, border: 'none', borderRadius: 10, padding: '10px 14px', color: '#fff', fontWeight: 600, fontSize: 13, cursor: loading || !input.trim() ? 'not-allowed' : 'pointer', opacity: loading || !input.trim() ? 0.6 : 1 }}>Send</button>
         </div>
       </div>
-    </>
-  )
-}
+      </div>
+    )
+  }
+  

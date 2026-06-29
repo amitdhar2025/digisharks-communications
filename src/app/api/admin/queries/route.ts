@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getAdminFromRequest } from '@/lib/auth'
-import { getQueriesCollection, ContactQuery } from '@/lib/db'
+import { ObjectId } from 'mongodb'
+import { getAdminFromRequest, isSuperAdmin, getSubAdminPermissions } from '@/lib/auth'
+import { requirePermission } from '@/lib/permissions'
+import { getQueriesCollection, getSubAdminsCollection, ContactQuery } from '@/lib/db'
 
 export const dynamic = 'force-dynamic'
 
@@ -16,10 +18,41 @@ function toClient(q: any) {
   return { id: _id?.toString(), ...rest, comments }
 }
 
-function buildFilter(searchParams: URLSearchParams) {
+/**
+ * Fetch the sub-admin's allowed query categories from the DB.
+ * Returns empty array if user is not a sub-admin / not found / not configured.
+ */
+async function getSubAdminQueryCategories(subAdminId: string): Promise<string[]> {
+  try {
+    const col = await getSubAdminsCollection()
+    const sub = await col.findOne({ _id: new ObjectId(subAdminId) })
+    if (!sub) return []
+    return Array.isArray(sub.queryCategories) ? sub.queryCategories : []
+  } catch {
+    return []
+  }
+}
+
+function buildFilter(
+  searchParams: URLSearchParams,
+  allowedCategories?: string[] | null,
+) {
   const status = searchParams.get('status')
   const search = searchParams.get('search')
   const filter: any = {}
+
+  // Enforce sub-admin category restriction. If allowedCategories is provided
+  // (non-null), only queries whose `service` is in that list are visible.
+  // null/undefined = no restriction (super-admin).
+  if (allowedCategories !== undefined && allowedCategories !== null) {
+    if (!Array.isArray(allowedCategories) || allowedCategories.length === 0) {
+      // Empty allowed list = no access at all. Force a filter that returns nothing.
+      filter._id = { $exists: false }
+      return filter
+    }
+    filter.service = { $in: allowedCategories }
+  }
+
   if (status && status !== 'all') {
     filter.status = status
   }
@@ -42,12 +75,24 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
+  // Check view permission for sub-admins
+  if (!isSuperAdmin(admin) && admin.subAdminId) {
+    const subPerms = await getSubAdminPermissions(admin.subAdminId)
+    const denied = await requirePermission(admin, 'queries', 'view', subPerms)
+    if (denied) return denied
+  }
+
   const { searchParams } = new URL(req.url)
   const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10))
   const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '50', 10)))
 
+  // Sub-admin: restrict to allowed queryCategories (if any)
+  const allowedCategories = !isSuperAdmin(admin) && admin.subAdminId
+    ? await getSubAdminQueryCategories(admin.subAdminId)
+    : null
+
   const collection = await getQueriesCollection()
-  const filter = buildFilter(searchParams)
+  const filter = buildFilter(searchParams, allowedCategories ?? undefined)
 
   const total = await collection.countDocuments(filter)
   const items = await collection
@@ -70,6 +115,13 @@ export async function POST(req: NextRequest) {
   const admin = getAdminFromRequest(req)
   if (!admin) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  // Check create permission for sub-admins
+  if (!isSuperAdmin(admin)) {
+    const subPerms = admin.subAdminId ? await getSubAdminPermissions(admin.subAdminId) : null
+    const denied = await requirePermission(admin, 'queries', 'edit', subPerms)
+    if (denied) return denied
   }
 
   try {
@@ -111,7 +163,19 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
+  // Check delete permission for sub-admins
+  if (!isSuperAdmin(admin)) {
+    const subPerms = admin.subAdminId ? await getSubAdminPermissions(admin.subAdminId) : null
+    const denied = await requirePermission(admin, 'queries', 'delete', subPerms)
+    if (denied) return denied
+  }
+
   try {
+    // Sub-admin: restrict deletion to allowed queryCategories
+    const allowedCategories = !isSuperAdmin(admin) && admin.subAdminId
+      ? await getSubAdminQueryCategories(admin.subAdminId)
+      : null
+
     const { searchParams } = new URL(req.url)
     const confirm = searchParams.get('confirm')
 
@@ -122,7 +186,7 @@ export async function DELETE(req: NextRequest) {
       )
     }
 
-    const filter = buildFilter(searchParams)
+    const filter = buildFilter(searchParams, allowedCategories ?? undefined)
     const collection = await getQueriesCollection()
 
     // Count how many will be deleted for reporting

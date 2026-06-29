@@ -396,10 +396,9 @@ export default function AdminCareerPage() {
         </div>
       )}
 
-      {/* Tab Navigation */}
-      <div className="admin-topbar" style={{ marginTop: 0 }}>
-        <div>
-          <h1>Career Management</h1>
+      {/* Tab Navigation */}<div className="admin-topbar">
+          <div>
+            <h1>💼 Career Management</h1>
           <div className="sub">Manage job openings and applications</div>
         </div>
         <div className="cell-actions">

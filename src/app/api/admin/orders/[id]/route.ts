@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { ObjectId } from 'mongodb'
-import { getAdminFromRequest } from '@/lib/auth'
+import { getAdminFromRequest, isSuperAdmin, getSubAdminPermissions } from '@/lib/auth'
+import { requirePermission } from '@/lib/permissions'
 import { getOrdersCollection } from '@/lib/products'
 
 export const dynamic = 'force-dynamic'
@@ -16,6 +17,13 @@ export async function DELETE(
   const admin = getAdminFromRequest(req)
   if (!admin) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  // Check delete permission for sub-admins
+  if (!isSuperAdmin(admin)) {
+    const subPerms = admin.subAdminId ? await getSubAdminPermissions(admin.subAdminId) : null
+    const denied = await requirePermission(admin, 'store', 'delete', subPerms)
+    if (denied) return denied
   }
 
   try {

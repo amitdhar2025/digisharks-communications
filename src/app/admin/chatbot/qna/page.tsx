@@ -207,7 +207,7 @@ export default function QnaManagerPage() {
       <AdminSidebar isOpen={sidebarOpen} onNavClick={() => setSidebarOpen(false)} />
 
       <main className="admin-main">
-        <div className="admin-topbar" style={{ marginTop: 0 }}>
+        <div className="admin-topbar">
           <div>
             <h1>💬 Q&A Manager</h1>
             <div className="sub">{total} total {total === 1 ? 'entry' : 'entries'} · page {page} of {pages}</div>

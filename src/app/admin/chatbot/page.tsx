@@ -38,7 +38,7 @@ export default function ChatbotDashboardPage() {
       <AdminSidebar isOpen={sidebarOpen} onNavClick={() => setSidebarOpen(false)} />
 
       <main className="admin-main">
-        <div className="admin-topbar" style={{ marginTop: 0 }}>
+        <div className="admin-topbar">
           <div>
             <h1>🤖 Chatbot Dashboard</h1>
             <div className="sub">Overview of your chatbot Q&A system</div>

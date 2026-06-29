@@ -1,538 +1,226 @@
 'use client'
 
-import { useEffect, useMemo, useState, useCallback, FormEvent } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import AdminSidebar from '@/components/admin/Sidebar'
-import {
-  QueryItem,
-  Status,
-  STATUS_OPTIONS,
-  statusClass,
-  statusLabel,
-  fmtDate,
-} from '@/components/admin/types'
-import ViewModal from '@/components/admin/ViewModal'
-import EditModal from '@/components/admin/EditModal'
-import CreateModal from '@/components/admin/CreateModal'
-import DeleteModal from '@/components/admin/DeleteModal'
-import DeleteAllModal from '@/components/admin/DeleteAllModal'
 
-export default function DashboardPage() {
+interface SubAdminPermissions {
+  blog: { view: boolean; create: boolean; edit: boolean; delete: boolean }
+  store: { view: boolean; create: boolean; edit: boolean; delete: boolean }
+  career: { view: boolean; create: boolean; edit: boolean; delete: boolean }
+  chatbot: { view: boolean; manage: boolean; settings: boolean }
+  seoAudit: { view: boolean; delete: boolean }
+  rss: { view: boolean; create: boolean; edit: boolean; delete: boolean }
+  queries: { view: boolean; edit: boolean; delete: boolean; export: boolean }
+}
+
+interface MeResponse {
+  authenticated: boolean
+  username?: string
+  role?: 'admin' | 'sub-admin'
+  permissions?: SubAdminPermissions | null
+}
+
+/** Map each permission section to its admin URL */
+const SECTION_URLS: Record<keyof SubAdminPermissions, string> = {
+  queries: '/admin/queries',
+  store: '/admin/store',
+  blog: '/admin/blog',
+  rss: '/admin/rss',
+  career: '/admin/career',
+  chatbot: '/admin/chatbot',
+  seoAudit: '/admin/seo-audit',
+}
+
+interface DashboardStats {
+  queries: number
+  orders: number
+  revenue: number
+  blogPosts: number
+  careerApps: number
+  rssFeeds: number
+}
+
+const QUICK_LINKS: { href: string; label: string; icon: string; description: string; tag: 'main' | 'chatbot' | 'seo' | 'admin' }[] = [
+  { href: '/admin/queries', label: 'Contact Queries', icon: '📋', description: 'View & respond to contact-form submissions.', tag: 'main' },
+  { href: '/admin/store', label: 'Digital Products Sales', icon: '🛒', description: 'Manage product orders and pricing.', tag: 'main' },
+  { href: '/admin/blog', label: 'Blog Posts', icon: '📝', description: 'Create, edit, and publish blog posts.', tag: 'main' },
+  { href: '/admin/rss', label: 'RSS Feeds', icon: '📡', description: 'Curate the news & RSS feed sources.', tag: 'main' },
+  { href: '/admin/career', label: 'Career', icon: '💼', description: 'Manage job postings & applications.', tag: 'main' },
+  { href: '/admin/chatbot', label: 'Chatbot Dashboard', icon: '🤖', description: 'Stats and Q&A manager for the chatbot.', tag: 'chatbot' },
+  { href: '/admin/chatbot/qna', label: 'Q&A Manager', icon: '💬', description: 'Edit the chatbot knowledge base.', tag: 'chatbot' },
+  { href: '/admin/seo-audit', label: 'SEO Audit', icon: '🔍', description: 'Review site audit reports and tools.', tag: 'seo' },
+  { href: '/admin/seo-audit/settings', label: 'Audit Settings', icon: '⚙', description: 'Configure Lighthouse / PageSpeed keys.', tag: 'seo' },
+  { href: '/admin/sub-admins', label: 'Sub-Admin Management', icon: '👥', description: 'Create & manage sub-admin accounts.', tag: 'admin' },
+]
+
+const TAG_LABEL: Record<string, string> = {
+  main: '📋 Management',
+  chatbot: '🤖 Chatbot',
+  seo: '🔍 SEO',
+  admin: '⚙ System',
+}
+
+function fmtINR(n: number) {
+  return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(n)
+}
+
+export default function DashboardOverview() {
   const router = useRouter()
-  const [items, setItems] = useState<QueryItem[]>([])
-  const [total, setTotal] = useState(0)
-  const [pages, setPages] = useState(1)
-  const [page, setPage] = useState(1)
-  const limit = 20
-  const [statusFilter, setStatusFilter] = useState<'all' | Status>('all')
-  const [search, setSearch] = useState('')
-  const [searchInput, setSearchInput] = useState('')
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [username, setUsername] = useState<string>('')
-
-  // Modals
-  const [viewItem, setViewItem] = useState<QueryItem | null>(null)
-  const [editItem, setEditItem] = useState<QueryItem | null>(null)
-  const [createOpen, setCreateOpen] = useState(false)
-  const [deleteTarget, setDeleteTarget] = useState<QueryItem | null>(null)
-  const [deleting, setDeleting] = useState(false)
-
-  // Bulk delete ("delete all" matching the current filter)
-  const [deleteAllOpen, setDeleteAllOpen] = useState(false)
-  const [deleteAllBusy, setDeleteAllBusy] = useState(false)
-
-  const [exportLoading, setExportLoading] = useState(false)
+  const [me, setMe] = useState<MeResponse | null>(null)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [stats, setStats] = useState<DashboardStats | null>(null)
+  const [statsLoading, setStatsLoading] = useState(true)
 
   useEffect(() => {
     fetch('/api/admin/me')
       .then((r) => r.json())
-      .then((d) => {
-        if (d?.authenticated) setUsername(d.username)
+      .then((d: MeResponse) => {
+        if (!d?.authenticated) {
+          router.push('/admin/login')
+          return
+        }
+        // Dashboard is for super admins only
+        if (d.role === 'sub-admin') {
+          // Find the first section this sub-admin has access to
+          const perms = d.permissions
+          const firstAccessible = (Object.keys(SECTION_URLS) as (keyof SubAdminPermissions)[])
+            .find((section) => {
+              if (!perms?.[section]) return false
+              return Object.values(perms[section]).some(Boolean)
+            })
+          if (firstAccessible) {
+            router.push(SECTION_URLS[firstAccessible])
+          } else {
+            router.push('/admin/login')
+          }
+          return
+        }
+        setMe(d)
       })
-      .catch(() => {})
-  }, [])
-
-  const load = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      const params = new URLSearchParams()
-      params.set('page', String(page))
-      params.set('limit', String(limit))
-      if (statusFilter !== 'all') params.set('status', statusFilter)
-      if (search) params.set('search', search)
-      const res = await fetch(`/api/admin/queries?${params.toString()}`)
-      if (res.status === 401) {
+      .catch(() => {
+        setMe({ authenticated: false })
         router.push('/admin/login')
-        return
-      }
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Failed to load')
-      setItems(data.items)
-      setTotal(data.total)
-      setPages(data.pages || 1)
-    } catch (e: any) {
-      setError(e.message || 'Failed to load')
-    } finally {
-      setLoading(false)
-    }
-  }, [page, statusFilter, search, router])
+      })
+  }, [router])
 
+  // Fetch dashboard stats from multiple admin APIs
   useEffect(() => {
-    load()
-  }, [load])
+    if (me?.role !== 'admin') return
 
-  function applySearch(e: FormEvent) {
-    e.preventDefault()
-    setPage(1)
-    setSearch(searchInput.trim())
-  }
+    Promise.allSettled([
+      fetch('/api/admin/queries?limit=1').then((r) => r.json()),
+      fetch('/api/admin/orders').then((r) => r.json()),
+      fetch('/api/admin/blog/posts?limit=1').then((r) => r.json()),
+      fetch('/api/admin/career/applications?limit=1').then((r) => r.json()),
+      fetch('/api/admin/rss/stats').then((r) => r.json()),
+    ]).then((results) => {
+      const get = <T,>(r: PromiseSettledResult<T>, fallback: T) =>
+        r.status === 'fulfilled' ? r.value : fallback
 
-  async function changeStatus(id: string, status: Status) {
-    try {
-      const res = await fetch(`/api/admin/queries/${id}/status`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status }),
+      const queriesData = get<any>(results[0], {})
+      const ordersData = get<any>(results[1], {})
+      const blogData = get<any>(results[2], {})
+      const careerData = get<any>(results[3], {})
+      const rssData = get<any>(results[4], {})
+
+      setStats({
+        queries: queriesData.total ?? 0,
+        orders: ordersData.stats?.totalOrders ?? 0,
+        revenue: ordersData.stats?.totalRevenue ?? 0,
+        blogPosts: blogData.total ?? 0,
+        careerApps: careerData.total ?? 0,
+        rssFeeds: rssData.totalFeeds ?? 0,
       })
-      if (!res.ok) throw new Error((await res.json()).error || 'Update failed')
-      const data = await res.json()
-      setItems((prev) => prev.map((q) => (q.id === id ? data.item : q)))
-      if (viewItem?.id === id) setViewItem(data.item)
-      if (editItem?.id === id) setEditItem(data.item)
-    } catch (e: any) {
-      alert(e.message)
-    }
-  }
+      setStatsLoading(false)
+    }).catch(() => setStatsLoading(false))
+  }, [me])
 
-  async function handleDelete() {
-    if (!deleteTarget) return
-    setDeleting(true)
-    try {
-      const res = await fetch(`/api/admin/queries/${deleteTarget.id}`, {
-        method: 'DELETE',
-      })
-      if (!res.ok) throw new Error((await res.json()).error || 'Delete failed')
-      setDeleteTarget(null)
-      load()
-    } catch (e: any) {
-      alert(e.message)
-    } finally {
-      setDeleting(false)
-    }
-  }
+  const uniqueTags = [...new Set(QUICK_LINKS.map((l) => l.tag))]
 
-  const deleteAllScopeLabel = useMemo(() => {
-    const parts: string[] = []
-    if (statusFilter !== 'all') parts.push(`status = ${statusFilter}`)
-    if (search) parts.push(`search "${search}"`)
-    if (parts.length === 0) return 'across all statuses and searches'
-    return `matching ${parts.join(' and ')}`
-  }, [statusFilter, search])
-
-  async function handleDeleteAll() {
-    setDeleteAllBusy(true)
-    try {
-      const params = new URLSearchParams()
-      params.set('confirm', 'yes')
-      if (statusFilter !== 'all') params.set('status', statusFilter)
-      if (search) params.set('search', search)
-      const res = await fetch(`/api/admin/queries?${params.toString()}`, {
-        method: 'DELETE',
-      })
-      const data = await res.json().catch(() => ({}))
-      if (!res.ok) throw new Error(data.error || 'Bulk delete failed')
-      setDeleteAllOpen(false)
-      // Reset to first page since rows have shifted
-      setPage(1)
-      // Show a quick success message
-      if (data?.message) {
-        setError(null)
-        alert(data.message)
-      }
-      load()
-    } catch (e: any) {
-      alert(e.message)
-    } finally {
-      setDeleteAllBusy(false)
-    }
-  }
-
-  async function handleLogout() {
-    await fetch('/api/admin/logout', { method: 'POST' })
-    router.push('/admin/login')
-    router.refresh()
-  }
-
-  function handleExportAll() {
-    setExportLoading(true)
-    const params = new URLSearchParams()
-    if (statusFilter !== 'all') params.set('status', statusFilter)
-    if (search) params.set('search', search)
-    fetch(`/api/admin/export?${params.toString()}`)
-      .then(async (res) => {
-        if (!res.ok) throw new Error('Export failed')
-        const blob = await res.blob()
-        const url = URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = `queries-${new Date().toISOString().substring(0, 10)}.xlsx`
-        document.body.appendChild(a)
-        a.click()
-        a.remove()
-        URL.revokeObjectURL(url)
-      })
-      .catch((e) => alert(e.message))
-      .finally(() => setExportLoading(false))
-  }
-
-  function handleExportOne(id: string) {
-    fetch(`/api/admin/export?id=${id}`)
-      .then(async (res) => {
-        if (!res.ok) throw new Error('Export failed')
-        const blob = await res.blob()
-        const url = URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = `query-${id}.xlsx`
-        document.body.appendChild(a)
-        a.click()
-        a.remove()
-        URL.revokeObjectURL(url)
-      })
-      .catch((e) => alert(e.message))
-  }
-
-  const stats = useMemo(() => {
-    return {
-      total: items.length,
-      pending: items.filter((q) => q.status === 'pending').length,
-      completed: items.filter((q) => q.status === 'completed').length,
-      followup: items.filter((q) => q.status === 'follow-up').length,
-    }
-  }, [items])
-
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const statCards = [
+    { icon: '📋', value: stats?.queries, label: 'Contact Queries', color: 'blue' },
+    { icon: '🛒', value: stats?.orders, label: 'Orders', color: 'green' },
+    { icon: '💰', value: stats ? fmtINR(stats.revenue) : undefined, label: 'Revenue', color: 'amber' },
+    { icon: '📝', value: stats?.blogPosts, label: 'Blog Posts', color: 'purple' },
+    { icon: '💼', value: stats?.careerApps, label: 'Applications', color: 'rose' },
+    { icon: '📡', value: stats?.rssFeeds, label: 'RSS Feeds', color: 'cyan' },
+  ]
 
   return (
     <div className="admin-layout">
-      <div className={`sidebar-backdrop${sidebarOpen ? ' open' : ''}`} onClick={() => setSidebarOpen(false)} />
-      <button className="sidebar-toggle" onClick={() => setSidebarOpen(!sidebarOpen)} aria-label="Toggle sidebar">
+      <div
+        className={`sidebar-backdrop${sidebarOpen ? ' open' : ''}`}
+        onClick={() => setSidebarOpen(false)}
+      />
+      <button
+        className="sidebar-toggle"
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        aria-label="Toggle sidebar"
+      >
         ☰
       </button>
       <AdminSidebar isOpen={sidebarOpen} onNavClick={() => setSidebarOpen(false)} />
 
       <main className="admin-main">
+        {/* Standard admin topbar — consistent with all other admin pages */}
         <div className="admin-topbar">
           <div>
-            <h1>Contact Queries</h1>
+            <h1>📊 Dashboard</h1>
             <div className="sub">
-              {total} total {total === 1 ? 'record' : 'records'} · page {page} of {pages}
+              {me?.username ? `Welcome back, ${me.username}` : 'Admin overview'} &middot; Super Admin
             </div>
           </div>
-          <div className="cell-actions">
-            <button
-              className="btn btn-ghost"
-              onClick={handleExportAll}
-              disabled={exportLoading}
-            >
-              {exportLoading ? <span className="spinner" /> : '⬇'} Export all (.xlsx)
-            </button>
-            <div style={{ position: 'relative' }}>
-              <button
-                className="btn btn-danger"
-                onClick={() => setDeleteAllOpen(true)}
-                disabled={total === 0}
-                title={
-                  total === 0
-                    ? 'No queries to delete'
-                    : `Delete all ${total} ${total === 1 ? 'query' : 'queries'} matching the current filter`
-                }
-              >
-                🗑 Delete all ({total})
-              </button>
-            </div>
-            <button className="btn btn-primary" onClick={() => setCreateOpen(true)}>
-              ＋ New query
-            </button>
+          <div className="admin-header-meta">
+            <span className="admin-header-pill">
+              <span className="admin-header-dot" /> Super Admin
+            </span>
           </div>
         </div>
 
-        <div className="stat-grid">
-          <div className="stat-card total">
-            <div className="label">Total (this view)</div>
-            <div className="value">{stats.total}</div>
-          </div>
-          <div className="stat-card pending">
-            <div className="label">Pending</div>
-            <div className="value">{stats.pending}</div>
-          </div>
-          <div className="stat-card followup">
-            <div className="label">Follow-up</div>
-            <div className="value">{stats.followup}</div>
-          </div>
-          <div className="stat-card completed">
-            <div className="label">Completed</div>
-            <div className="value">{stats.completed}</div>
-          </div>
+        {/* Stats Row */}
+        <div className="dash-stats">
+          {statCards.map((s) => (
+            <div key={s.label} className={`dash-stat-card ${s.color}`}>
+              <span className="dash-stat-icon">{s.icon}</span>
+              <div className={`dash-stat-value${statsLoading ? ' loading' : ''}`}>
+                {statsLoading ? '—' : (s.value ?? '—')}
+              </div>
+              <div className="dash-stat-label">{s.label}</div>
+            </div>
+          ))}
         </div>
 
-        <form className="toolbar" onSubmit={applySearch}>
-          <input
-            className="grow"
-            placeholder="Search by name, email, phone, service, message…"
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-          />
-          <select
-            value={statusFilter}
-            onChange={(e) => {
-              setStatusFilter(e.target.value as 'all' | Status)
-              setPage(1)
-            }}
-          >
-            <option value="all">All statuses</option>
-            <option value="pending">Pending</option>
-            <option value="follow-up">Follow-up</option>
-            <option value="completed">Completed</option>
-          </select>
-          <button className="btn btn-primary" type="submit">
-            Search
-          </button>
-          {(search || statusFilter !== 'all') && (
-            <button
-              type="button"
-              className="btn btn-ghost"
-              onClick={() => {
-                setSearchInput('')
-                setSearch('')
-                setStatusFilter('all')
-                setPage(1)
-              }}
-            >
-              Clear
-            </button>
-          )}
-          <button
-            type="button"
-            className="btn btn-ghost"
-            onClick={load}
-            title="Refresh"
-          >
-            ↻ Refresh
-          </button>
-        </form>
-
-        {error && <div className="alert alert-error">{error}</div>}
-
-        <div className="table-wrap">
-          <table className="queries">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Service</th>
-                <th>Status</th>
-                <th>Comments</th>
-                <th>Created</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td colSpan={8} className="empty">
-                    <span className="spinner" /> Loading…
-                  </td>
-                </tr>
-              ) : items.length === 0 ? (
-                <tr>
-                  <td colSpan={8} className="empty">
-                    <div className="icon">📭</div>
-                    <div>No queries found</div>
-                  </td>
-                </tr>
-              ) : (
-                items.map((q) => (
-                  <tr key={q.id}>
-                    <td>
-                      <div style={{ fontWeight: 600 }}>{q.fullName}</div>
-                      <div
-                        style={{
-                          color: '#94a3b8',
-                          fontSize: 12,
-                          marginTop: 2,
-                          maxWidth: 280,
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                        }}
-                        title={q.message}
-                      >
-                        {q.message}
-                      </div>
-                    </td>
-                    <td>
-                      <a
-                        href={`mailto:${q.email}`}
-                        style={{ color: '#7dd3fc', textDecoration: 'none' }}
-                      >
-                        {q.email}
-                      </a>
-                    </td>
-                    <td>{q.phone || '—'}</td>
-                    <td>{q.service}</td>
-                    <td>
-                      <select
-                        className={`status-pill ${statusClass(q.status)}`}
-                        value={q.status}
-                        onChange={(e) =>
-                          changeStatus(q.id, e.target.value as Status)
-                        }
-                      >
-                        {STATUS_OPTIONS.map((s) => (
-                          <option key={s} value={s}>
-                            {statusLabel(s)}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                    <td>
-                      <span className="badge">💬 {q.comments?.length || 0}</span>
-                    </td>
-                    <td style={{ whiteSpace: 'nowrap', color: '#94a3b8' }}>
-                      {fmtDate(q.createdAt)}
-                    </td>
-                    <td>
-                      <div className="cell-actions">
-                        <button
-                          className="icon-btn"
-                          onClick={() => setViewItem(q)}
-                          title="View"
-                        >
-                          👁 View
-                        </button>
-                        <button
-                          className="icon-btn"
-                          onClick={() => setEditItem(q)}
-                          title="Edit"
-                        >
-                          ✏ Edit
-                        </button>
-                        <button
-                          className="icon-btn"
-                          onClick={() => handleExportOne(q.id)}
-                          title="Download as Excel"
-                        >
-                          ⬇ Excel
-                        </button>
-                        <button
-                          className="icon-btn danger"
-                          onClick={() => setDeleteTarget(q)}
-                          title="Delete"
-                        >
-                          🗑 Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-          <div className="pager">
-            <div>
-              Showing {(page - 1) * limit + (items.length ? 1 : 0)}–
-              {(page - 1) * limit + items.length} of {total}
+        {/* Quick Links Sections */}
+        {uniqueTags.map((tag) => (
+          <section key={tag} className="dash-section">
+            <div className="dash-section-title">{TAG_LABEL[tag]}</div>
+            <div className="dash-grid">
+              {QUICK_LINKS.filter((l) => l.tag === tag).map((l) => (
+                <a key={l.href} className="dash-card" href={l.href}>
+                  <div className="dash-card-icon">{l.icon}</div>
+                  <div className="dash-card-body">
+                    <div className="dash-card-title">{l.label}</div>
+                    <div className="dash-card-desc">{l.description}</div>
+                  </div>
+                  <div className="dash-card-arrow">→</div>
+                </a>
+              ))}
             </div>
-            <div className="btns">
-              <button
-                className="icon-btn"
-                disabled={page <= 1}
-                onClick={() => setPage(1)}
-              >
-                «
-              </button>
-              <button
-                className="icon-btn"
-                disabled={page <= 1}
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-              >
-                ‹ Prev
-              </button>
-              <button
-                className="icon-btn"
-                disabled={page >= pages}
-                onClick={() => setPage((p) => Math.min(pages, p + 1))}
-              >
-                Next ›
-              </button>
-              <button
-                className="icon-btn"
-                disabled={page >= pages}
-                onClick={() => setPage(pages)}
-              >
-                »
-              </button>
-            </div>
+          </section>
+        ))}
+
+        {/* Tip */}
+        <div className="dash-tip">
+          <div className="dash-tip-title">💡 Quick tip</div>
+          <div className="dash-tip-body">
+            Use the sidebar on the left to navigate between sections at any time.
+            Manage sub-admin permissions and access from{' '}
+            <a href="/admin/sub-admins">Sub-Admins</a>.
+            Need help? Reach out to the development team.
           </div>
         </div>
       </main>
-
-      {viewItem && (
-        <ViewModal
-          item={viewItem}
-          onClose={() => setViewItem(null)}
-          onChangeStatus={(s) => changeStatus(viewItem.id, s)}
-          onUpdate={(it) => {
-            setViewItem(it)
-            setItems((prev) => prev.map((q) => (q.id === it.id ? it : q)))
-          }}
-        />
-      )}
-
-      {editItem && (
-        <EditModal
-          item={editItem}
-          onClose={() => setEditItem(null)}
-          onSaved={(it) => {
-            setEditItem(null)
-            setItems((prev) => prev.map((q) => (q.id === it.id ? it : q)))
-            load()
-          }}
-        />
-      )}
-
-      {createOpen && (
-        <CreateModal
-          onClose={() => setCreateOpen(false)}
-          onCreated={() => {
-            setCreateOpen(false)
-            load()
-          }}
-        />
-      )}
-
-      {deleteTarget && (
-        <DeleteModal
-          target={deleteTarget}
-          onClose={() => setDeleteTarget(null)}
-          onConfirm={handleDelete}
-          busy={deleting}
-        />
-      )}
-
-      {deleteAllOpen && (
-        <DeleteAllModal
-          count={total}
-          scopeLabel={deleteAllScopeLabel}
-          onClose={() => (deleteAllBusy ? null : setDeleteAllOpen(false))}
-          onConfirm={handleDeleteAll}
-          busy={deleteAllBusy}
-        />
-      )}
     </div>
   )
 }

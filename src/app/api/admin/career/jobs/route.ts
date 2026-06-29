@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getAdminFromCookies } from '@/lib/auth'
+import { getAdminFromCookies, isSuperAdmin, getSubAdminPermissions } from '@/lib/auth'
+import { requirePermission } from '@/lib/permissions'
 import { connectMongoose } from '@/lib/mongoose'
 import CareerJob from '@/lib/models/CareerJob'
 import slugify from 'slugify'
@@ -10,6 +11,13 @@ export const dynamic = 'force-dynamic'
 export async function GET(req: NextRequest) {
   const admin = await getAdminFromCookies()
   if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  // Check view permission for sub-admins
+  if (!isSuperAdmin(admin) && admin.subAdminId) {
+    const subPerms = await getSubAdminPermissions(admin.subAdminId)
+    const denied = await requirePermission(admin, 'career', 'view', subPerms)
+    if (denied) return denied
+  }
 
   try {
     await connectMongoose()
@@ -66,6 +74,13 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const admin = await getAdminFromCookies()
   if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  // Check create permission for sub-admins
+  if (!isSuperAdmin(admin)) {
+    const subPerms = admin.subAdminId ? await getSubAdminPermissions(admin.subAdminId) : null
+    const denied = await requirePermission(admin, 'career', 'create', subPerms)
+    if (denied) return denied
+  }
 
   try {
     await connectMongoose()

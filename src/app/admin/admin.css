@@ -189,6 +189,7 @@
   display: grid;
   grid-template-columns: 240px 1fr;
   min-height: 100vh;
+  margin-top: 70px;
 }
 
 /* ────────── SIDEBAR ────────── */
@@ -301,7 +302,6 @@
   margin-bottom: 18px;
   flex-wrap: wrap;
   gap: 12px;
-  margin-top: 100px;
 }
 
 .admin-topbar h1 {
@@ -683,6 +683,260 @@
   font-size: 12px;
 }
 
+/* ═══════════════════════════════════════════════
+   ADMIN DASHBOARD — section / card styles
+   ═══════════════════════════════════════════════ */
+
+/* Shared header meta elements (used by dashboard and potentially other pages) */
+.admin-shell .admin-header-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.admin-shell .admin-header-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(14,165,233,0.10);
+  border: 1px solid rgba(14,165,233,0.2);
+  color: #7dd3fc;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.admin-shell .admin-header-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 8px rgba(74,222,128,0.5);
+}
+
+/* ────────── DASHBOARD STAT ROW ────────── */
+.admin-shell .dash-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.admin-shell .dash-stat-card {
+  background: linear-gradient(135deg, #0f172a 0%, #0b1220 100%);
+  border: 1px solid #1e293b;
+  border-radius: 14px;
+  padding: 18px 20px;
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+  cursor: default;
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-shell .dash-stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  border-radius: 14px 14px 0 0;
+}
+
+.admin-shell .dash-stat-card.blue::before { background: linear-gradient(90deg, #0ea5e9, #38bdf8); }
+.admin-shell .dash-stat-card.green::before { background: linear-gradient(90deg, #10b981, #34d399); }
+.admin-shell .dash-stat-card.purple::before { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+.admin-shell .dash-stat-card.amber::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+.admin-shell .dash-stat-card.rose::before { background: linear-gradient(90deg, #ef4444, #f87171); }
+.admin-shell .dash-stat-card.cyan::before { background: linear-gradient(90deg, #06b6d4, #22d3ee); }
+
+.admin-shell .dash-stat-card:hover {
+  border-color: rgba(14,165,233,0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+}
+
+.admin-shell .dash-stat-icon {
+  font-size: 22px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.admin-shell .dash-stat-value {
+  font-size: 28px;
+  font-weight: 800;
+  color: #f1f5f9;
+  font-family: var(--font-jakarta, 'Plus Jakarta Sans', sans-serif);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 2px;
+}
+
+.admin-shell .dash-stat-value.loading {
+  color: #475569;
+  font-size: 20px;
+}
+
+.admin-shell .dash-stat-label {
+  font-size: 12px;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 500;
+}
+
+/* ────────── DASHBOARD SECTIONS ────────── */
+.admin-shell .dash-section {
+  margin-bottom: 24px;
+}
+
+.admin-shell .dash-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748b;
+  margin-bottom: 12px;
+  padding-left: 2px;
+}
+
+.admin-shell .dash-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 10px;
+}
+
+.admin-shell .dash-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: #0f172a;
+  border: 1px solid #1e293b;
+  border-radius: 12px;
+  color: #e2e8f0;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.admin-shell .dash-card:hover {
+  border-color: rgba(14,165,233,0.3);
+  background: linear-gradient(135deg, #0f172a 0%, #131d35 100%);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  transform: translateY(-1px);
+}
+
+.admin-shell .dash-card:active {
+  transform: translateY(0);
+}
+
+.admin-shell .dash-card-icon {
+  font-size: 24px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(14,165,233,0.08);
+  border-radius: 10px;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.admin-shell .dash-card:hover .dash-card-icon {
+  background: rgba(14,165,233,0.15);
+}
+
+.admin-shell .dash-card-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-shell .dash-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin-bottom: 2px;
+}
+
+.admin-shell .dash-card-desc {
+  font-size: 12px;
+  color: #64748b;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-shell .dash-card-arrow {
+  font-size: 16px;
+  color: #475569;
+  flex-shrink: 0;
+  transition: transform 0.2s, color 0.2s;
+}
+
+.admin-shell .dash-card:hover .dash-card-arrow {
+  transform: translateX(3px);
+  color: #7dd3fc;
+}
+
+/* ────────── DASHBOARD TIP BOX ────────── */
+.admin-shell .dash-tip {
+  margin-top: 32px;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, rgba(14,165,233,0.04), rgba(168,85,247,0.04));
+  border: 1px solid #1e293b;
+  border-radius: 14px;
+}
+
+.admin-shell .dash-tip-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #e2e8f0;
+  margin-bottom: 6px;
+}
+
+.admin-shell .dash-tip-body {
+  font-size: 13px;
+  color: #94a3b8;
+  line-height: 1.6;
+}
+
+.admin-shell .dash-tip-body a {
+  color: #7dd3fc;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: rgba(125,211,252,0.3);
+  transition: text-decoration-color 0.2s;
+}
+
+.admin-shell .dash-tip-body a:hover {
+  text-decoration-color: rgba(125,211,252,0.8);
+}
+
+/* ────────── DASHBOARD RESPONSIVE ────────── */
+@media (max-width: 768px) {
+  .admin-shell .dash-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .admin-shell .dash-stat-value {
+    font-size: 22px;
+  }
+
+  .admin-shell .dash-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-shell .dash-card {
+    padding: 12px 14px;
+  }
+}
+
 /* ────────── EMPTY / SPINNER / BADGE ────────── */
 .admin-shell .empty {
   padding: 40px 20px;
@@ -735,10 +989,6 @@
     border-right: none;
     border-bottom: 1px solid #1e293b;
   }
-
-  .admin-topbar {
-    margin-top: 0;
-  }
 }
 
 /* ── Mobile: sidebar becomes overlay ── */
@@ -790,15 +1040,14 @@
   /* Show toggle button on mobile */
   .admin-shell .sidebar-toggle {
     display: inline-flex;
+    margin: 12px 14px 8px;
   }
 
   /* Top bar adjustments */
   .admin-topbar {
-    margin-top: 0;
     flex-direction: column;
     align-items: stretch;
     gap: 10px;
-    margin-top: 30px !important
   }
 
   .admin-topbar h1 {
@@ -811,7 +1060,7 @@
 
   /* Main content padding reduced */
   .admin-main {
-    padding: 16px 14px 36px;
+    padding: 8px 14px 36px;
   }
 
   /* Stat cards: 2-column grid on mobile */

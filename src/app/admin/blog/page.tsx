@@ -12,6 +12,7 @@ import {
   SortingState,
 } from '@tanstack/react-table'
 import { Plus, Edit, Trash2, Eye, Search, ExternalLink, ArrowUpDown } from 'lucide-react'
+import { adminFetch } from '@/lib/admin-fetch'
 
 interface BlogPost {
   _id: string
@@ -61,6 +62,25 @@ export default function AdminBlogPage() {
   const [toast, setToast] = useState<{ kind: 'success' | 'error'; text: string } | null>(null)
   const limit = 15
 
+  // Sub-admin permission state
+  const [canCreate, setCanCreate] = useState(true)
+  const [canEdit, setCanEdit] = useState(true)
+  const [canDelete, setCanDelete] = useState(true)
+
+  useEffect(() => {
+    // Check user permissions for conditional UI
+    fetch('/api/admin/me')
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.permissions?.blog) {
+          setCanCreate(!!data.permissions.blog.create)
+          setCanEdit(!!data.permissions.blog.edit)
+          setCanDelete(!!data.permissions.blog.delete)
+        }
+      })
+      .catch(() => {})
+  }, [])
+
   useEffect(() => {
     if (!toast) return
     const t = setTimeout(() => setToast(null), 4000)
@@ -77,18 +97,24 @@ export default function AdminBlogPage() {
       if (statusFilter !== 'all') params.set('status', statusFilter)
       if (search) params.set('search', search)
 
-      const res = await fetch(`/api/admin/blog/posts?${params}`, { credentials: 'include' })
-      if (res.status === 401) {
+      const { data, error, res } = await adminFetch<{
+        posts: BlogPost[]
+        total: number
+        pages: number
+      }>(`/api/admin/blog/posts?${params}`, { credentials: 'include' })
+
+      if (error && res?.status === 401) {
         router.push('/admin/login?next=/admin/blog')
         return
       }
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Failed to load')
+      if (error || !data) {
+        throw new Error(error || 'Unable to load blog posts. Please try again.')
+      }
       setPosts(data.posts || [])
       setTotal(data.total || 0)
       setPages(data.pages || 1)
     } catch (e: any) {
-      setError(e.message || 'Failed to load')
+      setError(e?.message || 'Failed to load')
     } finally {
       setLoading(false)
     }
@@ -115,7 +141,10 @@ export default function AdminBlogPage() {
       const res = await fetch(`/api/admin/blog/posts/${deleteTarget._id}`, {
         method: 'DELETE', credentials: 'include',
       })
-      if (!res.ok) throw new Error((await res.json()).error || 'Delete failed')
+      const delText = await res.text()
+      let delData: any
+      try { delData = JSON.parse(delText) } catch { delData = null }
+      if (!res.ok) throw new Error(delData?.error || 'Delete failed')
       setToast({ kind: 'success', text: `"${deleteTarget.title}" deleted.` })
       setDeleteTarget(null)
       load()
@@ -134,8 +163,10 @@ export default function AdminBlogPage() {
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
       })
-      if (!res.ok) throw new Error((await res.json()).error || 'Delete all failed')
-      const data = await res.json()
+      const allText = await res.text()
+      let data: any
+      try { data = JSON.parse(allText) } catch { data = null }
+      if (!res.ok) throw new Error(data?.error || 'Delete all failed')
       setToast({ kind: 'success', text: data.message || 'All posts deleted.' })
       setDeleteAllTarget(false)
       setPosts([])
@@ -259,13 +290,15 @@ export default function AdminBlogPage() {
       header: 'Actions',
       cell: (info) => (
         <div className="cell-actions">
-          <Link
-            href={`/admin/blog/${info.row.original._id}/edit`}
-            className="icon-btn"
-            title="Edit"
-          >
-            <Edit size={14} /> Edit
-          </Link>
+          {canEdit && (
+            <Link
+              href={`/admin/blog/${info.row.original._id}/edit`}
+              className="icon-btn"
+              title="Edit"
+            >
+              <Edit size={14} /> Edit
+            </Link>
+          )}
           <a
             href={`/blog/${info.row.original.slug}`}
             target="_blank"
@@ -275,17 +308,19 @@ export default function AdminBlogPage() {
           >
             <Eye size={14} /> View
           </a>
-          <button
-            className="icon-btn danger"
-            onClick={() => setDeleteTarget(info.row.original)}
-            title="Delete"
-          >
-            <Trash2 size={14} /> Delete
-          </button>
+          {canDelete && (
+            <button
+              className="icon-btn danger"
+              onClick={() => setDeleteTarget(info.row.original)}
+              title="Delete"
+            >
+              <Trash2 size={14} /> Delete
+            </button>
+          )}
         </div>
       ),
     }),
-  ], [columnHelper])
+  ], [columnHelper, canEdit, canDelete])
 
   const table = useReactTable({
     data: posts,
@@ -322,9 +357,11 @@ export default function AdminBlogPage() {
           <Link href="/blog" target="_blank" className="btn btn-ghost">
             <ExternalLink size={14} /> View Blog
           </Link>
-          <Link href="/admin/blog/new" className="btn btn-primary">
-            <Plus size={16} /> + New Post
-          </Link>
+          {canCreate && (
+            <Link href="/admin/blog/new" className="btn btn-primary">
+              <Plus size={16} /> + New Post
+            </Link>
+          )}
         </div>
       </div>
 
@@ -362,7 +399,7 @@ export default function AdminBlogPage() {
         <button type="button" className="btn btn-ghost" onClick={load} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
           ↻ Refresh
         </button>
-        {posts.length > 0 && (
+        {canDelete && posts.length > 0 && (
           <button
             type="button"
             className="btn btn-danger"
@@ -385,10 +422,12 @@ export default function AdminBlogPage() {
         ) : posts.length === 0 ? (
           <div className="empty">
             <div className="icon">📝</div>
-            <p>No blog posts yet. Create your first post!</p>
-            <Link href="/admin/blog/new" className="btn btn-primary" style={{ marginTop: 12, display: 'inline-flex' }}>
-              <Plus size={16} /> Create Post
-            </Link>
+            <p>No blog posts yet.{canCreate ? ' Create your first post!' : ''}</p>
+            {canCreate && (
+              <Link href="/admin/blog/new" className="btn btn-primary" style={{ marginTop: 12, display: 'inline-flex' }}>
+                <Plus size={16} /> Create Post
+              </Link>
+            )}
           </div>
         ) : (
           <table className="queries">

@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken'
 import { cookies } from 'next/headers'
 import { NextRequest } from 'next/server'
+import type { SubAdminPermissions } from './db'
 
 // Resolve the JWT secret at startup. We DO NOT silently fall back to a
 // hard-coded string — that would let anyone forge admin tokens if the
@@ -25,9 +26,30 @@ const TOKEN_EXPIRY = '7d'
 
 export interface AdminPayload {
   username: string
-  role: 'admin'
+  role: 'admin' | 'sub-admin'
+  subAdminId?: string
   iat?: number
   exp?: number
+}
+
+export const DEFAULT_SUBADMIN_PERMISSIONS: SubAdminPermissions = {
+  blog: { view: false, create: false, edit: false, delete: false },
+  store: { view: false, create: false, edit: false, delete: false },
+  career: { view: false, create: false, edit: false, delete: false },
+  chatbot: { view: false, manage: false, settings: false },
+  seoAudit: { view: false, delete: false },
+  rss: { view: false, create: false, edit: false, delete: false },
+  queries: { view: false, edit: false, delete: false, export: false },
+}
+
+export const FULL_PERMISSIONS: SubAdminPermissions = {
+  blog: { view: true, create: true, edit: true, delete: true },
+  store: { view: true, create: true, edit: true, delete: true },
+  career: { view: true, create: true, edit: true, delete: true },
+  chatbot: { view: true, manage: true, settings: true },
+  seoAudit: { view: true, delete: true },
+  rss: { view: true, create: true, edit: true, delete: true },
+  queries: { view: true, edit: true, delete: true, export: true },
 }
 
 export function signAdminToken(username: string): string {
@@ -35,10 +57,15 @@ export function signAdminToken(username: string): string {
   return jwt.sign(payload, JWT_SECRET, { expiresIn: TOKEN_EXPIRY })
 }
 
+export function signSubAdminToken(username: string, subAdminId: string): string {
+  const payload: AdminPayload = { username, role: 'sub-admin', subAdminId }
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: TOKEN_EXPIRY })
+}
+
 export function verifyAdminToken(token: string): AdminPayload | null {
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as AdminPayload
-    if (decoded.role !== 'admin') return null
+    if (decoded.role !== 'admin' && decoded.role !== 'sub-admin') return null
     return decoded
   } catch {
     return null
@@ -89,4 +116,49 @@ export function getAdminFromRequest(req: NextRequest): AdminPayload | null {
   const token = req.cookies.get(COOKIE_NAME)?.value
   if (!token) return null
   return verifyAdminToken(token)
+}
+
+/**
+ * Check if the authenticated user is a super admin (not a sub-admin).
+ */
+export function isSuperAdmin(payload: AdminPayload | null): boolean {
+  return payload?.role === 'admin' || false
+}
+
+/**
+ * Check if a sub-admin has a specific permission.
+ * Super admins always return true.
+ */
+export function hasPermission(
+  payload: AdminPayload | null,
+  section: keyof SubAdminPermissions,
+  action: string,
+  subAdminPermissions?: SubAdminPermissions | null,
+): boolean {
+  if (!payload) return false
+  if (payload.role === 'admin') return true // super admin has all permissions
+
+  // Sub-admin: check specific permission
+  if (!subAdminPermissions) return false
+  const perm = subAdminPermissions[section]
+  if (!perm) return false
+  return (perm as any)[action] === true
+}
+
+/**
+ * Get permissions for a sub-admin from the database.
+ */
+export async function getSubAdminPermissions(
+  subAdminId: string,
+): Promise<SubAdminPermissions | null> {
+  try {
+    const { getSubAdminsCollection } = await import('./db')
+    const col = await getSubAdminsCollection()
+    const { ObjectId } = await import('mongodb')
+    const sub = await col.findOne({ _id: new ObjectId(subAdminId) })
+    if (!sub) return null
+    return sub.permissions || DEFAULT_SUBADMIN_PERMISSIONS
+  } catch {
+    return null
+  }
 }

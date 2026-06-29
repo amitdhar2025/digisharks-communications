@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getAdminFromCookies } from '@/lib/auth'
+import { getAdminFromCookies, getSubAdminPermissions, isSuperAdmin } from '@/lib/auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -8,5 +8,18 @@ export async function GET() {
   if (!admin) {
     return NextResponse.json({ authenticated: false }, { status: 401 })
   }
-  return NextResponse.json({ authenticated: true, username: admin.username })
+
+  // If sub-admin, fetch their permissions
+  let permissions = null
+  if (!isSuperAdmin(admin) && admin.subAdminId) {
+    permissions = await getSubAdminPermissions(admin.subAdminId)
+  }
+
+  return NextResponse.json({
+    authenticated: true,
+    username: admin.username,
+    role: admin.role,
+    subAdminId: admin.subAdminId || null,
+    permissions,
+  })
 }
