@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createRazorpayOrder, getRazorpayConfig } from '@/lib/razorpay'
 import { generateOrderNumber } from '@/lib/store-orders'
 import { getOrdersCollection, getProductsCollection, OrderItem } from '@/lib/products'
+import { checkSecurity } from '@/lib/anti-spam'
 
 export const dynamic = 'force-dynamic'
 
@@ -13,6 +14,18 @@ interface Body {
 export async function POST(req: NextRequest) {
   try {
     const body = (await req.json()) as Body
+
+    // ── Anti-spam check ──
+    const securityResult = await checkSecurity({
+      req,
+      email: body?.customer?.email ? body.customer.email.trim().toLowerCase() : undefined,
+      formType: 'checkout',
+      pageUrl: req.headers.get('referer') || '/checkout',
+      honeypotValue: (body as any)?._hp,
+    })
+    if (!securityResult.allowed) {
+      return NextResponse.json({ error: securityResult.message || 'Access denied.' }, { status: 403 })
+    }
 
     if (!body?.customer?.name || !body?.customer?.email || !body?.customer?.phone) {
       return NextResponse.json({ error: 'Name, email and phone are required.' }, { status: 400 })

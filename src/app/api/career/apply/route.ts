@@ -6,9 +6,9 @@ import { sendMail } from '@/lib/mailer'
 import { buildAdminNewApplicationEmail } from '@/lib/email-templates'
 import slugify from 'slugify'
 import { v2 as cloudinary } from 'cloudinary'
-import { checkRateLimit, getClientIp } from '@/lib/rateLimit'
 import { validateFile } from '@/lib/validateFile'
 import { stripHtml } from '@/lib/sanitize'
+import { checkSecurity } from '@/lib/anti-spam'
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME || '',
@@ -22,13 +22,6 @@ export const runtime = 'nodejs'
 // POST /api/career/apply - Submit a job application
 export async function POST(req: NextRequest) {
   try {
-    // Rate limit: 5 applications per minute per IP
-    const ip = getClientIp(req)
-    const rateCheck = checkRateLimit(ip, 5)
-    if (!rateCheck.allowed) {
-      return NextResponse.json({ error: 'Too many requests. Please slow down.' }, { status: 429 })
-    }
-
     await connectMongoose()
 
     const formData = await req.formData()
@@ -38,6 +31,19 @@ export async function POST(req: NextRequest) {
     const phone = (formData.get('phone') as string)?.trim() || ''
     const coverLetter = (formData.get('coverLetter') as string)?.trim() || ''
     const resumeFile = formData.get('resume') as File | null
+    const honeypotValue = (formData.get('_hp') as string) || ''
+
+    // ── Anti-spam check ──
+    const securityResult = await checkSecurity({
+      req,
+      email: email ? email.trim().toLowerCase() : undefined,
+      formType: 'career',
+      pageUrl: req.headers.get('referer') || '/careers',
+      honeypotValue,
+    })
+    if (!securityResult.allowed) {
+      return NextResponse.json({ error: securityResult.message || 'Access denied.' }, { status: 403 })
+    }
 
     // Validate required fields
     if (!jobId || !applicantName || !email) {

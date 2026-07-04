@@ -3,8 +3,8 @@ import { connectMongoose } from '@/lib/mongoose'
 import ChatbotQA from '@/lib/models/ChatbotQA'
 import ChatbotSettings from '@/lib/models/ChatbotSettings'
 import Fuse from 'fuse.js'
-import { checkRateLimit, getClientIp } from '@/lib/rateLimit'
 import { stripHtml } from '@/lib/sanitize'
+import { checkSecurity } from '@/lib/anti-spam'
 
 export const dynamic = 'force-dynamic'
 
@@ -35,15 +35,20 @@ function escapeRegex(s: string): string {
 
 export async function POST(req: NextRequest) {
   try {
-    const ip = getClientIp(req)
-    const rateCheck = checkRateLimit(ip, 30)
-    if (!rateCheck.allowed) {
-      return NextResponse.json({ error: 'Too many requests. Please slow down.' }, { status: 429 })
+    // ── Anti-spam check ──
+    const body = await req.json()
+    const { message } = body
+
+    const securityResult = await checkSecurity({
+      req,
+      formType: 'chatbot',
+      pageUrl: req.headers.get('referer') || '/chatbot',
+    })
+    if (!securityResult.allowed) {
+      return NextResponse.json({ error: securityResult.message || 'Access denied.' }, { status: 403 })
     }
 
     await connectMongoose()
-    const body = await req.json()
-    const { message } = body
 
     if (!message || typeof message !== 'string') {
       return NextResponse.json({ error: 'Message is required' }, { status: 400 })

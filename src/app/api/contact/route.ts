@@ -2,22 +2,27 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getQueriesCollection, ContactQuery } from '@/lib/db'
 import { buildContactConfirmationEmail } from '@/lib/email-templates'
 import { sendMail } from '@/lib/mailer'
-import { checkRateLimit, getClientIp } from '@/lib/rateLimit'
 import { sanitizePlainTextFields } from '@/lib/sanitize'
+import { checkSecurity } from '@/lib/anti-spam'
 
 export const dynamic = 'force-dynamic'
 
 export async function POST(req: NextRequest) {
   try {
-    // Rate limit: 10 submissions per minute per IP
-    const ip = getClientIp(req)
-    const rateCheck = checkRateLimit(ip, 10)
-    if (!rateCheck.allowed) {
-      return NextResponse.json({ error: 'Too many requests. Please slow down.' }, { status: 429 })
-    }
-
+    // ── Anti-spam check ──
     const body = await req.json()
-    const { fullName, email, phone, service, message } = body || {}
+    const { fullName, email, phone, service, message, _hp } = body || {}
+
+    const securityResult = await checkSecurity({
+      req,
+      email: email ? String(email).trim().toLowerCase() : undefined,
+      formType: 'contact',
+      pageUrl: req.headers.get('referer') || '/contact-us',
+      honeypotValue: _hp,
+    })
+    if (!securityResult.allowed) {
+      return NextResponse.json({ error: securityResult.message || 'Access denied.' }, { status: 403 })
+    }
 
     if (!fullName || !email || !message) {
       return NextResponse.json(

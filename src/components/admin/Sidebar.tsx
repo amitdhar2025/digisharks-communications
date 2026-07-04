@@ -109,6 +109,16 @@ export default function AdminSidebar({ onNavClick, isOpen }: AdminSidebarProps) 
           <div className="nav-section">🔍 SEO</div>
           {navItem('/admin/seo-audit', '📊 Audit Dashboard')}
           {navItem('/admin/seo-audit/settings', '⚙ Audit Settings')}
+          {navItem('/admin/sitemap', '🗺️ Sitemap')}
+          {navItem('/admin/robots', '🤖 Robots.txt')}
+        </>
+      )}
+
+      {/* Security Section — super admin only */}
+      {role === 'admin' && (
+        <>
+          <div className="nav-section">🛡️ Security</div>
+          {navItem('/admin/security', '🛡️ Security Dashboard')}
         </>
       )}
 
