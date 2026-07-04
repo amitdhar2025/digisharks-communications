@@ -9,49 +9,49 @@ const teamMembers = [
   {
     name: 'Uday Kumar',
     role: 'Digital Marketing Executive',
-    image: 'https://www.digisharkscommunications.com/wp-content/uploads/2023/04/uday-1-638x767.png'
+    image: '/Uday Kumar.png'
   },
   {
     name: 'Vansh Mehra',
     role: 'Digital Marketing Head',
-    image: 'https://www.digisharkscommunications.com/wp-content/uploads/2023/04/VANSH-MEHRA-FB--638x767.png'
+    image: '/Vansh Mehra.png'
   },
   {
     name: 'Team Member',
     role: 'PR & Communications',
-    image: 'https://www.digisharkscommunications.com/wp-content/uploads/2023/05/elections-6-638x767.png'
+    image: '/Team Member.png'
   }
 ]
 
 const portfolioItems = [
   {
     title: 'Top 30 Women Entrepreneurs of the Year 2023',
-    image: 'https://www.digisharkscommunications.com/wp-content/uploads/elementor/thumbs/TOP-30-WOMEN-ENTREPRENEUR-OF-THE-YEAR-2023_-qntmy1s99tpokvvjplqn7er4hb3sy61g7f3wwaeau4.jpg',
+    image: '/Top 30 Women Entrepreneurs of the Year 2023.jpg',
     category: 'Awards'
   },
   {
     title: 'Top 10 CEOs 2021–2022',
-    image: 'https://www.digisharkscommunications.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2023-03-14-at-11.58.06-qntmy1s99tpokvvjplqn7er4hb3sy61g7f3wwaeau4.jpeg',
+    image: '/Top 10 CEOs 2021–2022.jpeg',
     category: 'Awards'
   },
   {
     title: 'Top 10 Dynamic Entrepreneurs 2021–2022',
-    image: 'https://www.digisharkscommunications.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2023-03-10-at-17.47.03-1-qntmy1s99tpokvvjplqn7er4hb3sy61g7f3wwaeau4.jpeg',
+    image: '/Top 10 Dynamic Entrepreneurs 2021–2022.jpeg',
     category: 'Awards'
   },
   {
     title: 'Top 50 Entrepreneurs 2022',
-    image: 'https://www.digisharkscommunications.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2023-03-10-at-17.47.03-qntmy1s99tpokvvjplqn7er4hb3sy61g7f3wwaeau4.jpeg',
+    image: '/Top 50 Entrepreneurs 2022.jpeg',
     category: 'Awards'
   },
   {
     title: 'Top 10 Influential Businesses of the Year 2022',
-    image: 'https://www.digisharkscommunications.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2023-03-10-at-17.47.04-1-qntmy1s99tpokvvjplqn7er4hb3sy61g7f3wwaeau4.jpeg',
+    image: '/Top 10 Influential Businesses of the Year 2022.jpeg',
     category: 'Awards'
   },
   {
     title: 'The Indian Alert',
-    image: 'https://www.digisharkscommunications.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2023-03-10-at-17.47.04-qntmy0uf2zoe99wwv3c0mwznvx8fqgxpvagff0fp0c.jpeg',
+    image: '/The Indian Alert.jpeg',
     category: 'Publication'
   }
 ]
@@ -289,7 +289,7 @@ export default function PortfolioPage() {
           <div className="section-label fade-up" style={{ justifyContent: 'center', display: 'flex', marginBottom: '1.5rem' }}>Find Us</div>
           <div style={{ maxWidth: 700, margin: '0 auto', borderRadius: 16, overflow: 'hidden', boxShadow: '0 12px 30px rgba(0,0,0,.3)' }}>
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3504.7240696259016!2d77.381511!3d28.543721!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390ce5b0b0b0b0b0%3A0x0!2zMjjCsDMyJzM3LjQiTiA3N8KwMjInNTMuNSJF!5e0!3m2!1sen!2sin!4v1"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3502.4033403298517!2d77.38127177437849!3d28.61767128475733!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390cf102f308787f%3A0x6cb9cee4f683a077!2sDigisharks%20Communications%20Private%20Limited!5e0!3m2!1sen!2sin!4v1783139093251!5m2!1sen!2sin"
               width="100%"
               height="300"
               style={{ border: 0, borderRadius: 16 }}

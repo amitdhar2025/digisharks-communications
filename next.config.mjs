@@ -73,11 +73,11 @@ const nextConfig = {
               "default-src 'self'; " +
               "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
               "style-src 'self' 'unsafe-inline'; " +
-              "img-src 'self' data: res.cloudinary.com; " +
+              "img-src 'self' data: res.cloudinary.com *.google.com *.googleapis.com *.gstatic.com; " +
               "media-src 'self' res.cloudinary.com; " +
               "font-src 'self'; " +
               "connect-src 'self' https://*.razorpay.com https://checkout.razorpay.com; " +
-              "frame-src 'self' https://checkout.razorpay.com; " +
+              "frame-src 'self' https://checkout.razorpay.com https://www.google.com; " +
               "object-src 'none'; " +
               "base-uri 'self';",
           },
