@@ -4,6 +4,7 @@ import { requirePermission } from '@/lib/permissions'
 import { connectMongoose } from '@/lib/mongoose'
 import CareerApplication from '@/lib/models/CareerApplication'
 import mongoose from 'mongoose'
+import { softDeleteFromMongoose } from '@/lib/trash'
 
 export const dynamic = 'force-dynamic'
 
@@ -34,12 +35,17 @@ export async function DELETE(
       return NextResponse.json({ error: 'Application not found' }, { status: 404 })
     }
 
-    await CareerApplication.findByIdAndDelete(id)
+    await softDeleteFromMongoose(
+      'careerapplications',
+      CareerApplication,
+      id,
+      { username: admin.username, role: admin.role },
+      (doc) => (doc as any)?.applicantName || id,
+    )
 
     return NextResponse.json({
       success: true,
-      deletedId: id,
-      message: `Application of "${application.applicantName}" deleted successfully.`,
+      message: `Application of "${application.applicantName}" moved to trash.`,
     })
   } catch (err: any) {
     console.error('DELETE /api/admin/career/applications/[id] error', err)

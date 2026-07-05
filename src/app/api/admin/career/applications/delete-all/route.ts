@@ -6,7 +6,7 @@ import CareerApplication from '@/lib/models/CareerApplication'
 
 export const dynamic = 'force-dynamic'
 
-// DELETE /api/admin/career/applications/delete-all - Delete ALL applications
+// DELETE /api/admin/career/applications/delete-all - Soft-delete ALL applications
 // Optional filters via query params: status, jobId (must be JSON-stringified object)
 export async function DELETE(req: NextRequest) {
   const admin = await getAdminFromCookies()
@@ -29,16 +29,32 @@ export async function DELETE(req: NextRequest) {
     if (status && status !== 'all') query.status = status
     if (jobId && jobId !== 'all') query.jobId = jobId
 
-    const count = await CareerApplication.countDocuments(query)
-    if (count === 0) {
+    const applications = await CareerApplication.find(query).select('_id').lean()
+    if (applications.length === 0) {
       return NextResponse.json({ success: true, deletedCount: 0, message: 'No applications matched the filter.' })
     }
 
-    const result = await CareerApplication.deleteMany(query)
+    const { softDeleteFromMongoose } = await import('@/lib/trash')
+    let deletedCount = 0
+    for (const app of applications) {
+      try {
+        await softDeleteFromMongoose(
+          'careerapplications',
+          CareerApplication,
+          String(app._id),
+          { username: admin.username, role: admin.role },
+          (doc) => (doc as any)?.applicantName || (doc as any)?.email || String(app._id),
+        )
+        deletedCount++
+      } catch (err) {
+        console.error(`Failed to soft-delete application ${app._id}:`, err)
+      }
+    }
+
     return NextResponse.json({
       success: true,
-      deletedCount: result.deletedCount || 0,
-      message: `Deleted ${result.deletedCount || 0} application(s).`,
+      deletedCount,
+      message: `${deletedCount} application(s) moved to trash.`,
     })
   } catch (err: any) {
     console.error('DELETE /api/admin/career/applications/delete-all error', err)

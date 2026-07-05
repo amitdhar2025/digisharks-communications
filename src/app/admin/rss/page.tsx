@@ -2,6 +2,7 @@
 
 import { useEffect, useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import AdminSidebar from '@/components/admin/Sidebar'
 
 interface RssFeedItem {
@@ -32,8 +33,16 @@ export default function RssManagerPage() {
   const [submitting, setSubmitting] = useState(false)
   const [username, setUsername] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [rssTrashCount, setRssTrashCount] = useState(0)
 
   // Edit form state
+
+  useEffect(() => {
+    fetch('/api/admin/trash/count?section=rss')
+      .then(r => r.json())
+      .then(d => { if (d.count !== undefined) setRssTrashCount(d.count) })
+      .catch(() => {})
+  }, [])
   const [editName, setEditName] = useState('')
   const [editCategory, setEditCategory] = useState('')
   const [editUrl, setEditUrl] = useState('')
@@ -178,6 +187,11 @@ export default function RssManagerPage() {
           <div>
             <h1>📡 RSS Feed Manager</h1>
             <div className="sub">Add and manage RSS feeds for the site news and ticker</div>
+          </div>
+          <div className="cell-actions">
+            <Link href="/admin/trash?section=rss" className="btn btn-ghost" style={{ color: rssTrashCount > 0 ? '#fbbf24' : undefined }}>
+              🗑 Trash{rssTrashCount > 0 ? ` (${rssTrashCount})` : ''}
+            </Link>
           </div>
         </div>
 

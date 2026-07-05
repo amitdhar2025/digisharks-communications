@@ -62,21 +62,21 @@ export default function DeleteOrderModal({
         <div className="modal-sub">
           {isBulk ? (
             <>
-              You are about to permanently delete{' '}
+              You are about to move{' '}
               <strong style={{ color: '#fca5a5' }}>{count} orders</strong>{' '}
-              {scopeLabel}. This action cannot be undone.
+              {scopeLabel} to the Trash. Deleted orders can be restored later from the Trash section.
             </>
           ) : (
             <>
-              You are about to permanently delete order{' '}
+              You are about to move order{' '}
               <strong style={{ color: '#fca5a5' }}>
                 #{target?.orderNumber}
               </strong>{' '}
               from{' '}
               <strong style={{ color: '#fca5a5' }}>
                 {target?.customer?.name || target?.customer?.email}
-              </strong>
-              . This action cannot be undone.
+              </strong>{' '}
+              to the Trash. It can be restored later from the Trash section.
             </>
           )}
         </div>
@@ -91,14 +91,14 @@ export default function DeleteOrderModal({
           }}
         >
           <div style={{ fontSize: 12, color: '#fecaca', lineHeight: 1.5 }}>
-            <strong>What will be removed:</strong>
+            <strong>What will happen:</strong>
             <ul style={{ margin: '6px 0 0 18px', padding: 0 }}>
               <li>
                 {isBulk
-                  ? `All ${count} orders matching the current filter / selection`
-                  : 'This order and its customer details'}
+                  ? `All ${count} orders matching the current filter / selection are moved to Trash`
+                  : 'This order and its details are moved to Trash'}
               </li>
-              <li>Email-delivery status and metadata</li>
+              <li>The order can be restored by a Super Admin from the Trash section</li>
             </ul>
           </div>
         </div>

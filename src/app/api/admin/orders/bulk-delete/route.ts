@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic'
 /**
  * POST /api/admin/orders/bulk-delete
  * Body: { ids: string[] }  — or  { all: true, filter?: {...} }
- * Permanently deletes the matching orders.
+ * Soft-deletes the matching orders (moves to trash).
  */
 export async function POST(req: NextRequest) {
   const admin = getAdminFromRequest(req)
@@ -27,16 +27,17 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}))
     const orders = await getOrdersCollection()
+    const { softDeleteFromNative } = await import('@/lib/trash')
+
+    let filter: any = {}
 
     if (body?.all) {
-      // Build a filter from query params (status / delivery / search) and
-      // delete every matching order.
+      // Build a filter from query params (status / delivery / search)
       const url = new URL(req.url)
       const status = url.searchParams.get('paymentStatus') || ''
       const delivery = url.searchParams.get('deliveryStatus') || ''
       const q = (url.searchParams.get('q') || '').trim()
 
-      const filter: any = {}
       if (status === 'paid' || status === 'failed' || status === 'created') {
         filter['payment.status'] = status
       }
@@ -52,55 +53,62 @@ export async function POST(req: NextRequest) {
           { 'customer.name': { $regex: safe, $options: 'i' } },
         ]
       }
-
-      const matched = await orders.countDocuments(filter)
-      if (matched === 0) {
-        return NextResponse.json({
-          success: true,
-          deletedCount: 0,
-          message: 'No orders matched the filter.',
-        })
+    } else {
+      // Bulk delete by ids
+      const ids: string[] = Array.isArray(body?.ids) ? body.ids : []
+      if (ids.length === 0) {
+        return NextResponse.json(
+          { error: 'Provide either { all: true } or { ids: [...] }.' },
+          { status: 400 }
+        )
       }
-      const result = await orders.deleteMany(filter)
+
+      const objectIds: ObjectId[] = []
+      const invalid: string[] = []
+      for (const id of ids) {
+        if (typeof id === 'string' && ObjectId.isValid(id)) {
+          objectIds.push(new ObjectId(id))
+        } else {
+          invalid.push(String(id))
+        }
+      }
+      if (objectIds.length === 0) {
+        return NextResponse.json({ error: 'No valid order ids provided.', invalid }, { status: 400 })
+      }
+      filter._id = { $in: objectIds }
+    }
+
+    // Find matching orders
+    const matchingOrders = await orders.find(filter).project({ _id: 1, orderNumber: 1, 'customer.name': 1 }).toArray()
+    if (matchingOrders.length === 0) {
       return NextResponse.json({
         success: true,
-        deletedCount: result.deletedCount,
-        message: `Deleted ${result.deletedCount} ${result.deletedCount === 1 ? 'order' : 'orders'}.`,
+        deletedCount: 0,
+        message: 'No orders matched the filter.',
       })
     }
 
-    // Bulk delete by ids
-    const ids: string[] = Array.isArray(body?.ids) ? body.ids : []
-    if (ids.length === 0) {
-      return NextResponse.json(
-        { error: 'Provide either { all: true } or { ids: [...] }.' },
-        { status: 400 }
-      )
-    }
-
-    const objectIds: ObjectId[] = []
-    const invalid: string[] = []
-    for (const id of ids) {
-      if (typeof id === 'string' && ObjectId.isValid(id)) {
-        objectIds.push(new ObjectId(id))
-      } else {
-        invalid.push(String(id))
+    // Soft-delete each order
+    let deletedCount = 0
+    for (const order of matchingOrders) {
+      try {
+        await softDeleteFromNative(
+          'orders',
+          'orders',
+          String(order._id),
+          { username: admin.username, role: admin.role as 'admin' | 'sub-admin' },
+          (doc) => (doc as any)?.orderNumber || (doc as any)?.customer?.name || 'Order',
+        )
+        deletedCount++
+      } catch (err) {
+        console.error(`Failed to soft-delete order ${order._id}:`, err)
       }
     }
-    if (objectIds.length === 0) {
-      return NextResponse.json(
-        { error: 'No valid order ids provided.', invalid },
-        { status: 400 }
-      )
-    }
 
-    const result = await orders.deleteMany({ _id: { $in: objectIds } })
     return NextResponse.json({
       success: true,
-      deletedCount: result.deletedCount,
-      requested: ids.length,
-      invalid,
-      message: `Deleted ${result.deletedCount} of ${ids.length} ${ids.length === 1 ? 'order' : 'orders'}.`,
+      deletedCount,
+      message: `${deletedCount} ${deletedCount === 1 ? 'order' : 'orders'} moved to trash.`,
     })
   } catch (err: any) {
     console.error('POST /api/admin/orders/bulk-delete error', err)

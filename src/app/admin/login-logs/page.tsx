@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import AdminSidebar from '@/components/admin/Sidebar'
 
 /* ─── Types ─── */
@@ -76,6 +77,14 @@ export default function LoginLogsPage() {
   const [deleteTarget, setDeleteTarget] = useState<LoginLogItem | null>(null)
   const [deleteAllOpen, setDeleteAllOpen] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [loginTrashCount, setLoginTrashCount] = useState(0)
+
+  useEffect(() => {
+    fetch('/api/admin/trash/count?section=login_logs')
+      .then(r => r.json())
+      .then(d => { if (d.count !== undefined) setLoginTrashCount(d.count) })
+      .catch(() => {})
+  }, [])
 
   // Block state
   const [blockTarget, setBlockTarget] = useState<LoginLogItem | null>(null)
@@ -130,7 +139,7 @@ export default function LoginLogsPage() {
     try {
       const res = await fetch(`/api/admin/login-logs/${deleteTarget._id}`, { method: 'DELETE' })
       if (!res.ok) throw new Error((await res.json()).error || 'Delete failed')
-      setToast({ kind: 'success', text: 'Log entry deleted.' })
+      setToast({ kind: 'success', text: 'Log entry moved to Trash.' })
       setDeleteTarget(null)
       load()
     } catch (e: any) {
@@ -146,7 +155,7 @@ export default function LoginLogsPage() {
       const res = await fetch('/api/admin/login-logs', { method: 'DELETE' })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Delete failed')
-      setToast({ kind: 'success', text: data.message || 'All logs deleted.' })
+      setToast({ kind: 'success', text: data.message || 'All logs moved to Trash.' })
       setDeleteAllOpen(false)
       setItems([])
       setTotal(0)
@@ -245,6 +254,9 @@ export default function LoginLogsPage() {
                 🗑 Delete All ({total})
               </button>
             )}
+            <Link href="/admin/trash?section=login_logs" className="btn btn-ghost" style={{ color: loginTrashCount > 0 ? '#fbbf24' : undefined }}>
+              🗑 Trash{loginTrashCount > 0 ? ` (${loginTrashCount})` : ''}
+            </Link>
             <button className="btn btn-ghost" onClick={load}>↻ Refresh</button>
           </div>
         </div>
@@ -496,7 +508,7 @@ export default function LoginLogsPage() {
             <h2 style={{ color: '#fca5a5' }}>⚠ Delete All Logs</h2>
             <p style={{ color: '#94a3b8', margin: '12px 0' }}>
               Are you sure you want to delete <strong style={{ color: '#e2e8f0' }}>all {total} login log{total !== 1 ? 's' : ''}</strong>?
-              This action cannot be undone.
+              They will be moved to the Trash and can be restored later from the Trash section.
             </p>
             <div className="row">
               <button className="btn btn-ghost" onClick={() => setDeleteAllOpen(false)} disabled={deleting}>Cancel</button>

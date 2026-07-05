@@ -189,20 +189,34 @@ export async function DELETE(req: NextRequest) {
     const filter = buildFilter(searchParams, allowedCategories ?? undefined)
     const collection = await getQueriesCollection()
 
-    // Count how many will be deleted for reporting
-    const matched = await collection.countDocuments(filter)
-
-    // Only perform the delete if there is at least one matching document
-    if (matched === 0) {
+    // Find matching queries
+    const queries = await collection.find(filter).project({ _id: 1 }).toArray()
+    if (queries.length === 0) {
       return NextResponse.json({ success: true, deleted: 0, message: 'No queries matched the filter.' })
     }
 
-    const result = await collection.deleteMany(filter)
+    // Soft-delete each query
+    const { softDeleteFromNative } = await import('@/lib/trash')
+    let deletedCount = 0
+    for (const q of queries) {
+      try {
+        await softDeleteFromNative(
+          'queries',
+          'queries',
+          String(q._id),
+          { username: admin.username, role: admin.role as 'admin' | 'sub-admin' },
+          (doc) => (doc as any)?.fullName || (doc as any)?.email || 'Contact query',
+        )
+        deletedCount++
+      } catch (err) {
+        console.error(`Failed to soft-delete query ${q._id}:`, err)
+      }
+    }
 
     return NextResponse.json({
       success: true,
-      deleted: result.deletedCount,
-      message: `Successfully deleted ${result.deletedCount} ${result.deletedCount === 1 ? 'query' : 'queries'}.`,
+      deleted: deletedCount,
+      message: `${deletedCount} ${deletedCount === 1 ? 'query' : 'queries'} moved to trash.`,
     })
   } catch (err) {
     console.error('DELETE /api/admin/queries error', err)

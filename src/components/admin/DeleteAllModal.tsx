@@ -39,11 +39,11 @@ export default function DeleteAllModal({
       >
         <h2 style={{ color: '#fca5a5' }}>⚠ Delete {count} {count === 1 ? 'query' : 'queries'}</h2>
         <div className="modal-sub">
-          You are about to permanently delete{' '}
+          You are about to move{' '}
           <strong style={{ color: '#fca5a5' }}>
             {count} {count === 1 ? 'query' : 'queries'}
           </strong>{' '}
-          {scopeLabel}. This action cannot be undone.
+          {scopeLabel} to the Trash. Deleted items can be restored later from the Trash section.
         </div>
 
         <div
@@ -56,10 +56,10 @@ export default function DeleteAllModal({
           }}
         >
           <div style={{ fontSize: 12, color: '#fecaca', lineHeight: 1.5 }}>
-            <strong>What will be removed:</strong>
+            <strong>What will happen:</strong>
             <ul style={{ margin: '6px 0 0 18px', padding: 0 }}>
-              <li>All contact submissions matching the current filter</li>
-              <li>Their associated comments and metadata</li>
+              <li>All contact submissions matching the current filter are moved to Trash</li>
+              <li>They can be restored by a Super Admin from the Trash section</li>
             </ul>
           </div>
         </div>

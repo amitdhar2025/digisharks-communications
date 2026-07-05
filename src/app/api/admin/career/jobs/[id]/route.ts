@@ -3,8 +3,10 @@ import { getAdminFromCookies, isSuperAdmin, getSubAdminPermissions } from '@/lib
 import { requirePermission } from '@/lib/permissions'
 import { connectMongoose } from '@/lib/mongoose'
 import CareerJob from '@/lib/models/CareerJob'
+import CareerApplication from '@/lib/models/CareerApplication'
 import mongoose from 'mongoose'
 import slugify from 'slugify'
+import { softDeleteFromMongoose } from '@/lib/trash'
 
 export const dynamic = 'force-dynamic'
 
@@ -131,16 +133,36 @@ export async function DELETE(
       return NextResponse.json({ error: 'Invalid job ID' }, { status: 400 })
     }
 
-    const job = await CareerJob.findByIdAndDelete(id).lean()
+    const job = await CareerJob.findById(id).lean()
     if (!job) {
       return NextResponse.json({ error: 'Job not found' }, { status: 404 })
     }
 
-    // Also delete all applications for this job
-    const { default: CareerApplication } = await import('@/lib/models/CareerApplication')
-    await CareerApplication.deleteMany({ jobId: id })
+    // Soft delete the job
+    await softDeleteFromMongoose(
+      'careerjobs',
+      CareerJob,
+      id,
+      { username: admin.username, role: admin.role },
+      (doc) => (doc as any)?.title || id,
+    )
 
-    return NextResponse.json({ success: true, deletedApplications: true })
+    // Also soft-delete all applications for this job
+    const applications = await CareerApplication.find({ jobId: id }).lean()
+    for (const app of applications) {
+      const appId = String(app._id)
+      try {
+        await softDeleteFromMongoose(
+          'careerapplications',
+          CareerApplication,
+          appId,
+          { username: admin.username, role: admin.role },
+          (doc) => (doc as any)?.applicantName || appId,
+        )
+      } catch { /* ignore individual failures */ }
+    }
+
+    return NextResponse.json({ success: true, deletedApplications: true, message: 'Job and applications moved to trash.' })
   } catch (err) {
     console.error('DELETE /api/admin/career/jobs/[id] error', err)
     return NextResponse.json({ error: 'Failed to delete job' }, { status: 500 })

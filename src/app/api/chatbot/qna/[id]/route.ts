@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { connectMongoose } from '@/lib/mongoose'
 import ChatbotQA from '@/lib/models/ChatbotQA'
 import { getAdminFromRequest } from '@/lib/auth'
+import { softDeleteFromMongoose } from '@/lib/trash'
 
 export const dynamic = 'force-dynamic'
 
@@ -89,13 +90,14 @@ export async function DELETE(
 
   try {
     await connectMongoose()
-    const item = await ChatbotQA.findByIdAndDelete(id)
-
-    if (!item) {
-      return NextResponse.json({ error: 'Q&A entry not found' }, { status: 404 })
-    }
-
-    return NextResponse.json({ message: 'Deleted successfully' })
+    await softDeleteFromMongoose(
+      'chatbotqa',
+      ChatbotQA,
+      id,
+      { username: admin.username, role: admin.role },
+      (doc) => (doc as any)?.question?.substring(0, 80) || id,
+    )
+    return NextResponse.json({ message: 'Moved to trash.' })
   } catch (err) {
     console.error('Chatbot Q&A delete error:', err)
     return NextResponse.json({ error: 'Failed to delete Q&A entry' }, { status: 500 })

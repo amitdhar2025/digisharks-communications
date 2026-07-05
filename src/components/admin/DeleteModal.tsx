@@ -19,7 +19,7 @@ export default function DeleteModal({ target, onClose, onConfirm, busy }: Props)
       >
         <h2>🗑 Delete query</h2>
         <div className="modal-sub">
-          This action permanently removes the record from the database.
+          This will move the query to the Trash. It can be restored later from the Trash section.
         </div>
 
         <div
@@ -61,7 +61,7 @@ export default function DeleteModal({ target, onClose, onConfirm, busy }: Props)
             onClick={onConfirm}
             disabled={busy}
           >
-            {busy ? <span className="spinner" /> : '🗑'} Delete permanently
+            {busy ? <span className="spinner" /> : '🗑'} Delete
           </button>
         </div>
       </div>

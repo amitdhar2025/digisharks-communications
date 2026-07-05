@@ -100,7 +100,7 @@ export async function GET(req: NextRequest) {
 
 /**
  * DELETE /api/admin/login-logs
- * Delete all login logs (super admin only).
+ * Soft-delete all login logs (super admin only).
  */
 export async function DELETE(req: NextRequest) {
   const admin = getAdminFromRequest(req)
@@ -110,11 +110,33 @@ export async function DELETE(req: NextRequest) {
 
   try {
     const col = await getLoginLogsCollection()
-    const result = await col.deleteMany({})
+    const logs = await col.find({}).project({ _id: 1 }).toArray()
+
+    if (logs.length === 0) {
+      return NextResponse.json({ success: true, deleted: 0, message: 'No login logs to delete.' })
+    }
+
+    const { softDeleteFromNative } = await import('@/lib/trash')
+    let deletedCount = 0
+    for (const log of logs) {
+      try {
+        await softDeleteFromNative(
+          'loginlogs',
+          'login_logs',
+          String(log._id),
+          { username: admin.username, role: admin.role as 'admin' | 'sub-admin' },
+          (doc) => (doc as any)?.username || 'Login log',
+        )
+        deletedCount++
+      } catch (err) {
+        console.error(`Failed to soft-delete login log ${log._id}:`, err)
+      }
+    }
+
     return NextResponse.json({
       success: true,
-      deleted: result.deletedCount || 0,
-      message: `Deleted ${result.deletedCount || 0} login log(s).`,
+      deleted: deletedCount,
+      message: `${deletedCount} login log(s) moved to trash.`,
     })
   } catch (err) {
     return NextResponse.json({ error: 'Failed to delete logs' }, { status: 500 })

@@ -12,6 +12,11 @@ export interface IImageInfo {
   height: number
 }
 
+export interface IDeletedBy {
+  username: string
+  role: 'admin' | 'sub-admin'
+}
+
 export interface IBlogPost extends Document {
   title: string
   slug: string
@@ -54,6 +59,12 @@ export interface IBlogPost extends Document {
   readingTime: number
   createdAt: Date
   updatedAt: Date
+
+  // Soft delete fields
+  isDeleted?: boolean
+  deletedAt?: Date | null
+  deletedBy?: IDeletedBy | null
+  autoDeleteAt?: Date | null
 }
 
 const ImageInfoSchema = new Schema<IImageInfo>(
@@ -112,6 +123,15 @@ const BlogPostSchema = new Schema<IBlogPost>(
     schemaType: { type: String, default: 'BlogPosting' },
 
     readingTime: { type: Number, default: 0 },
+
+    // Soft delete fields
+    isDeleted: { type: Boolean, default: false },
+    deletedAt: { type: Date, default: null },
+    deletedBy: {
+      type: { username: String, role: String },
+      default: null,
+    },
+    autoDeleteAt: { type: Date, default: null },
   },
   { timestamps: true }
 )

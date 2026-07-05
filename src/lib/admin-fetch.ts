@@ -39,7 +39,13 @@ export async function adminFetch<T = any>(
       }
     }
 
-    return { data, res, error: null }
+    // If the HTTP status indicates an error AND the parsed body has an `error` field,
+    // surface it as the `error` string so callers can handle it consistently.
+    const errorMessage =
+      !res.ok && data && typeof data === 'object' && 'error' in (data as Record<string, unknown>)
+        ? (data as Record<string, unknown>).error as string
+        : null
+    return { data, res, error: errorMessage }
   } catch (err: any) {
     // Network error, DNS failure, etc.
     return {

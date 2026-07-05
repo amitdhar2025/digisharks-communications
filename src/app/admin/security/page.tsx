@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { adminFetch } from '@/lib/admin-fetch'
 import AdminSidebar from '@/components/admin/Sidebar'
 
@@ -133,6 +134,14 @@ export default function SecurityPage() {
   // Confirmations
   const [confirmClear, setConfirmClear] = useState(false)
   const [clearing, setClearing] = useState(false)
+  const [securityTrashCount, setSecurityTrashCount] = useState(0)
+
+  useEffect(() => {
+    fetch('/api/admin/trash/count?section=security_attacks')
+      .then(r => r.json())
+      .then(d => { if (d.count !== undefined) setSecurityTrashCount(d.count) })
+      .catch(() => {})
+  }, [])
 
   // Auto refresh
   const [autoRefresh, setAutoRefresh] = useState(true)
@@ -333,9 +342,10 @@ export default function SecurityPage() {
           </div>
           <div className="cell-actions">
             <button className="btn btn-ghost" onClick={handleExport}>⬇ Export CSV</button>
-            <button className="btn btn-danger" onClick={() => setConfirmClear(true)}>🗑 Clear Logs</button>
-            <button
-              className="btn btn-ghost"
+            <button className="btn btn-danger" onClick={() => setConfirmClear(true)}>🗑 Clear Logs</button>            <Link href="/admin/trash?section=security_attacks" className="btn btn-ghost" style={{ color: securityTrashCount > 0 ? '#fbbf24' : undefined }}>
+              🗑 Trash{securityTrashCount > 0 ? ` (${securityTrashCount})` : ''}
+            </Link>
+            <button className="btn btn-ghost"
               onClick={() => { setAutoRefresh(!autoRefresh) }}
               title={autoRefresh ? 'Auto-refresh ON (60s)' : 'Auto-refresh OFF'}
             >
@@ -350,7 +360,7 @@ export default function SecurityPage() {
             <div className="modal" onClick={e => e.stopPropagation()}>
               <h2>🗑 Clear All Attack Logs</h2>
               <div className="modal-sub">
-                This will permanently delete all {attacksTotal} attack records. This action cannot be undone.
+                This will move all {attacksTotal} attack records to the Trash. They can be restored later from the Trash section.
               </div>
               <div className="row">
                 <button className="btn btn-ghost" onClick={() => setConfirmClear(false)} disabled={clearing}>Cancel</button>

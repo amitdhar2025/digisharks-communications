@@ -32,7 +32,11 @@ import {
   ArrowRight,
   Lightbulb,
   Settings,
+  Trash2,
+  RotateCcw,
+  Trash,
 } from 'lucide-react'
+import TrashDashboardSection from '@/components/admin/TrashDashboardSection'
 
 /* ── Types ────────────────────────────────────────────── */
 
@@ -59,6 +63,9 @@ interface DashboardStats {
   subAdmins: number
   loginLogs: number
   failedLoginsToday: number
+  totalInTrash: number
+  totalRestored: number
+  totalPermanentlyDeleted: number
 }
 
 /* ── Helpers ──────────────────────────────────────────── */
@@ -142,6 +149,9 @@ const STAT_GROUPS: { label: string; color: string; boxes: StatBox[] }[] = [
       { key: 'subAdmins', label: 'Sub Admins', icon: <Users size={18} />, link: '/admin/sub-admins', color: '#eab308', cssColor: 'amber' },
       { key: 'loginLogs', label: 'Login Logs', icon: <LogIn size={18} />, link: '/admin/login-logs', color: '#64748b', cssColor: 'slate' },
       { key: 'failedLoginsToday', label: 'Failed Logins', icon: <LogOut size={18} />, link: '/admin/login-logs', color: '#ef4444', cssColor: 'rose' },
+      { key: 'totalInTrash', label: 'Total in Trash', icon: <Trash2 size={18} />, link: '/admin/trash', color: '#ef4444', cssColor: 'red' },
+      { key: 'totalRestored', label: 'Total Restored', icon: <RotateCcw size={18} />, link: '/admin/trash', color: '#22c55e', cssColor: 'green' },
+      { key: 'totalPermanentlyDeleted', label: 'Deleted Forever', icon: <Trash size={18} />, link: '/admin/trash', color: '#f97316', cssColor: 'orange' },
     ],
   },
 ]
@@ -227,6 +237,7 @@ export default function DashboardPage() {
   const [username, setUsername] = useState('')
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [statsLoading, setStatsLoading] = useState(true)
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false)
 
   const loadStats = useCallback(async () => {
     try {
@@ -250,6 +261,7 @@ export default function DashboardPage() {
           return
         }
         setUsername(d.username || '')
+        setIsSuperAdmin(d?.role === 'admin')
         loadStats()
       })
       .catch(() => router.push('/admin/login'))
@@ -291,6 +303,7 @@ export default function DashboardPage() {
         .dash-stat-card.lime::before { background: linear-gradient(90deg, #84cc16, #a3e635); }
         .dash-stat-card.red::before { background: linear-gradient(90deg, #dc2626, #f87171); }
         .dash-stat-card.slate::before { background: linear-gradient(90deg, #64748b, #94a3b8); }
+        .dash-stat-card.green::before { background: linear-gradient(90deg, #22c55e, #4ade80); }
         .dash-grid-responsive {
           display: grid;
           grid-template-columns: repeat(2, 1fr);
@@ -440,6 +453,9 @@ export default function DashboardPage() {
             </div>
           </div>
         ))}
+
+        {/* ── TRASH SECTION (super admin only) ── */}
+        {isSuperAdmin && <TrashDashboardSection />}
 
         {/* ── YELLOW TIP BOX ── */}
         <div

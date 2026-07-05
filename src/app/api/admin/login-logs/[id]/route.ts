@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getLoginLogsCollection } from '@/lib/db'
 import { getAdminFromRequest, isSuperAdmin } from '@/lib/auth'
 import { ObjectId } from 'mongodb'
+import { softDeleteFromNative } from '@/lib/trash'
 
 export const dynamic = 'force-dynamic'
 
@@ -20,14 +21,15 @@ export async function DELETE(
 
   try {
     const { id } = await params
-    const col = await getLoginLogsCollection()
-    const result = await col.deleteOne({ _id: new ObjectId(id) })
+    await softDeleteFromNative(
+      'loginlogs',
+      'login_logs',
+      id,
+      { username: admin.username, role: admin.role },
+      (doc) => `Login: ${(doc as any)?.username || id}`,
+    )
 
-    if (result.deletedCount === 0) {
-      return NextResponse.json({ error: 'Log entry not found' }, { status: 404 })
-    }
-
-    return NextResponse.json({ success: true, message: 'Log entry deleted.' })
+    return NextResponse.json({ success: true, message: 'Log entry moved to trash.' })
   } catch (err) {
     return NextResponse.json({ error: 'Failed to delete log entry' }, { status: 500 })
   }

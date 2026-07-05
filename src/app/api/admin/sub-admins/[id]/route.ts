@@ -4,6 +4,7 @@ import { ObjectId } from 'mongodb'
 import { getAdminFromRequest, isSuperAdmin, DEFAULT_SUBADMIN_PERMISSIONS } from '@/lib/auth'
 import { getSubAdminsCollection, SubAdminPermissions } from '@/lib/db'
 import { deepMergePermissions } from '@/lib/permissions'
+import { softDeleteFromNative } from '@/lib/trash'
 
 export const dynamic = 'force-dynamic'
 
@@ -163,12 +164,15 @@ export async function DELETE(
       return NextResponse.json({ error: 'Invalid ID' }, { status: 400 })
     }
 
-    const result = await col.deleteOne({ _id: new ObjectId(id) })
-    if (result.deletedCount === 0) {
-      return NextResponse.json({ error: 'Sub-admin not found' }, { status: 404 })
-    }
+    await softDeleteFromNative(
+      'subadmins',
+      'sub_admins',
+      id,
+      { username: admin.username, role: admin.role },
+      (doc) => (doc as any)?.username || id,
+    )
 
-    return NextResponse.json({ success: true, message: 'Sub-admin deleted' })
+    return NextResponse.json({ success: true, message: 'Sub-admin moved to trash.' })
   } catch (err) {
     console.error('DELETE /api/admin/sub-admins/[id] error', err)
     return NextResponse.json({ error: 'Failed to delete sub-admin' }, { status: 500 })

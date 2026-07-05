@@ -12,6 +12,7 @@ import ChatbotQA from '@/lib/models/ChatbotQA'
 import SeoAudit from '@/lib/models/SeoAudit'
 import SitemapSettings from '@/lib/models/SitemapSettings'
 import RobotsSettings from '@/lib/models/RobotsSettings'
+import { getTrashCount, getTrashCountsBySection, getTotalRestored, getTotalPermanentlyDeleted } from '@/lib/trash'
 
 export const dynamic = 'force-dynamic'
 
@@ -95,7 +96,27 @@ export async function GET(req: NextRequest) {
     // Chatbot conversations — no dedicated collection, count is 0
     const totalChatbotConversations = 0
 
+    // Trash counts — per section and total
+    const trashCount = await getTrashCount()
+    const trashBySection = await getTrashCountsBySection()
+    const totalRestored = await getTotalRestored()
+    const totalPermanentlyDeleted = await getTotalPermanentlyDeleted()
+
     return NextResponse.json({
+      totalInTrash: trashCount,
+      totalRestored,
+      totalPermanentlyDeleted,
+      trashCount,
+      queriesTrash: trashBySection['queries'] || 0,
+      ordersTrash: trashBySection['orders'] || 0,
+      blogTrash: trashBySection['blogposts'] || 0,
+      rssTrash: trashBySection['rss'] || 0,
+      careerTrash: (trashBySection['careerjobs'] || 0) + (trashBySection['careerapplications'] || 0),
+      chatbotTrash: trashBySection['chatbotqa'] || 0,
+      seoTrash: trashBySection['seoaudits'] || 0,
+      subAdminsTrash: trashBySection['subadmins'] || 0,
+      loginLogsTrash: trashBySection['loginlogs'] || 0,
+      totalTrash: trashCount,
       queries,
       orders: totalOrders,
       revenue: totalRevenue,

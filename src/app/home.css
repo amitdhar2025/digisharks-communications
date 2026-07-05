@@ -1087,6 +1087,10 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
   color: var(--text); background: rgba(255,255,255,.05);
   white-space: nowrap;
 }
+.space-y-6 h3{
+
+  color: white !important;
+}
 .pf-year {
   font-family: 'Syne', sans-serif; font-size: .75rem;
   font-weight: 800; color: var(--cyan); padding: .2rem .6rem;

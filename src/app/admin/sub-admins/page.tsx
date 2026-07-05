@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import AdminSidebar from '@/components/admin/Sidebar'
 import { adminFetch } from '@/lib/admin-fetch'
 
@@ -86,6 +87,14 @@ export default function SubAdminsPage() {
   const [newCategoryInput, setNewCategoryInput] = useState('')
 
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [subTrashCount, setSubTrashCount] = useState(0)
+
+  useEffect(() => {
+    fetch('/api/admin/trash/count?section=sub_admins')
+      .then(r => r.json())
+      .then(d => { if (d.count !== undefined) setSubTrashCount(d.count) })
+      .catch(() => {})
+  }, [])
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -516,6 +525,9 @@ export default function SubAdminsPage() {
                 🗑 Delete All ({items.length})
               </button>
             )}
+            <Link href="/admin/trash?section=sub_admins" className="btn btn-ghost" style={{ color: subTrashCount > 0 ? '#fbbf24' : undefined }}>
+              🗑 Trash{subTrashCount > 0 ? ` (${subTrashCount})` : ''}
+            </Link>
             <button className="btn btn-ghost" onClick={load} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
               ↻ Refresh
             </button>
@@ -764,7 +776,7 @@ export default function SubAdminsPage() {
             <h2 style={{ color: '#fca5a5' }}>⚠ Delete All Sub-Admins</h2>
             <p style={{ color: '#94a3b8', margin: '12px 0' }}>
               Are you sure you want to delete <strong style={{ color: '#e2e8f0' }}>all {items.length} sub-admin{items.length !== 1 ? 's' : ''}</strong>?
-              This action cannot be undone. All sub-admin accounts and their access will be permanently removed.
+              They will be moved to the Trash and can be restored later from the Trash section.
             </p>
             <div className="row">
               <button className="btn btn-ghost" onClick={() => setDeleteAllOpen(false)} disabled={busy}>
@@ -785,7 +797,7 @@ export default function SubAdminsPage() {
             <h2 style={{ color: '#fca5a5' }}>🗑 Delete Sub-Admin</h2>
             <p style={{ color: '#94a3b8', margin: '12px 0' }}>
               Are you sure you want to delete <strong style={{ color: '#e2e8f0' }}>{deleteTarget.username}</strong>?
-              This action cannot be undone. Their access will be revoked immediately.
+              They will be moved to the Trash and can be restored later from the Trash section.
             </p>
             <div className="row">
               <button className="btn btn-ghost" onClick={() => setDeleteTarget(null)} disabled={busy}>

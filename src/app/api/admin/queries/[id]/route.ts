@@ -3,6 +3,7 @@ import { ObjectId } from 'mongodb'
 import { getAdminFromRequest, isSuperAdmin, getSubAdminPermissions } from '@/lib/auth'
 import { requirePermission } from '@/lib/permissions'
 import { getQueriesCollection, getSubAdminsCollection } from '@/lib/db'
+import { softDeleteFromNative } from '@/lib/trash'
 
 export const dynamic = 'force-dynamic'
 
@@ -154,9 +155,13 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     }
   }
 
-  const result = await collection.deleteOne({ _id: objectId })
-  if (result.deletedCount === 0) {
-    return NextResponse.json({ error: 'Not found' }, { status: 404 })
-  }
-  return NextResponse.json({ success: true })
+  // Soft delete — move to trash
+  await softDeleteFromNative(
+    'queries',
+    'queries',
+    objectId,
+    { username: admin.username, role: admin.role },
+    (doc) => (doc as any)?.fullName || String(doc._id),
+  )
+  return NextResponse.json({ success: true, message: 'Moved to trash.' })
 }

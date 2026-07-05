@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 interface CareerJob {
   _id: string
@@ -113,9 +114,18 @@ export default function AdminCareerPage() {
   // Selection state for bulk actions
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [deletingBulk, setDeletingBulk] = useState(false)
+  const [jobsTrashCount, setJobsTrashCount] = useState(0)
 
   const allSelected = applications.length > 0 && selectedIds.size === applications.length
   const someSelected = selectedIds.size > 0 && selectedIds.size < applications.length
+
+  // Fetch trash count for career jobs
+  useEffect(() => {
+    fetch('/api/admin/trash/count?section=careerjobs')
+      .then(r => r.json())
+      .then(d => { if (d.count !== undefined) setJobsTrashCount(d.count) })
+      .catch(() => {})
+  }, [])
 
 
   useEffect(() => {
@@ -233,7 +243,7 @@ export default function AdminCareerPage() {
         method: 'DELETE', credentials: 'include',
       })
       if (!res.ok) throw new Error((await res.json()).error || 'Delete failed')
-      setToast({ kind: 'success', text: `"${deleteJob.title}" deleted.` })
+      setToast({ kind: 'success', text: `"${deleteJob.title}" moved to Trash.` })
       setDeleteJob(null)
       loadJobs()
     } catch (e: any) {
@@ -253,7 +263,7 @@ export default function AdminCareerPage() {
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data.error || 'Delete failed')
-      setToast({ kind: 'success', text: `Application of "${deleteApp.applicantName}" deleted.` })
+      setToast({ kind: 'success', text: `Application of "${deleteApp.applicantName}" moved to Trash.` })
       setDeleteApp(null)
       loadApplications()
     } catch (e: any) {
@@ -274,7 +284,7 @@ export default function AdminCareerPage() {
       const res = await fetch(url, { method: 'DELETE', credentials: 'include' })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data.error || 'Delete failed')
-      setToast({ kind: 'success', text: data.message || `Deleted ${data.deletedCount} application(s).` })
+      setToast({ kind: 'success', text: data.message || `${data.deletedCount} application(s) moved to Trash.` })
       setShowDeleteAll(false)
       setDeleteAllConfirmText('')
       setSelectedIds(new Set())
@@ -289,7 +299,7 @@ export default function AdminCareerPage() {
   // Delete selected (bulk)
   async function handleDeleteSelected() {
     if (selectedIds.size === 0) return
-    if (!window.confirm(`Delete ${selectedIds.size} selected application(s)? This cannot be undone.`)) return
+    if (!window.confirm(`Delete ${selectedIds.size} selected application(s)? They will be moved to the Trash and can be restored later.`)) return
     setDeletingBulk(true)
     try {
       let okCount = 0
@@ -305,7 +315,7 @@ export default function AdminCareerPage() {
       }
       setToast({
         kind: failCount === 0 ? 'success' : 'error',
-        text: `Deleted ${okCount} application(s)${failCount ? `, ${failCount} failed.` : '.'}`,
+        text: `${okCount} application(s) moved to Trash${failCount ? `, ${failCount} failed.` : '.'}`,
       })
       setSelectedIds(new Set())
       loadApplications()
@@ -402,6 +412,9 @@ export default function AdminCareerPage() {
           <div className="sub">Manage job openings and applications</div>
         </div>
         <div className="cell-actions">
+          <Link href="/admin/trash?section=careerjobs" className="btn btn-ghost" style={{ color: jobsTrashCount > 0 ? '#fbbf24' : undefined }}>
+            🗑 Trash{jobsTrashCount > 0 ? ` (${jobsTrashCount})` : ''}
+          </Link>
           <button
             className={`btn ${activeTab === 'jobs' ? 'btn-primary' : 'btn-ghost'}`}
             onClick={() => setActiveTab('jobs')}
@@ -871,7 +884,7 @@ export default function AdminCareerPage() {
             <h2>Delete Job</h2>
             <p className="modal-sub">
               Are you sure you want to delete <strong>{deleteJob.title}</strong>?
-              This will also remove all applications for this position. This action cannot be undone.
+              This will also move all applications for this position to the Trash. Items can be restored later from the Trash section.
             </p>
             <div className="row">
               <button className="btn btn-ghost" onClick={() => setDeleteJob(null)} disabled={deleting}>Cancel</button>
@@ -889,7 +902,7 @@ export default function AdminCareerPage() {
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h2 style={{ color: '#fca5a5' }}>⚠️ Delete ALL Applicants</h2>
             <p className="modal-sub">
-              This will permanently delete <strong>every</strong> applicant matching your current filters.
+              This will move <strong>every</strong> applicant matching your current filters to the Trash. They can be restored later from the Trash section.
             </p>
             <div style={{
               background: 'rgba(239,68,68,0.10)', border: '1px solid rgba(239,68,68,0.35)',
@@ -902,8 +915,8 @@ export default function AdminCareerPage() {
               {appJobFilter !== 'all' && (
                 <div style={{ marginBottom: 6 }}><strong>Job filter:</strong> {availableJobs.find((j) => j._id === appJobFilter)?.title || appJobFilter}</div>
               )}
-              <div style={{ marginTop: 10, color: '#fda4af', fontWeight: 600 }}>
-                🚨 This action CANNOT be undone.
+              <div style={{ marginTop: 10, color: '#fbbf24', fontWeight: 600 }}>
+                📦 Items can be restored from the Trash section if needed.
               </div>
             </div>
             <div className="field">
@@ -942,20 +955,19 @@ export default function AdminCareerPage() {
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h2>Delete Applicant</h2>
             <p className="modal-sub">
-              Are you sure you want to delete the application of <strong>{deleteApp.applicantName}</strong>?
+              Are you sure you want to delete the application of <strong>{deleteApp.applicantName}</strong>? It will be moved to the Trash and can be restored later.
             </p>
             <div style={{
-              background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)',
-              borderRadius: 10, padding: '12px 14px', fontSize: 13, color: '#fca5a5', marginBottom: 16,
+              background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)',
+              borderRadius: 10, padding: '12px 14px', fontSize: 13, color: '#fbbf24', marginBottom: 16,
             }}>
               <div style={{ marginBottom: 6 }}><strong>Applicant:</strong> {deleteApp.applicantName}</div>
               <div style={{ marginBottom: 6 }}><strong>Email:</strong> {deleteApp.email}</div>
               {deleteApp.jobId?.title && (
                 <div style={{ marginBottom: 6 }}><strong>Applied For:</strong> {deleteApp.jobId.title}</div>
               )}
-              <div style={{ marginTop: 10, color: '#fda4af' }}>
-                ⚠️ This will permanently remove the application record and any associated resume link.
-                This action cannot be undone.
+              <div style={{ marginTop: 10, color: '#fbbf24' }}>
+                📦 This item will be moved to the Trash. It can be restored later from the Trash section.
               </div>
             </div>
             <div className="row">

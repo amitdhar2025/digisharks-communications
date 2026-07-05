@@ -3,12 +3,13 @@ import { ObjectId } from 'mongodb'
 import { getAdminFromRequest, isSuperAdmin, getSubAdminPermissions } from '@/lib/auth'
 import { requirePermission } from '@/lib/permissions'
 import { getOrdersCollection } from '@/lib/products'
+import { softDeleteFromNative } from '@/lib/trash'
 
 export const dynamic = 'force-dynamic'
 
 /**
  * DELETE /api/admin/orders/[id]
- * Permanently deletes a single order by id.
+ * Soft-deletes a single order (moves to trash).
  */
 export async function DELETE(
   req: NextRequest,
@@ -32,12 +33,15 @@ export async function DELETE(
       return NextResponse.json({ error: 'Invalid order id' }, { status: 400 })
     }
 
-    const orders = await getOrdersCollection()
-    const result = await orders.deleteOne({ _id: new ObjectId(id) })
-    if (result.deletedCount === 0) {
-      return NextResponse.json({ error: 'Order not found' }, { status: 404 })
-    }
-    return NextResponse.json({ success: true, deletedCount: 1 })
+    await softDeleteFromNative(
+      'orders',
+      'orders',
+      id,
+      { username: admin.username, role: admin.role },
+      (doc) => `Order #${(doc as any)?.orderNumber || id}`,
+    )
+
+    return NextResponse.json({ success: true, message: 'Order moved to trash.' })
   } catch (err: any) {
     console.error('DELETE /api/admin/orders/[id] error', err)
     return NextResponse.json(

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import AdminSidebar from '@/components/admin/Sidebar'
 
 /* ─── Types ─── */
@@ -65,6 +66,14 @@ export default function SeoAuditAdminPage() {
   const [deleting, setDeleting] = useState(false)
   const [deleteAllOpen, setDeleteAllOpen] = useState(false)
   const [deleteAllBusy, setDeleteAllBusy] = useState(false)
+  const [seoTrashCount, setSeoTrashCount] = useState(0)
+
+  useEffect(() => {
+    fetch('/api/admin/trash/count?section=seoaudits')
+      .then(r => r.json())
+      .then(d => { if (d.count !== undefined) setSeoTrashCount(d.count) })
+      .catch(() => {})
+  }, [])
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -199,6 +208,9 @@ export default function SeoAuditAdminPage() {
             <button className="btn btn-danger" onClick={() => setDeleteAllOpen(true)} disabled={total === 0} suppressHydrationWarning>
               🗑 Delete all ({total})
             </button>
+            <Link href="/admin/trash?section=seoaudits" className="btn btn-ghost" style={{ color: seoTrashCount > 0 ? '#fbbf24' : undefined }}>
+              🗑 Trash{seoTrashCount > 0 ? ` (${seoTrashCount})` : ''}
+            </Link>
             <button className="btn btn-ghost" onClick={load}>↻ Refresh</button>
           </div>
         </div>
@@ -476,7 +488,7 @@ export default function SeoAuditAdminPage() {
             <h2 style={{ color: '#fca5a5' }}>⚠ Delete all audits</h2>
             <p style={{ color: '#94a3b8', margin: '12px 0' }}>
               Are you sure you want to delete <strong style={{ color: '#e2e8f0' }}>all {total} {total === 1 ? 'audit' : 'audits'}</strong>?
-              This action cannot be undone.
+              They will be moved to the Trash and can be restored later from the Trash section.
             </p>
             <div className="cell-actions" style={{ justifyContent: 'flex-end', marginTop: 20 }}>
               <button className="btn btn-ghost" onClick={() => setDeleteAllOpen(false)} disabled={deleteAllBusy}>

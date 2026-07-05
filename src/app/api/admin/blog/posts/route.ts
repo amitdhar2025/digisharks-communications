@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
     const sortField = searchParams.get('sort') || 'updatedAt'
     const sortOrder = searchParams.get('order') === 'asc' ? 1 : -1
 
-    const query: any = {}
+    const query: any = { isDeleted: { $ne: true } }
     if (status && status !== 'all') query.status = status
     if (search) {
       query.$or = [
@@ -194,7 +194,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// DELETE /api/admin/blog/posts - Bulk delete posts
+// DELETE /api/admin/blog/posts - Bulk soft-delete posts (set isDeleted=true)
 export async function DELETE(req: NextRequest) {
   const admin = await getAdminFromCookies()
   if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -208,77 +208,26 @@ export async function DELETE(req: NextRequest) {
 
   try {
     await connectMongoose()
-    const { searchParams } = new URL(req.url)
-    const ids = searchParams.get('ids')
-    const status = searchParams.get('status')
-    const search = searchParams.get('search')
 
-    let query: any = {}
+    // Soft-delete ALL non-deleted posts using updateMany — no hard deletes.
+    const result = await BlogPost.updateMany(
+      { isDeleted: { $ne: true } },
+      {
+        $set: {
+          isDeleted: true,
+          deletedAt: new Date(),
+          deletedBy: { username: admin.username, role: admin.role },
+          autoDeleteAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        },
+      },
+    )
 
-    if (ids) {
-      const { default: mongoose } = await import('mongoose')
-      const idArray = ids.split(',').filter((id) => mongoose.Types.ObjectId.isValid(id))
-      query._id = { $in: idArray }
-    }
-
-    if (status && status !== 'all') query.status = status
-    if (search) {
-      query.$or = [
-        { title: { $regex: search, $options: 'i' } },
-        { excerpt: { $regex: search, $options: 'i' } },
-      ]
-    }
-
-    // Find posts to get Cloudinary publicIds for cleanup
-    const postsToDelete = await BlogPost.find(query).select('featuredImage bannerImage content').lean()
-
-    // Lazy-import cloudinary so the GET handler never loads it
-    const { v2: cloudinary } = await import('cloudinary')
-    cloudinary.config({
-      cloud_name: process.env.CLOUDINARY_CLOUD_NAME || '',
-      api_key: process.env.CLOUDINARY_API_KEY || '',
-      api_secret: process.env.CLOUDINARY_API_SECRET || '',
-    })
-
-    // Delete Cloudinary resources
-    const publicIds: string[] = []
-    const videoPublicIds: string[] = []
-
-    for (const post of postsToDelete) {
-      if (post.featuredImage?.publicId) publicIds.push(post.featuredImage.publicId)
-      if (post.bannerImage?.publicId) publicIds.push(post.bannerImage.publicId)
-      // Extract video publicIds from content
-      const videoMatches = post.content?.match(/cloudinary-video-id=["']([^"']+)/g) || []
-      videoMatches.forEach((m: string) => {
-        const id = m.replace(/cloudinary-video-id=["']([^"']+)/, '$1')
-        if (id) videoPublicIds.push(id)
-      })
-      // Extract image publicIds from content
-      const imgMatches = post.content?.match(/data-public-id=["']([^"']+)/g) || []
-      imgMatches.forEach((m: string) => {
-        const id = m.replace(/data-public-id=["']([^"']+)/, '$1')
-        if (id && !publicIds.includes(id)) publicIds.push(id)
-      })
-    }
-
-    // Delete from Cloudinary in parallel
-    const deletePromises = [
-      ...publicIds.map((pid) =>
-        cloudinary.uploader.destroy(pid).catch(() => {})
-      ),
-      ...videoPublicIds.map((pid) =>
-        cloudinary.uploader.destroy(pid, { resource_type: 'video' } as any).catch(() => {})
-      ),
-    ]
-    await Promise.allSettled(deletePromises)
-
-    const result = await BlogPost.deleteMany(query)
-    const count = result.deletedCount || 0
+    const deletedCount = result.modifiedCount
 
     return NextResponse.json({
       success: true,
-      deleted: count,
-      message: `${count} post(s) deleted successfully`,
+      deleted: deletedCount,
+      message: `${deletedCount} post(s) moved to trash.`,
     })
   } catch (err) {
     console.error('DELETE /api/admin/blog/posts bulk error', err)

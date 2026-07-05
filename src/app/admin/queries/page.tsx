@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState, useCallback, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import AdminSidebar from '@/components/admin/Sidebar'
 import {
   QueryItem,
@@ -43,6 +44,14 @@ export default function QueriesPage() {
   const [deleteAllBusy, setDeleteAllBusy] = useState(false)
 
   const [exportLoading, setExportLoading] = useState(false)
+  const [queriesTrashCount, setQueriesTrashCount] = useState(0)
+
+  useEffect(() => {
+    fetch('/api/admin/trash/count?section=queries')
+      .then(r => r.json())
+      .then(d => { if (d.count !== undefined) setQueriesTrashCount(d.count) })
+      .catch(() => {})
+  }, [])
 
   useEffect(() => {
     fetch('/api/admin/me')
@@ -245,6 +254,9 @@ export default function QueriesPage() {
                 🗑 Delete all ({total})
               </button>
             </div>
+            <Link href="/admin/trash?section=queries" className="btn btn-ghost" style={{ color: queriesTrashCount > 0 ? '#fbbf24' : undefined }}>
+              🗑 Trash{queriesTrashCount > 0 ? ` (${queriesTrashCount})` : ''}
+            </Link>
             <button className="btn btn-primary" onClick={() => setCreateOpen(true)}>
               ＋ New query
             </button>

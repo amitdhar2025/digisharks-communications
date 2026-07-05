@@ -11,7 +11,7 @@ import {
   flexRender,
   SortingState,
 } from '@tanstack/react-table'
-import { Plus, Edit, Trash2, Eye, Search, ExternalLink, ArrowUpDown } from 'lucide-react'
+import { Plus, Edit, Trash2, Eye, Search, ExternalLink, ArrowUpDown, Copy } from 'lucide-react'
 import { adminFetch } from '@/lib/admin-fetch'
 
 interface BlogPost {
@@ -59,8 +59,24 @@ export default function AdminBlogPage() {
   const [deleteTarget, setDeleteTarget] = useState<BlogPost | null>(null)
   const [deleteAllTarget, setDeleteAllTarget] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [duplicating, setDuplicating] = useState<string | null>(null)
   const [toast, setToast] = useState<{ kind: 'success' | 'error'; text: string } | null>(null)
+  const [blogTrashCount, setBlogTrashCount] = useState(0)
   const limit = 15
+
+  // Fetch trash count for this section
+  useEffect(() => {
+    fetch('/api/admin/trash/count?section=blogposts')
+      .then(r => r.json())
+      .then(d => { if (d.count !== undefined) setBlogTrashCount(d.count) })
+      .catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    if (!toast) return
+    const t = setTimeout(() => setToast(null), 4000)
+    return () => clearTimeout(t)
+  }, [toast])
 
   // Sub-admin permission state
   const [canCreate, setCanCreate] = useState(true)
@@ -136,6 +152,11 @@ export default function AdminBlogPage() {
 
   async function handleDelete() {
     if (!deleteTarget) return
+    // Optimistic: remove from list immediately
+    const removedTitle = deleteTarget.title
+    setPosts((prev) => prev.filter((p) => p._id !== deleteTarget._id))
+    setTotal((prev) => Math.max(0, prev - 1))
+    setDeleteTarget(null)
     setDeleting(true)
     try {
       const res = await fetch(`/api/admin/blog/posts/${deleteTarget._id}`, {
@@ -145,17 +166,51 @@ export default function AdminBlogPage() {
       let delData: any
       try { delData = JSON.parse(delText) } catch { delData = null }
       if (!res.ok) throw new Error(delData?.error || 'Delete failed')
-      setToast({ kind: 'success', text: `"${deleteTarget.title}" deleted.` })
-      setDeleteTarget(null)
-      load()
+      setToast({ kind: 'success', text: `"${removedTitle}" moved to Trash.` })
     } catch (e: any) {
+      // Rollback: reload to restore the item
+      load()
       setToast({ kind: 'error', text: e.message })
     } finally {
       setDeleting(false)
     }
   }
 
+  async function handleDuplicate(postId: string) {
+    setDuplicating(postId)
+    try {
+      const res = await fetch('/api/admin/blog/posts/duplicate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ postId }),
+      })
+      const text = await res.text()
+      let data: any
+      try { data = JSON.parse(text) } catch { data = null }
+      if (!res.ok) throw new Error(data?.error || 'Failed to duplicate post')
+      // Add duplicated post to the list immediately
+      if (data?.post) {
+        setPosts((prev) => [data.post as BlogPost, ...prev])
+        setTotal((prev) => prev + 1)
+      }
+      setToast({ kind: 'success', text: 'Post duplicated successfully.' })
+    } catch (e: any) {
+      setToast({ kind: 'error', text: e.message })
+    } finally {
+      setDuplicating(null)
+    }
+  }
+
   async function handleDeleteAll() {
+    // Optimistic: clear the list immediately
+    const prevPosts = posts
+    const prevTotal = total
+    const prevPages = pages
+    setPosts([])
+    setTotal(0)
+    setPages(1)
+    setDeleteAllTarget(false)
     setDeleting(true)
     try {
       const res = await fetch('/api/admin/blog/posts', {
@@ -167,12 +222,13 @@ export default function AdminBlogPage() {
       let data: any
       try { data = JSON.parse(allText) } catch { data = null }
       if (!res.ok) throw new Error(data?.error || 'Delete all failed')
-      setToast({ kind: 'success', text: data.message || 'All posts deleted.' })
-      setDeleteAllTarget(false)
-      setPosts([])
-      setTotal(0)
-      setPages(1)
+      setToast({ kind: 'success', text: data?.message || `${prevPosts.length} post(s) moved to trash.` })
     } catch (e: any) {
+      // Rollback: restore the posts
+      setPosts(prevPosts)
+      setTotal(prevTotal)
+      setPages(prevPages)
+      console.error('handleDeleteAll error:', e)
       setToast({ kind: 'error', text: e.message })
     } finally {
       setDeleting(false)
@@ -308,6 +364,16 @@ export default function AdminBlogPage() {
           >
             <Eye size={14} /> View
           </a>
+          {canCreate && (
+            <button
+              className="icon-btn"
+              onClick={() => handleDuplicate(info.row.original._id)}
+              disabled={duplicating === info.row.original._id}
+              title="Duplicate Post"
+            >
+              {duplicating === info.row.original._id ? <span className="spinner" /> : <Copy size={14} />} Duplicate
+            </button>
+          )}
           {canDelete && (
             <button
               className="icon-btn danger"
@@ -334,7 +400,13 @@ export default function AdminBlogPage() {
   return (
     <div>
       {toast && (
-        <div className={'alert ' + (toast.kind === 'success' ? 'alert-success' : 'alert-error')} role="status">
+        <div
+          className={'alert ' + (toast.kind === 'success' ? 'alert-success' : 'alert-error')}
+          role="status"
+          style={toast.kind === 'success' ? { cursor: 'pointer' } : undefined}
+          onClick={() => { if (toast.kind === 'success') { setToast(null); router.push('/admin/trash') } }}
+          title={toast.kind === 'success' ? 'Click to go to Trash' : undefined}
+        >
           {toast.text}
         </div>
       )}
@@ -353,6 +425,9 @@ export default function AdminBlogPage() {
           </Link>
           <Link href="/admin/blog/tags" className="btn btn-ghost">
             🏷 Tags
+          </Link>
+          <Link href="/admin/trash?section=blogposts" className="btn btn-ghost" style={{ color: blogTrashCount > 0 ? '#fbbf24' : undefined }}>
+            🗑 Trash{blogTrashCount > 0 ? ` (${blogTrashCount})` : ''}
           </Link>
           <Link href="/blog" target="_blank" className="btn btn-ghost">
             <ExternalLink size={14} /> View Blog
@@ -485,7 +560,7 @@ export default function AdminBlogPage() {
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h2>Delete Post</h2>
             <p className="modal-sub">
-              Are you sure you want to delete <strong>{deleteTarget.title}</strong>? This action cannot be undone.
+              Are you sure you want to move <strong>{deleteTarget.title}</strong> to trash? It can be restored later from the Trash section.
             </p>
             <div className="row">
               <button className="btn btn-ghost" onClick={() => setDeleteTarget(null)} disabled={deleting}>
@@ -505,7 +580,7 @@ export default function AdminBlogPage() {
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h2>Delete All Posts</h2>
             <p className="modal-sub">
-              Are you sure you want to delete <strong>ALL posts</strong>? This action cannot be undone.
+              Are you sure you want to move <strong>ALL posts</strong> to trash? They can be restored later from the Trash section.
             </p>
             <div className="row">
               <button className="btn btn-ghost" onClick={() => setDeleteAllTarget(false)} disabled={deleting}>

@@ -28,6 +28,22 @@ export default function AdminSidebar({ onNavClick, isOpen }: AdminSidebarProps) 
   const [username, setUsername] = useState('')
   const [role, setRole] = useState<'admin' | 'sub-admin'>('admin')
   const [permissions, setPermissions] = useState<SubAdminPermissions | null>(null)
+  const [trashCount, setTrashCount] = useState(0)
+
+  // Lock body / html scroll when mobile sidebar is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+      document.documentElement.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+      document.documentElement.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+      document.documentElement.style.overflow = ''
+    }
+  }, [isOpen])
 
   useEffect(() => {
     adminFetch<{
@@ -42,6 +58,22 @@ export default function AdminSidebar({ onNavClick, isOpen }: AdminSidebarProps) 
         setPermissions(data.permissions)
       }
     })
+  }, [])
+
+  // Fetch trash count for sidebar badge
+  useEffect(() => {
+    const fetchCount = () => {
+      adminFetch<{ total: number }>('/api/admin/trash/count')
+        .then(({ data }) => {
+          if (data) setTrashCount(data.total)
+        })
+        .catch(() => {
+          // Ignore — may fail due to browser extensions interfering
+        })
+    }
+    fetchCount()
+    const interval = setInterval(fetchCount, 30000) // refresh every 30s
+    return () => clearInterval(interval)
   }, [])
 
   async function handleLogout() {
@@ -81,6 +113,9 @@ export default function AdminSidebar({ onNavClick, isOpen }: AdminSidebarProps) 
     <aside className={`admin-sidebar${isOpen ? ' open' : ''}`}>
       <div className="brand">
         <span className="dot" /> Digisharks
+        <button type="button" className="sidebar-close" onClick={onNavClick} aria-label="Close sidebar">
+          ✕
+        </button>
       </div>
 
       {/* Main Section */}
@@ -126,6 +161,7 @@ export default function AdminSidebar({ onNavClick, isOpen }: AdminSidebarProps) 
       {role === 'admin' && (
         <>
           <div className="nav-section">⚙ Admin</div>
+          {navItem('/admin/trash', `🗑 Trash${trashCount > 0 ? ` (${trashCount})` : ''}`)}
           {navItem('/admin/sub-admins', '👥 Sub-Admins')}
           {navItem('/admin/login-logs', '📋 Log Details')}
         </>

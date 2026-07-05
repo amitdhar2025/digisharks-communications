@@ -142,13 +142,25 @@
 }
 
 .admin-shell .btn-danger {
-  background: rgba(239, 68, 68, 0.12);
-  color: #fca5a5;
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: #dc2626;
+  color: #fff;
+  border: 1px solid #dc2626;
 }
 
 .admin-shell .btn-danger:hover {
-  background: rgba(239, 68, 68, 0.2);
+  background: #b91c1c;
+  border-color: #b91c1c;
+}
+
+.admin-shell .btn-danger:active {
+  background: #991b1b;
+  border-color: #991b1b;
+}
+
+.admin-shell .btn-danger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(0.4);
 }
 
 .admin-shell .btn-success {
@@ -217,6 +229,33 @@
   border-radius: 50%;
   background: linear-gradient(135deg, #0ea5e9, #a855f7);
   box-shadow: 0 0 10px rgba(14, 165, 233, 0.6);
+}
+
+/* Close (X) button inside sidebar — hidden on desktop, shown on mobile */
+.admin-sidebar .sidebar-close {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0;
+  font-family: inherit;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.admin-sidebar .sidebar-close:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+  border-color: rgba(239, 68, 68, 0.3);
 }
 
 .admin-sidebar .nav-item {
@@ -1006,7 +1045,7 @@
     bottom: 0;
     width: 270px;
     max-width: 85vw;
-    z-index: 10000;
+    z-index: 10002;
     transform: translateX(-100%);
     transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     overflow-y: auto;
@@ -1026,7 +1065,7 @@
     position: fixed;
     inset: 0;
     background: rgba(2, 6, 23, 0.6);
-    z-index: 9999;
+    z-index: 10001;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.25s ease;
@@ -1037,10 +1076,25 @@
     pointer-events: auto;
   }
 
-  /* Show toggle button on mobile */
+  /* Show toggle button on mobile — fixed so it stays visible when scrolling */
   .admin-shell .sidebar-toggle {
     display: inline-flex;
-    margin: 12px 14px 8px;
+    position: fixed;
+    top: 56px;
+    left: 145px;
+    z-index: 10003;
+    margin: 0;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  }
+
+  /* Hide hamburger when sidebar is open — only close (X) shows */
+  .admin-layout:has(.admin-sidebar.open) .sidebar-toggle {
+    display: none;
+  }
+
+  /* Show close (X) button on mobile */
+  .admin-sidebar .sidebar-close {
+    display: flex;
   }
 
   /* Top bar adjustments */

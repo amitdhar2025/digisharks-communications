@@ -5,6 +5,7 @@ import connectMongoose from '@/lib/mongoose'
 import RssFeed from '@/lib/models/RssFeed'
 import { invalidateFeedCache } from '@/lib/rss-fetcher'
 import { invalidateNewsCache } from '@/lib/rss-news-cache'
+import { softDeleteFromMongoose } from '@/lib/trash'
 
 export const dynamic = 'force-dynamic'
 
@@ -98,16 +99,25 @@ export async function DELETE(
     await connectMongoose()
     const { id } = await params
 
-    const feed = await RssFeed.findByIdAndDelete(id)
+    const feed = await RssFeed.findById(id)
     if (!feed) {
       return NextResponse.json({ error: 'Feed not found' }, { status: 404 })
     }
+
+    // Soft delete — move to trash
+    await softDeleteFromMongoose(
+      'rss',
+      RssFeed,
+      id,
+      { username: admin.username, role: admin.role },
+      (doc) => (doc as any)?.name || id,
+    )
 
     // Invalidate cache for deleted feed
     invalidateFeedCache(feed.url)
     invalidateNewsCache()
 
-    return NextResponse.json({ success: true, id })
+    return NextResponse.json({ success: true, id, message: 'Feed moved to trash.' })
   } catch (err) {
     console.error('DELETE /api/admin/rss/[id] error:', err)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

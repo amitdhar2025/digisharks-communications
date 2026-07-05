@@ -13,7 +13,7 @@ export default function DeleteConfirmModal({ feedName, onClose, onConfirm, busy 
       <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 440 }}>
         <h2>Delete Feed</h2>
         <p className="modal-sub" style={{ marginTop: 8 }}>
-          Are you sure you want to delete <strong>"{feedName}"</strong>? This action cannot be undone.
+          Are you sure you want to move <strong>"{feedName}"</strong> to the Trash? It can be restored later from the Trash section.
         </p>
         <div className="row">
           <button className="btn btn-ghost" onClick={onClose} disabled={busy}>

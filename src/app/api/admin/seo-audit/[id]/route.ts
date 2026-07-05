@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminFromRequest, isSuperAdmin, getSubAdminPermissions } from '@/lib/auth'
 import { requirePermission } from '@/lib/permissions'
-import { deleteAudit } from '@/lib/seo-audit'
+import { connectMongoose } from '@/lib/mongoose'
+import SeoAudit from '@/lib/models/SeoAudit'
+import { softDeleteFromMongoose } from '@/lib/trash'
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const admin = getAdminFromRequest(req)
@@ -18,11 +20,17 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 
   try {
     const { id } = await params
-    const result = await deleteAudit(id)
-    if (!result) {
-      return NextResponse.json({ error: 'Audit not found' }, { status: 404 })
-    }
-    return NextResponse.json({ success: true, id: result.id })
+    await connectMongoose()
+
+    await softDeleteFromMongoose(
+      'seoaudits',
+      SeoAudit,
+      id,
+      { username: admin.username, role: admin.role },
+      (doc) => (doc as any)?.url || id,
+    )
+
+    return NextResponse.json({ success: true, message: 'Audit moved to trash.' })
   } catch (err: any) {
     console.error('DELETE /api/admin/seo-audit/[id] error:', err)
     return NextResponse.json({ error: 'Failed to delete audit' }, { status: 500 })

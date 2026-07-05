@@ -7,7 +7,7 @@ import { deepMergePermissions } from '@/lib/permissions'
 export const dynamic = 'force-dynamic'
 
 /**
- * DELETE /api/admin/sub-admins?confirm=yes — Delete all sub-admins (super admin only)
+ * DELETE /api/admin/sub-admins?confirm=yes — Soft-delete all sub-admins (super admin only)
  */
 export async function DELETE(req: NextRequest) {
   const admin = getAdminFromRequest(req)
@@ -23,12 +23,33 @@ export async function DELETE(req: NextRequest) {
     }
 
     const col = await getSubAdminsCollection()
-    const result = await col.deleteMany({})
+    const subAdmins = await col.find({}).project({ _id: 1, username: 1 }).toArray()
+
+    if (subAdmins.length === 0) {
+      return NextResponse.json({ success: true, deletedCount: 0, message: 'No sub-admins to delete.' })
+    }
+
+    const { softDeleteFromNative } = await import('@/lib/trash')
+    let deletedCount = 0
+    for (const sub of subAdmins) {
+      try {
+        await softDeleteFromNative(
+          'subadmins',
+          'sub_admins',
+          String(sub._id),
+          { username: admin.username, role: 'admin' },
+          (doc) => (doc as any)?.username || 'Sub-admin',
+        )
+        deletedCount++
+      } catch (err) {
+        console.error(`Failed to soft-delete sub-admin ${sub._id}:`, err)
+      }
+    }
 
     return NextResponse.json({
       success: true,
-      deletedCount: result.deletedCount || 0,
-      message: `Deleted ${result.deletedCount || 0} sub-admin(s).`,
+      deletedCount,
+      message: `${deletedCount} sub-admin(s) moved to trash.`,
     })
   } catch (err) {
     console.error('DELETE /api/admin/sub-admins error', err)
