@@ -248,6 +248,15 @@ const SHORT_ENTRIES = [
   { question: 'define PR', answer: 'PR (Public Relations) is the strategic communication process that builds mutually beneficial relationships between organizations and their publics. Digital PR extends this to online channels for measurable brand visibility and SEO benefits.', category: 'digital-pr' },
   { question: 'what is PR in marketing', answer: 'PR in marketing refers to using media relations and public communication strategies to build brand awareness, credibility, and trust. Unlike advertising which you pay for, PR earns attention through newsworthy stories and media placements.', category: 'digital-pr' },
 
+  // ── "ok" / "okay" replies (2-char, filtered by meaningfulWords) ──
+  { question: 'ok', answer: 'Great! Is there anything else I can help you with? Feel free to ask me about our services, pricing, or anything about DigiSharks.', category: 'general' },
+  { question: 'okay', answer: 'Awesome! Let me know if you have any other questions. I am here to help with anything about DigiSharks services, pricing, or company info.', category: 'general' },
+  { question: 'alright', answer: 'Got it! If you need anything else, just ask. I can help with services, pricing, contact info, and more.', category: 'general' },
+  { question: 'sure', answer: 'Happy to help! What would you like to know more about? I can tell you about our services, pricing, or anything else.', category: 'general' },
+  { question: 'got it', answer: 'Perfect! Feel free to reach out anytime if you have more questions. Have a great day!', category: 'general' },
+  { question: 'k', answer: 'Got it! Is there anything else I can help you with? Just let me know!', category: 'general' },
+  { question: 'kk', answer: 'Cool! If you have more questions later, I will be right here. Ask me about SEO, PR, websites, or anything!', category: 'general' },
+
   // ── Missing "who are you" (all stop words, needs exact match) ──
   { question: 'who are you', answer: 'I am the DigiSharks Communications chatbot assistant! DigiSharks is a top AI-powered Digital PR and Digital Marketing agency founded in 2017 by Vansh Mehra. We help businesses grow through digital PR, SEO, social media, web development, and more. How can I help you today?', category: 'about' },
   { question: 'who are you guys', answer: 'We are DigiSharks Communications — an AI-powered Digital PR and Marketing agency founded in 2017. We have served 4000+ clients, completed 500+ campaigns, and have a 98% client retention rate. Our team of 25+ specialists is based in Noida, India.', category: 'about' },

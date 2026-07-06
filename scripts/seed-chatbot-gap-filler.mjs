@@ -6,7 +6,15 @@
 
 const GAP_ENTRIES = [
 
-  // ── 2-char acronym fix + missing "who are you" ─────────────────
+  // ── ok/okay replies + 2-char acronym fix + missing who are you ─
+  { question: 'ok', answer: 'Great! Is there anything else I can help you with? Feel free to ask me about our services, pricing, or anything about DigiSharks.', category: 'general' },
+  { question: 'okay', answer: 'Awesome! Let me know if you have any other questions. I am here to help with anything about DigiSharks services, pricing, or company info.', category: 'general' },
+  { question: 'alright', answer: 'Got it! If you need anything else, just ask. I can help with services, pricing, contact info, and more.', category: 'general' },
+  { question: 'sure', answer: 'Happy to help! What would you like to know more about? I can tell you about our services, pricing, or anything else.', category: 'general' },
+  { question: 'got it', answer: 'Perfect! Feel free to reach out anytime if you have more questions. Have a great day!', category: 'general' },
+  { question: 'k', answer: 'Got it! Is there anything else I can help you with? Just let me know!', category: 'general' },
+  { question: 'kk', answer: 'Cool! If you have more questions later, I will be right here. Ask me about SEO, PR, websites, or anything!', category: 'general' },
+
   { question: 'what is PR', answer: 'PR stands for Public Relations. At DigiSharks, Digital PR combines media relations with online marketing. We help you get featured in top publications, build brand credibility, and improve search visibility through strategic media placements across 500+ journalist contacts.', category: 'digital-pr' },
   { question: 'what is public relations', answer: 'Public Relations (PR) is the practice of managing how information about a brand is communicated to the public and media. Our Digital PR services include press release distribution, media outreach, crisis communication, and brand reputation management.', category: 'digital-pr' },
   { question: 'what does PR mean', answer: 'PR means Public Relations. It involves building positive relationships between your brand and the public through media coverage, press releases, and strategic communication.', category: 'digital-pr' },
