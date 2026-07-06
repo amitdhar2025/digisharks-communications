@@ -87,7 +87,7 @@ export async function POST(req: NextRequest) {
       if (q === lowerMsg) return true
       // Input is sanitised (stripHtml) and regex-escaped — safe for RegExp
       // eslint-disable-next-line security/detect-non-literal-regexp
-      if (new RegExp(`\\b${escapeRegex(lowerMsg)}\\b`, 'i').test(q) && lowerMsg.length / q.length >= 0.5) return true
+      if (new RegExp(`\\b${escapeRegex(lowerMsg)}\\b`, 'i').test(q) && lowerMsg.length / q.length >= 0.3) return true
       if (q.length >= 5 && lowerMsg.includes(q)) return true
       return false
     })
@@ -96,18 +96,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ answer: exactPhraseMatch.answer, matched: exactPhraseMatch.question })
     }
 
-    // ── 2) Fuzzy match (Fuse.js) — STRICT: score ≤ 0.2 AND shared keywords ──
+    // ── 2) Fuzzy match (Fuse.js) — threshold 0.4 catches most valid
+    //     re-phrasings while still discarding obviously unrelated hits.
     const fuse = new Fuse(items, {
       keys: ['question'],
-      threshold: 0.2,        // tightened from 0.3 to drop fuzzy false positives
+      threshold: 0.4,
       distance: 100,
-      minMatchCharLength: 4,
+      minMatchCharLength: 3,
       ignoreLocation: true,
     })
 
     const results = fuse.search(trimmed)
     const fuseBest = results.find(r => {
-      if (r.score === undefined || r.score > 0.2) return false
+      if (r.score === undefined || r.score > 0.4) return false
       const qWords = meaningfulWords(r.item.question)
       if (qWords.length === 0) return false
       // Require at least one meaningful (non-stop) word in common.
@@ -146,13 +147,13 @@ export async function POST(req: NextRequest) {
       return { item, score, questionMatches, answerMatches, sharedTokens }
     })
 
-    // Quality gate: require ≥2 shared meaningful tokens AND ≥1 question-word
-    // match AND score ≥ 5 (so even a single strong match with the answer
-    // helps, but a single weak match doesn't).
+    // Quality gate: require ≥1 shared meaningful token AND ≥1 question-word
+    // match AND score ≥ 3. This catches short queries (1-2 meaningful
+    // words) that the Fuse layer might have narrowly missed.
     const candidates = scored.filter(s =>
-      s.sharedTokens >= 2 &&
+      s.sharedTokens >= 1 &&
       s.questionMatches >= 1 &&
-      s.score >= 5
+      s.score >= 3
     )
 
     if (candidates.length > 0) {
