@@ -240,6 +240,114 @@ const SHORT_ENTRIES = [
   { question: 'what is content marketing', answer: 'Creating valuable, relevant content to attract and retain your target audience — blogs, videos, social posts, and more.', category: 'content-creation' },
   { question: 'what is lead generation', answer: 'Attracting and converting prospects into leads through marketing campaigns, content, and strategic outreach.', category: 'digital-marketing' },
   { question: 'what is conversion rate', answer: 'The percentage of visitors who complete a desired action — purchase, signup, form fill. We optimize to maximize conversions.', category: 'digital-marketing' },
+
+  // ====================================================================
+  // GAP-FILLER: comparisons, process, problem-focused, industry, etc.
+  // ====================================================================
+
+  // ── Comparisons ────────────────────────────────────────────────────
+  { question: 'SEO vs PPC', answer: 'SEO is organic (free) traffic over time — takes 3-6 months for results. PPC is paid traffic with immediate results. We recommend both for maximum impact.', category: 'seo-ppc' },
+  { question: 'difference between SEO and PPC', answer: 'SEO earns organic traffic through optimized content. PPC drives traffic through paid ads with instant results. Both together = best results.', category: 'seo-ppc' },
+  { question: 'WordPress vs Shopify', answer: 'WordPress (WooCommerce) offers more flexibility. Shopify is easier to set up but has less customization. We build on both.', category: 'web-development' },
+  { question: 'Instagram vs Facebook marketing', answer: 'Instagram is better for visual brands and younger audiences (18-34). Facebook excels for broader demographics and detailed ad targeting. We manage both!', category: 'social-media' },
+  { question: 'organic vs paid marketing', answer: 'Organic builds sustainable traffic over time at no direct cost. Paid delivers immediate targeted traffic but costs per click. Integrated strategies work best.', category: 'digital-marketing' },
+  { question: 'onpage vs offpage SEO', answer: 'On-page SEO optimizes elements ON your website. Off-page SEO focuses on external signals like backlinks. Both are essential for rankings.', category: 'seo-ppc' },
+
+  // ── Process / Timeline ────────────────────────────────────────────
+  { question: 'How long does SEO take', answer: 'Initial improvements appear in 3-6 months. Significant results take 6-12 months depending on competition and keyword difficulty.', category: 'seo-ppc' },
+  { question: 'How long to build a website', answer: 'Standard business website takes 2-4 weeks. E-commerce sites take 4-8 weeks. Custom applications vary.', category: 'web-development' },
+  { question: 'How long for PR results', answer: 'Media placements appear within 1-2 weeks of a press release. Building brand authority takes 3-6 months.', category: 'digital-pr' },
+  { question: 'what is the process for SEO', answer: '1) Audit and keyword research, 2) On-page optimization, 3) Technical SEO fixes, 4) Link building, 5) Monthly reporting.', category: 'seo-ppc' },
+  { question: 'what is the process for website', answer: '1) Discovery, 2) Design (2 concepts), 3) Development, 4) Testing, 5) Launch, 6) Post-launch support.', category: 'web-development' },
+  { question: 'what do I need to provide for a website', answer: 'Brand logo, colors, page content, images, specific features needed. We can also create content for you.', category: 'web-development' },
+  { question: 'what information do you need to start', answer: 'Your business goals, target audience, budget, and any existing marketing materials. Free consultation to start!', category: 'general' },
+
+  // ── Problem-focused ──────────────────────────────────────────────
+  { question: 'My website is slow', answer: 'We can audit speed, optimize images, enable caching, and improve hosting. Contact us for a performance audit!', category: 'web-development' },
+  { question: 'My website is not getting traffic', answer: 'Our SEO services can improve rankings and drive organic visitors. We also offer PPC for immediate traffic.', category: 'seo-ppc' },
+  { question: 'I am not getting leads', answer: 'We audit your funnel, optimize campaigns, and implement proven lead generation strategies. Let us help!', category: 'digital-marketing' },
+  { question: 'My Google rankings dropped', answer: 'We audit your site to identify the cause and implement recovery strategies. Contact us for a consultation.', category: 'seo-ppc' },
+  { question: 'My social media is not growing', answer: 'We revitalize social media with consistent content strategy, engaging visuals, and targeted ads.', category: 'social-media' },
+  { question: 'I have negative reviews online', answer: 'Our ORM services monitor reviews, address feedback, and build positive content to improve reputation.', category: 'reputation-management' },
+  { question: 'My ads are not converting', answer: 'We audit targeting, creative, and landing pages to optimize for better conversion rates and ROI.', category: 'seo-ppc' },
+  { question: 'My competitor is ranking above me', answer: 'We analyze competitor strategies and develop a plan to outperform them. Let\'s capture more market share!', category: 'seo-ppc' },
+  { question: 'Nobody knows my brand', answer: 'Our multi-channel approach combines PR, social media, content marketing, and ads to build brand awareness.', category: 'brand-promotion' },
+
+  // ── Industry-specific ────────────────────────────────────────────
+  { question: 'Do you work with ecommerce businesses', answer: 'Yes! E-commerce SEO, Google Shopping Ads, social ads, email marketing, and WooCommerce/Shopify development.', category: 'digital-marketing' },
+  { question: 'Do you work with healthcare', answer: 'Yes, we serve hospitals, clinics, doctors, pharma, and health-tech with compliant marketing strategies.', category: 'general' },
+  { question: 'Do you work with real estate', answer: 'Yes! Digital marketing, social media, websites, and PR for real estate developers, agents, and prop-tech.', category: 'general' },
+  { question: 'Do you work with startups', answer: 'Yes! We love startups. Flexible packages, payment options, and growth-focused strategies for early-stage companies.', category: 'general' },
+  { question: 'Do you work with restaurants', answer: 'Yes! Local SEO, social media, Google Business Profile, and ORM for restaurants, cafes, and food brands.', category: 'general' },
+  { question: 'Do you work with fashion brands', answer: 'Yes! Stunning social media campaigns, influencer partnerships, and PR strategies for fashion and beauty.', category: 'general' },
+  { question: 'Do you work with technology companies', answer: 'Yes! B2B marketing for SaaS, IT services, app developers, and tech companies targeting decision-makers.', category: 'general' },
+
+  // ── Location-specific ────────────────────────────────────────────
+  { question: 'Do you work in Delhi', answer: 'Yes, we serve Delhi NCR. Our Noida office is easily accessible from all parts of Delhi.', category: 'general' },
+  { question: 'Do you work in Mumbai', answer: 'Yes, we have clients in Mumbai. Our digital services work seamlessly across all locations.', category: 'general' },
+  { question: 'Do you work in Bangalore', answer: 'Yes, we serve clients in Bangalore remotely with regular video calls and reporting.', category: 'general' },
+  { question: 'Do you work in Hyderabad', answer: 'Yes, clients in Hyderabad get the same quality service through our remote delivery model.', category: 'general' },
+  { question: 'Do you work in Chennai', answer: 'Yes, we work with clients in Chennai with excellent remote communication and support.', category: 'general' },
+  { question: 'Do you work in Pune', answer: 'Yes, we serve Pune clients seamlessly regardless of location.', category: 'general' },
+
+  // ── Payment / Financial ──────────────────────────────────────────
+  { question: 'Do you offer EMI', answer: 'Flexible payment plans available for most services. Contact us to discuss installment options.', category: 'pricing' },
+  { question: 'Can I pay in installments', answer: 'Yes, installment plans available for many services. Contact us to discuss a schedule.', category: 'pricing' },
+  { question: 'Do you provide GST invoice', answer: 'Yes, GST-compliant invoices provided for all services. Proper tax invoice for input tax credit.', category: 'general' },
+  { question: 'Do you charge GST', answer: 'Yes, GST is applicable on all services as per government regulations.', category: 'general' },
+
+  // ── Technical ─────────────────────────────────────────────────────
+  { question: 'Do you build React websites', answer: 'Yes, we build React and Next.js websites for high-performance modern web applications.', category: 'web-development' },
+  { question: 'Do you use Next.js', answer: 'Yes, Next.js is our preferred framework for custom web development projects.', category: 'technology' },
+  { question: 'Where do you host websites', answer: 'We recommend Vercel, Netlify, and cloud providers. We help configure the best hosting environment.', category: 'web-development' },
+  { question: 'Do you offer website maintenance', answer: 'Yes! Ongoing maintenance including updates, backups, security, and performance optimization. Contact for pricing.', category: 'web-development' },
+  { question: 'Is my website mobile-friendly', answer: 'Yes! All our websites are mobile-first with pixel-perfect experiences across all devices.', category: 'web-development' },
+  { question: 'Can you redesign my existing website', answer: 'Yes! We transform existing sites with modern UI/UX, better performance, and improved SEO.', category: 'web-development' },
+
+  // ── Guarantee / Trust ────────────────────────────────────────────
+  { question: 'Do you guarantee SEO results', answer: 'We guarantee our commitment and expertise. While rankings depend on many factors, we have a proven track record of delivering improvements.', category: 'seo-ppc' },
+  { question: 'Do you guarantee media coverage', answer: 'Our press release package assures 80+ website coverage. Broader PR campaigns maximize coverage but individual publications vary.', category: 'digital-pr' },
+  { question: 'How do I know you are legitimate', answer: 'Founded 2017, 4000+ clients, award-winning, Google Partner, Meta Partner. See our About Us page!', category: 'about' },
+  { question: 'Are you registered company', answer: 'Yes, registered in Noida, Uttar Pradesh. We provide GST invoices for all services.', category: 'about' },
+
+  // ── Free SEO Audit ──────────────────────────────────────────────
+  { question: 'What is your free SEO audit tool', answer: 'Free SEO audit analyzes PageSpeed, SSL, meta tags, structured data, HTML validation, and more. No credit card!', category: 'seo-audit' },
+  { question: 'How does the free SEO audit work', answer: 'Enter your name, email, phone, and website URL. We send a comprehensive report to your email. 100% free!', category: 'seo-audit' },
+  { question: 'Is the SEO audit really free', answer: 'Yes, 100% free! No credit card needed. Complete report sent to your email.', category: 'seo-audit' },
+
+  // ── Chatbot itself ───────────────────────────────────────────────
+  { question: 'Are you a bot', answer: 'Yes, I\'m an AI chatbot for DigiSharks. I can answer questions about services, pricing, and company info.', category: 'general' },
+  { question: 'Is this AI', answer: 'Yes! You\'re chatting with an AI-powered assistant. I can help or connect you with our human team.', category: 'general' },
+  { question: 'Can I talk to a human', answer: 'Call +91 96273 32332 or email marketing@digisharkscommunications.com to speak with our team directly.', category: 'general' },
+  { question: 'Connect me to a real person', answer: 'Please call +91 96273 32332 or email marketing@digisharkscommunications.com. We\'re here to help!', category: 'general' },
+
+  // ── The Indian Alert ─────────────────────────────────────────────
+  { question: 'What is The Indian Alert', answer: 'The Indian Alert (theindianalert.com) is a news platform founded by Vansh Mehra covering Politics, Entertainment, Sports, and Current Affairs.', category: 'about' },
+  { question: 'Who runs The Indian Alert', answer: 'Founded and managed by Vansh Mehra, Founder & MD of DigiSharks Communications.', category: 'about' },
+
+  // ── Social media specific ────────────────────────────────────────
+  { question: 'Facebook ads cost', answer: 'Average CPC in India ranges Rs 5-30. We optimize campaigns for the lowest cost per result.', category: 'social-media' },
+  { question: 'Instagram Reels', answer: 'Yes, we create Reels as part of social media strategy. They\'re the best way to reach new audiences on Instagram.', category: 'social-media' },
+  { question: 'how many posts per week', answer: 'We recommend 3-5 posts/week for Instagram, 3-4 for Facebook, 2-3 for LinkedIn.', category: 'social-media' },
+
+  // ── Content-specific ─────────────────────────────────────────────
+  { question: 'blog writing services', answer: 'We write SEO-optimized blog posts that attract readers, establish authority, and improve rankings.', category: 'content-creation' },
+  { question: 'website copywriting', answer: 'Persuasive, SEO-friendly website copy that converts — homepage, about, services, product descriptions.', category: 'content-creation' },
+  { question: 'SEO content writing', answer: 'Researched, optimized content that ranks on Google while engaging your audience.', category: 'content-creation' },
+
+  // ── Awards ───────────────────────────────────────────────────────
+  { question: 'Is DigiSharks award winning', answer: 'Yes! Top 10 CEOs, Top 10 Dynamic Entrepreneurs, Top 10 PR Leaders, Clutch Top PPC Company, Google Partner, Meta Partner.', category: 'about' },
+  { question: 'Are you Google Partner', answer: 'Yes, certified Google Partner with expertise in Google Ads and digital marketing best practices.', category: 'about' },
+  { question: 'Are you Meta Business Partner', answer: 'Yes, certified Meta Business Partner for Facebook and Instagram advertising expertise.', category: 'about' },
+
+  // ── Data / Privacy ──────────────────────────────────────────────
+  { question: 'How do you protect my data', answer: 'Strict confidentiality, industry-standard security, SSL encryption. Never shared without consent.', category: 'general' },
+  { question: 'Do you share client data', answer: 'Never. Your information is used solely for delivering our services with strict confidentiality.', category: 'general' },
+
+  // ── Timing ───────────────────────────────────────────────────────
+  { question: 'Are you open on Saturdays', answer: 'Yes, open Saturdays 10 AM – 7 PM IST. Closed on Sundays and public holidays.', category: 'general' },
+  { question: 'Are you open on Sunday', answer: 'No, closed on Sundays. Hours: Mon—Sat, 10 AM – 7 PM IST.', category: 'general' },
+  { question: 'Weekend support', answer: 'Open Saturdays 10 AM – 7 PM. Closed Sundays. Email us for next business day response.', category: 'general' },
 ]
 
 export async function POST(req: NextRequest) {
