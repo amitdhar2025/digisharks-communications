@@ -4,7 +4,7 @@ import ChatbotQA from '@/lib/models/ChatbotQA'
 import ChatbotSettings from '@/lib/models/ChatbotSettings'
 import Fuse from 'fuse.js'
 import { stripHtml } from '@/lib/sanitize'
-import { checkSecurity } from '@/lib/anti-spam'
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit'
 import {
   meaningfulWords,
   findExactMatch,
@@ -18,17 +18,14 @@ export const dynamic = 'force-dynamic'
 
 export async function POST(req: NextRequest) {
   try {
-    // ── Anti-spam check ──
     const body = await req.json()
     const { message } = body
 
-    const securityResult = await checkSecurity({
-      req,
-      formType: 'chatbot',
-      pageUrl: req.headers.get('referer') || '/chatbot',
-    })
-    if (!securityResult.allowed) {
-      return NextResponse.json({ error: securityResult.message || 'Access denied.' }, { status: 403 })
+    // ── Lightweight rate limiting (instead of heavy anti-spam) ──
+    const ip = getClientIp(req)
+    const rateCheck = checkRateLimit(ip, 20, 60_000) // 20 req/min
+    if (!rateCheck.allowed) {
+      return NextResponse.json({ error: 'Too many requests. Please slow down.' }, { status: 429 })
     }
 
     await connectMongoose()
@@ -38,8 +35,8 @@ export async function POST(req: NextRequest) {
     }
 
     const trimmed = stripHtml(message).trim()
-    if (trimmed.length < 2 || trimmed.length > 500) {
-      return NextResponse.json({ error: 'Message must be between 2 and 500 characters' }, { status: 400 })
+    if (trimmed.length < 1 || trimmed.length > 500) {
+      return NextResponse.json({ error: 'Message must be between 1 and 500 characters' }, { status: 400 })
     }
 
     const [qaItems, settings] = await Promise.all([
