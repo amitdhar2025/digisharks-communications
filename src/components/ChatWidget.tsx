@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState, useRef } from 'react'
+import type { ReactNode } from 'react'
 import ChatBotIcon from './ChatBotIcon'
 
 interface ChatbotSettings {
@@ -37,6 +38,83 @@ async function safeJson<T>(input: RequestInfo, fallback: T): Promise<T> {
     if (!text) return fallback
     try { return JSON.parse(text) as T } catch { return fallback }
   } catch { return fallback }
+}
+
+/**
+ * Renders message text with clickable links.
+ * Supports markdown-style links [text](url) and bare URLs.
+ */
+function renderMessageText(text: string): ReactNode {
+  if (!text) return text
+
+  // First split by markdown links [text](url)
+  const parts: ReactNode[] = []
+  let lastIndex = 0
+  const mdLinkRegex = /\[([^\]]+)\]\(([^)]+)\)/g
+  let match: RegExpExecArray | null
+
+  while ((match = mdLinkRegex.exec(text)) !== null) {
+    // Push text before this match
+    if (match.index > lastIndex) {
+      parts.push(text.slice(lastIndex, match.index))
+    }
+    // Push the clickable link
+    parts.push(
+      <a
+        key={lastIndex}
+        href={match[2]}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{ color: '#7dd3fc', textDecoration: 'underline', textUnderlineOffset: 2 }}
+      >
+        {match[1]}
+      </a>
+    )
+    lastIndex = match.index + match[0].length
+  }
+
+  // Push remaining text after last markdown link
+  const remaining = text.slice(lastIndex)
+  if (remaining) {
+    parts.push(remaining)
+  }
+
+  // Now process each text part for bare URLs
+  const urlRegex = /(https?:\/\/[^\s<]+)/g
+  const processed = parts.map((part, idx) => {
+    if (typeof part !== 'string') return part
+    // Split this text segment by bare URLs
+    const segments: ReactNode[] = []
+    let urlLastIdx = 0
+    let urlMatch: RegExpExecArray | null
+    // Reset regex state
+    urlRegex.lastIndex = 0
+    while ((urlMatch = urlRegex.exec(part)) !== null) {
+      if (urlMatch.index > urlLastIdx) {
+        segments.push(part.slice(urlLastIdx, urlMatch.index))
+      }
+      segments.push(
+        <a
+          key={`${idx}-${urlLastIdx}`}
+          href={urlMatch[1]}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ color: '#7dd3fc', textDecoration: 'underline', textUnderlineOffset: 2 }}
+        >
+          {urlMatch[1]}
+        </a>
+      )
+      urlLastIdx = urlMatch.index + urlMatch[0].length
+    }
+    if (urlLastIdx < part.length) {
+      segments.push(part.slice(urlLastIdx))
+    }
+    return segments.length > 0 ? segments : part
+  })
+
+  // Flatten nested arrays and wrap in fragment
+  const flat = processed.flat()
+  return flat.length === 1 ? flat[0] : <>{flat}</>
 }
 
 export default function ChatWidget() {
@@ -324,7 +402,7 @@ export default function ChatWidget() {
           {messages.map((msg, i) => (
             <div key={i} style={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start' }}>
               <div style={{ maxWidth: '85%', padding: '10px 14px', borderRadius: msg.role === 'user' ? '14px 14px 4px 14px' : '14px 14px 14px 4px', background: msg.role === 'user' ? settings.accentColor || '#0F1628' : '#1e293b', color: '#e2e8f0', fontSize: 13, lineHeight: 1.5, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
-                {msg.text}
+                {renderMessageText(msg.text)}
               </div>
             </div>
           ))}
