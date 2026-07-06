@@ -5,33 +5,16 @@ import ChatbotSettings from '@/lib/models/ChatbotSettings'
 import Fuse from 'fuse.js'
 import { stripHtml } from '@/lib/sanitize'
 import { checkSecurity } from '@/lib/anti-spam'
+import {
+  meaningfulWords,
+  findExactMatch,
+  findFuseBest,
+  scoreItems,
+  findBestScored,
+  type QAPlain,
+} from '@/lib/chatbot-match'
 
 export const dynamic = 'force-dynamic'
-
-// Words we ignore when judging whether two questions actually overlap.
-// Keeping this fairly conservative so we don't silently filter
-// meaningful domain words like "blockchain", "seo", "website".
-const STOP_WORDS = new Set([
-  'the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'had', 'her', 'was',
-  'one', 'our', 'out', 'has', 'have', 'been', 'some', 'them', 'than', 'what', 'when',
-  'who', 'will', 'your', 'about', 'into', 'over', 'like', 'just', 'also', 'very',
-  'with', 'from', 'that', 'this', 'they', 'were', 'does', 'their', 'which', 'would',
-  'could', 'should', 'make', 'made', 'more', 'most', 'other', 'after', 'then', 'such',
-  'only', 'own', 'same', 'too', 'may', 'get', 'got', 'can', 'want', 'need', 'help',
-  'do', 'does', 'doing', 'please', 'tell', 'know', 'hi', 'hello', 'hey', 'thanks',
-])
-
-function meaningfulWords(s: string): string[] {
-  return s.toLowerCase().split(/\s+/).map(w => w.replace(/[^a-z0-9]/g, '')).filter(w => w.length >= 3 && !STOP_WORDS.has(w))
-}
-
-/**
- * Escape all special regex characters so a plain-text string can be
- * safely interpolated into a `new RegExp()` constructor.
- */
-function escapeRegex(s: string): string {
-  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-}
 
 export async function POST(req: NextRequest) {
   try {
@@ -70,8 +53,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ answer: fallback })
     }
 
-    type QAPlain = { _id: string; question: string; answer: string; category: string; isActive: boolean; hitCount: number }
-
     const items: QAPlain[] = JSON.parse(JSON.stringify(qaItems))
 
     // Tokens we extracted from the user's question (used both for
@@ -79,25 +60,14 @@ export async function POST(req: NextRequest) {
     const userWords = meaningfulWords(trimmed)
     const userWordsSet = new Set(userWords)
 
-    // ── 1) Exact / near-exact match (whole-phrase or token overlap) ──
-    const lowerMsg = trimmed.toLowerCase()
-
-    const exactPhraseMatch = items.find((item) => {
-      const q = item.question.toLowerCase()
-      if (q === lowerMsg) return true
-      // Input is sanitised (stripHtml) and regex-escaped — safe for RegExp
-      // eslint-disable-next-line security/detect-non-literal-regexp
-      if (new RegExp(`\\b${escapeRegex(lowerMsg)}\\b`, 'i').test(q) && lowerMsg.length / q.length >= 0.3) return true
-      if (q.length >= 5 && lowerMsg.includes(q)) return true
-      return false
-    })
+    // ── 1) Exact / near-exact match ──
+    const exactPhraseMatch = findExactMatch(items, trimmed)
     if (exactPhraseMatch) {
       ChatbotQA.findByIdAndUpdate(exactPhraseMatch._id, { $inc: { hitCount: 1 } }).catch(() => {})
       return NextResponse.json({ answer: exactPhraseMatch.answer, matched: exactPhraseMatch.question })
     }
 
-    // ── 2) Fuzzy match (Fuse.js) — threshold 0.4 catches most valid
-    //     re-phrasings while still discarding obviously unrelated hits.
+    // ── 2) Fuzzy match (Fuse.js) ──
     const fuse = new Fuse(items, {
       keys: ['question'],
       threshold: 0.5,
@@ -107,62 +77,16 @@ export async function POST(req: NextRequest) {
       findAllMatches: true,
     })
 
-    const results = fuse.search(trimmed)
-    const fuseBest = results.find(r => {
-      if (r.score === undefined || r.score > 0.5) return false
-      const qWords = meaningfulWords(r.item.question)
-      if (qWords.length === 0) return false
-      // Require at least one meaningful (non-stop) word in common.
-      const overlap = qWords.filter(w => userWordsSet.has(w)).length
-      return overlap >= 1
-    })
-    if (fuseBest) {
-      ChatbotQA.findByIdAndUpdate(fuseBest.item._id, { $inc: { hitCount: 1 } }).catch(() => {})
-      return NextResponse.json({ answer: fuseBest.item.answer, matched: fuseBest.item.question })
+    const fuseItem = findFuseBest(fuse.search(trimmed), userWordsSet, 0.5)
+    if (fuseItem) {
+      ChatbotQA.findByIdAndUpdate(fuseItem._id, { $inc: { hitCount: 1 } }).catch(() => {})
+      return NextResponse.json({ answer: fuseItem.answer, matched: fuseItem.question })
     }
 
     // ── 3) Score-based overlap match ──
-    // Require the matched question to share AT LEAST 2 meaningful
-    // words with the user's query, AND the question itself must contain
-    // the majority of the user's meaningful tokens. This stops
-    // "I want a node + blockchain website" from matching "Do you offer
-    // e-commerce website development?" (only one shared word: website).
-    type Scored = { item: QAPlain; score: number; questionMatches: number; answerMatches: number; sharedTokens: number }
-
-    const scored: Scored[] = items.map((item) => {
-      const qLower = item.question.toLowerCase()
-      const aLower = item.answer.toLowerCase()
-      const qWords = meaningfulWords(item.question)
-
-      const wordBoundaryTest = (word: string, text: string): boolean => {
-        // Input is a single meaningful word (alphanumeric only via meaningfulWords)
-        // and additionally regex-escaped — safe for RegExp
-        // eslint-disable-next-line security/detect-non-literal-regexp
-        return new RegExp(`\\b${escapeRegex(word)}\\b`, 'i').test(text)
-      }
-      const questionMatches = userWords.filter(w => wordBoundaryTest(w, qLower)).length
-      const answerMatches = userWords.filter(w => wordBoundaryTest(w, aLower)).length
-
-      const score = questionMatches * 4 + answerMatches * 1
-      const sharedTokens = qWords.filter(w => userWordsSet.has(w)).length
-      return { item, score, questionMatches, answerMatches, sharedTokens }
-    })
-
-    // Quality gate: require ≥1 shared meaningful token AND ≥1 question-word
-    // match AND score ≥ 3. This catches short queries (1-2 meaningful
-    // words) that the Fuse layer might have narrowly missed.
-    const candidates = scored.filter(s =>
-      s.sharedTokens >= 1 &&
-      s.questionMatches >= 1 &&
-      s.score >= 3
-    )
-
-    if (candidates.length > 0) {
-      candidates.sort((a, b) => {
-        if (b.score !== a.score) return b.score - a.score
-        return b.sharedTokens - a.sharedTokens
-      })
-      const best = candidates[0]
+    const scored = scoreItems(items, userWords, userWordsSet)
+    const best = findBestScored(scored)
+    if (best) {
       ChatbotQA.findByIdAndUpdate(best.item._id, { $inc: { hitCount: 1 } }).catch(() => {})
       return NextResponse.json({ answer: best.item.answer, matched: best.item.question })
     }

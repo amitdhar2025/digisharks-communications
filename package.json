@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "npm run convert:avif && npm run convert:webp && npm run optimize:assets && next build",
     "start": "next start",
+    "test": "tsx src/__tests__/chatbot-match.test.ts",
     "lint": "next lint",
     "optimize:assets": "node scripts/optimize-assets.js",
     "optimize:assets:dry": "node scripts/optimize-assets.js --dry-run --verbose",
@@ -92,6 +93,7 @@
     "eslint-plugin-security": "^4.0.1",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
+    "tsx": "^4.23.0",
     "typescript": "^5"
   }
 }
