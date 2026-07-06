@@ -100,15 +100,16 @@ export async function POST(req: NextRequest) {
     //     re-phrasings while still discarding obviously unrelated hits.
     const fuse = new Fuse(items, {
       keys: ['question'],
-      threshold: 0.4,
+      threshold: 0.5,
       distance: 100,
       minMatchCharLength: 3,
       ignoreLocation: true,
+      findAllMatches: true,
     })
 
     const results = fuse.search(trimmed)
     const fuseBest = results.find(r => {
-      if (r.score === undefined || r.score > 0.4) return false
+      if (r.score === undefined || r.score > 0.5) return false
       const qWords = meaningfulWords(r.item.question)
       if (qWords.length === 0) return false
       // Require at least one meaningful (non-stop) word in common.
