@@ -217,6 +217,53 @@ export default function ChatWidget() {
     'office address', 'company address', 'find you',
   ]
 
+  // Keywords that indicate the user is asking about DigiSharks business/services.
+  // If the query matches these, Google search is skipped — the bot goes
+  // directly to the Contact Us fallback when the Q&A database has no answer.
+  const DIGISHARKS_KEYWORDS = [
+    'digisharks', 'digi sharks', 'digishark',
+    // Services
+    'seo', 'ppc', 'google ads', 'search engine', 'organic', 'ranking', 'keyword',
+    'pr', 'press release', 'media coverage', 'public relations', 'digital pr',
+    'social media', 'smm', 'instagram', 'facebook', 'linkedin', 'twitter', 'content',
+    'web development', 'website', 'web design', 'ecommerce', 'shopify', 'wordpress',
+    'digital marketing', 'online marketing', 'internet marketing',
+    'branding', 'brand promotion', 'brand awareness',
+    'graphic design', 'graphics', 'logo', 'design',
+    'content writing', 'copywriting', 'blog', 'article',
+    'reputation', 'orm', 'reputation management', 'review',
+    'influencer', 'influencer marketing',
+    'political', 'political pr', 'political campaign',
+    'event', 'event management', 'event promotion',
+    'email marketing', 'email campaign',
+    'sms marketing', 'sms campaign',
+    'ai', 'aeo', 'geo', 'artificial intelligence',
+    'seo audit', 'site audit', 'website audit',
+    // Business
+    'pricing', 'price', 'cost', 'rate', 'package', 'plan', 'charges', 'fee',
+    'contact', 'phone', 'email', 'address', 'office', 'location',
+    'noida', 'sector 63',
+    'vansh', 'founder', 'ceo', 'team', 'employee', 'staff',
+    'client', 'customer', 'portfolio', 'work', 'project', 'case study',
+    'testimonial', 'review', 'rating',
+    'career', 'job', 'internship', 'hire', 'vacancy', 'position',
+    'partner', 'collaborate', 'affiliate',
+    // Common chatty intents about DigiSharks
+    'what do you do', 'what services', 'how can you help', 'tell me about',
+    'i need', 'i want', 'i am looking', 'i\'m looking', 'looking for',
+    'do you offer', 'do you provide', 'can you help', 'can you do',
+    'your company', 'your agency', 'your firm',
+    'about us', 'about digisharks', 'who are you',
+    'how much', 'how many', 'how does', 'how to',
+    'work with you', 'work together', 'get started',
+  ]
+
+  /** Returns true if the query appears to be about DigiSharks business/services. */
+  function isDigisharksQuery(text: string): boolean {
+    const lower = text.toLowerCase()
+    return DIGISHARKS_KEYWORDS.some(k => lower.includes(k))
+  }
+
   function looksLikeContactQuery(text: string) {
     const lower = text.toLowerCase()
     const matches = CONTACT_KEYWORDS.filter(k => lower.includes(k))
@@ -293,23 +340,25 @@ export default function ChatWidget() {
       } catch { /* not JSON, fall through */ }
     } catch { /* fall through */ }
 
-    // 3) Google search
-    try {
-      const r = await fetch('/api/chatbot/google-search', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: text }) })
-      const raw = await r.text()
+    // 3) Google search (only for general/non-DigiSharks questions)
+    if (!isDigisharksQuery(text)) {
       try {
-        const d = raw ? JSON.parse(raw) : {}
-        if (d && Array.isArray(d.results) && d.results.length > 0) {
-          let reply = `I couldn't find a direct answer on our site, but here are some useful results from the web:\n\n`
-          d.results.slice(0, 4).forEach((it: any, i: number) => {
-            reply += `${i + 1}. **${it.title || 'Result'}**\n${it.snippet || ''}\n👉 [Read more](${it.url})\n\n`
-          })
-          if (d.googleSearchUrl) reply += `🌐 [See all results on Google](${d.googleSearchUrl})\n\n`
-          setMessages((prev) => [...prev, { role: 'bot', text: reply, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }])
-          setLoading(false); return
-        }
-      } catch { /* not JSON, fall through */ }
-    } catch { /* fall through */ }
+        const r = await fetch('/api/chatbot/google-search', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: text }) })
+        const raw = await r.text()
+        try {
+          const d = raw ? JSON.parse(raw) : {}
+          if (d && Array.isArray(d.results) && d.results.length > 0) {
+            let reply = `I couldn't find a direct answer on our site, but here are some useful results from the web:\n\n`
+            d.results.slice(0, 4).forEach((it: any, i: number) => {
+              reply += `${i + 1}. **${it.title || 'Result'}**\n${it.snippet || ''}\n👉 [Read more](${it.url})\n\n`
+            })
+            if (d.googleSearchUrl) reply += `🌐 [See all results on Google](${d.googleSearchUrl})\n\n`
+            setMessages((prev) => [...prev, { role: 'bot', text: reply, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }])
+            setLoading(false); return
+          }
+        } catch { /* not JSON, fall through */ }
+      } catch { /* fall through */ }
+    }
 
     // 4) Final fallback — generic "I don't have an answer" + inline Contact Us CTA
     setMessages((prev) => [...prev, {
