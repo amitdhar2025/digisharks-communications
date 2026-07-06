@@ -206,6 +206,23 @@ export default function ChatWidget() {
     address: ['B-2, C-87, C Block, Sector 63', 'Noida, Uttar Pradesh 201301'],
     hours: 'Mon\u2013Sat, 10:00 AM \u2013 7:00 PM IST',
     contactPage: '/contact-us',
+  }    // Words/phrases that are conversational acknowledgments — not actual queries.
+  // The bot should respond with a friendly follow-up rather than searching for content.
+  const ACKNOWLEDGMENTS = new Set([
+    'ok', 'okay', 'okie', 'k', 'kk', 'kay',
+    'alright', 'alrighty', 'aight',
+    'sure', 'sure thing', 'of course',
+    'got it', 'gotcha', 'gottit', 'gotti',
+    'thanks', 'thank you', 'thankyou', 'thx', 'ty', 'tysm', 'thank u',
+    'cool', 'nice', 'great', 'awesome', 'perfect', 'good', 'fine',
+    'understood', 'i see', 'i see', 'makes sense',
+    'yes', 'yeah', 'yep', 'yup', 'ya', 'yea',
+    'done', 'all good', 'no problem', 'np',
+  ])
+
+  function isAcknowledgment(text: string): boolean {
+    const lower = text.toLowerCase().trim().replace(/[^a-z0-9 ]/g, '')
+    return ACKNOWLEDGMENTS.has(lower) || ACKNOWLEDGMENTS.has(lower.replace(/\s+/g, ' '))
   }
 
   // Words that strongly suggest the user is asking how to get in touch.
@@ -283,15 +300,32 @@ export default function ChatWidget() {
 
     // ──────────────────────────────────────────────────────────────────
     // Reply pipeline (in priority order):
-    //   0) Canonical contact-info short-circuit (bypasses seeded Q&A that
-    //      may contain outdated/wrong contact answers)
+    //   0a) Acknowledgment short-circuit — short affirmatives like "ok", "thanks"
+    //   0b) Canonical contact-info short-circuit (bypasses seeded Q&A that
+    //       may contain outdated/wrong contact answers)
     //   1) Q&A database (/api/chatbot/query) — seeded knowledge base
     //   2) Website content search (/api/chatbot/website-search)
     //   3) Google search (/api/chatbot/google-search)
     //   4) Final fallback → friendly "I don't have an answer" + Contact Us CTA
     // ──────────────────────────────────────────────────────────────────
 
-    // 0) Canonical contact-info short-circuit
+    // 0a) Acknowledgment short-circuit — "ok", "thanks", "cool", etc.
+    //     These should get a conversational follow-up, NOT routed to blog/Google search.
+    if (isAcknowledgment(text)) {
+      const acknowledgmentReplies = [
+        'Great! Is there anything else I can help you with about our services?',
+        'Happy to help! Let me know if you have any more questions.',
+        'Awesome! Feel free to ask if anything else comes to mind.',
+        'Got it! Would you like to know more about any of our services?',
+        "You're welcome! Anything else you'd like to explore?",
+      ]
+      const reply = acknowledgmentReplies[Math.floor(Math.random() * acknowledgmentReplies.length)]
+      setMessages((prev) => [...prev, { role: 'bot', text: reply, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }])
+      setLoading(false)
+      return
+    }
+
+    // 0b) Canonical contact-info short-circuit
     if (looksLikeContactQuery(text)) {
       const reply = [
         'You can reach Digisharks Communications through any of these channels:',

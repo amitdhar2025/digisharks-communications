@@ -29,6 +29,12 @@ export async function POST(req: NextRequest) {
 
     const words = trimmed.split(/\s+/).filter(w => w.length > 2)
 
+    // If no meaningful words to search, return empty early rather than
+    // matching everything with an empty regex pattern.
+    if (words.length === 0) {
+      return NextResponse.json({ results: [], message: 'No relevant content found on our website.' })
+    }
+
     // Search blog posts
     let blogResults: { title: string; excerpt: string; slug: string; url: string; score: number }[] = []
 
