@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongodb'
-import clientPromise from './mongodb'
+import getClient from './mongodb'
 
 export interface QueryComment {
   _id?: ObjectId
@@ -79,7 +79,7 @@ export interface LoginLog {
 }
 
 export async function getDb() {
-  const client = await clientPromise
+  const client = await getClient()
   return client.db('digisharks')
 }
 

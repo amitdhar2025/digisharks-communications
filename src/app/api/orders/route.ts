@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import clientPromise from '@/lib/mongodb'
+import getClient from '@/lib/mongodb'
 
 export const dynamic = 'force-dynamic'
 
@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid payload' }, { status: 400 })
   }
 
-  const client = await clientPromise
+  const client = await getClient()
   const db = client.db('digisharks')
 
   const orderId = uuidv4()

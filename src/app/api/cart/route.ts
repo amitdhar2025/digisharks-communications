@@ -7,7 +7,7 @@ function uuidv4() {
   })
 }
 
-import clientPromise from '@/lib/mongodb'
+import getClient from '@/lib/mongodb'
 import type { Cart } from '@/types/cart'
 
 export const dynamic = 'force-dynamic'
@@ -26,7 +26,7 @@ function getCookieCartId(req: NextRequest) {
 }
 
 async function getCartCollection() {
-  const client = await clientPromise
+  const client = await getClient()
   return client.db('digisharks').collection<CartDoc>('carts')
 }
 
