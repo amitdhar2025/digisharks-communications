@@ -2,11 +2,8 @@ import winston from 'winston'
 import path from 'path'
 import fs from 'fs'
 
-// ── Ensure the logs directory exists ────────────────────────────────────
-const logsDir = path.resolve(process.cwd(), 'logs')
-if (!fs.existsSync(logsDir)) {
-  fs.mkdirSync(logsDir, { recursive: true })
-}
+// ── Detect serverless / Vercel environment ──────────────────────────────
+const isServerless = !!process.env.VERCEL
 
 // ── Define log format ───────────────────────────────────────────────────
 const logFormat = winston.format.combine(
@@ -20,39 +17,60 @@ const logger = winston.createLogger({
   level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
   format: logFormat,
   defaultMeta: { service: 'digisharks-api' },
-  transports: [
-    // Write all logs to logs/combined.log
-    new winston.transports.File({
-      filename: path.join(logsDir, 'combined.log'),
-      maxsize: 5 * 1024 * 1024, // 5 MB per file
-      maxFiles: 5,
-    }),
-    // Write error-level logs to logs/error.log separately
-    new winston.transports.File({
-      filename: path.join(logsDir, 'error.log'),
-      level: 'error',
-      maxsize: 5 * 1024 * 1024,
-      maxFiles: 3,
-    }),
-  ],
+  transports: [],
 })
 
-// In development, also log to the console with a simpler format
-if (process.env.NODE_ENV !== 'production') {
-  logger.add(
-    new winston.transports.Console({
-      format: winston.format.combine(
-        winston.format.colorize(),
-        winston.format.printf(({ timestamp, level, message, ...meta }) => {
-          const metaStr = Object.keys(meta).length > 1
-            ? ` ${JSON.stringify(omit(meta, ['service']))}`
-            : ''
-          return `${timestamp} [${level}]: ${message}${metaStr}`
-        }),
-      ),
-    }),
-  )
+// ── Determine logs directory ───────────────────────────────────────────
+// On Vercel serverless, /tmp is the only writable directory (~512 MB limit,
+// shared across all functions in the same instance). Logs written there are
+// ephemeral — they survive for the lifetime of the serverless instance and
+// are useful for debugging within a single invocation.
+const logsDir = isServerless
+  ? path.resolve('/tmp', 'logs')
+  : path.resolve(process.cwd(), 'logs')
+
+// ── Ensure the logs directory exists ────────────────────────────────────
+if (!fs.existsSync(logsDir)) {
+  fs.mkdirSync(logsDir, { recursive: true })
 }
+
+// Use conservative sizes on serverless /tmp to stay within the 512 MB limit
+const fileMaxSize = isServerless ? 1 * 1024 * 1024 : 5 * 1024 * 1024 // 1 MB / 5 MB
+const combinedMaxFiles = isServerless ? 3 : 5
+const errorMaxFiles = isServerless ? 2 : 3
+
+// Write all logs to logs/combined.log
+logger.add(
+  new winston.transports.File({
+    filename: path.join(logsDir, 'combined.log'),
+    maxsize: fileMaxSize,
+    maxFiles: combinedMaxFiles,
+  }),
+)
+// Write error-level logs to logs/error.log separately
+logger.add(
+  new winston.transports.File({
+    filename: path.join(logsDir, 'error.log'),
+    level: 'error',
+    maxsize: fileMaxSize,
+    maxFiles: errorMaxFiles,
+  }),
+)
+
+// Always log to the console with a simpler format
+logger.add(
+  new winston.transports.Console({
+    format: winston.format.combine(
+      winston.format.colorize(),
+      winston.format.printf(({ timestamp, level, message, ...meta }) => {
+        const metaStr = Object.keys(meta).length > 1
+          ? ` ${JSON.stringify(omit(meta, ['service']))}`
+          : ''
+        return `${timestamp} [${level}]: ${message}${metaStr}`
+      }),
+    ),
+  }),
+)
 
 /**
  * Log an API request with structured metadata.

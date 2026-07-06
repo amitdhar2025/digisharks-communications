@@ -268,16 +268,35 @@ export async function POST(req: NextRequest) {
     }
 
     // ── Write files to public/ ──
-    const publicDir = join(process.cwd(), 'public')
-    if (!existsSync(publicDir)) {
-      mkdirSync(publicDir, { recursive: true })
-    }
+    let writeWarning: string | null = null
 
+    // Calculate total size from generated content (no disk I/O needed)
     let totalFileSize = 0
     for (const file of filePayloads) {
-      const filePath = join(publicDir, file.name)
-      writeFileSync(filePath, file.content, 'utf-8')
       totalFileSize += Buffer.byteLength(file.content, 'utf-8')
+    }
+
+    // In serverless environments (Vercel), the filesystem is read-only.
+    // Sitemap XML is still generated and metadata saved to MongoDB — the
+    // GET /sitemap.xml route falls back to a default when the file is missing.
+    const isServerless = !!process.env.VERCEL
+    if (!isServerless) {
+      try {
+        const publicDir = join(process.cwd(), 'public')
+        if (!existsSync(publicDir)) {
+          mkdirSync(publicDir, { recursive: true })
+        }
+
+        for (const file of filePayloads) {
+          const filePath = join(publicDir, file.name)
+          writeFileSync(filePath, file.content, 'utf-8')
+        }
+      } catch (fsErr) {
+        writeWarning = `Could not write sitemap files to disk: ${fsErr instanceof Error ? fsErr.message : String(fsErr)}`
+        console.error('[sitemap] filesystem write failed:', fsErr)
+      }
+    } else {
+      writeWarning = 'Running on serverless — sitemap XML not written to disk. Metadata saved to database.'
     }
 
     // ── Update settings ──
@@ -312,6 +331,7 @@ export async function POST(req: NextRequest) {
         bingPing,
         lastGenerated: settings.lastGenerated?.toISOString() ?? null,
       },
+      ...(writeWarning ? { warning: writeWarning } : {}),
     })
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Failed to generate sitemap'
