@@ -116,6 +116,7 @@ export default function ChatbotSettingsPage() {
   }
 
   const [loadingSidebar, setLoadingSidebar] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   if (loading) {
     return (
@@ -290,8 +291,6 @@ export default function ChatbotSettingsPage() {
       </div>
     )
   }
-
-  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
     <div className="admin-layout">
