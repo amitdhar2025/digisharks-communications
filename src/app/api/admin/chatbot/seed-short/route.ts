@@ -241,6 +241,19 @@ const SHORT_ENTRIES = [
   { question: 'what is lead generation', answer: 'Attracting and converting prospects into leads through marketing campaigns, content, and strategic outreach.', category: 'digital-marketing' },
   { question: 'what is conversion rate', answer: 'The percentage of visitors who complete a desired action — purchase, signup, form fill. We optimize to maximize conversions.', category: 'digital-marketing' },
 
+  // ── Missing 2-char acronym fix (PR is 2 chars, filtered by meaningfulWords) ──
+  { question: 'what is PR', answer: 'PR stands for Public Relations. At DigiSharks, Digital PR combines media relations with online marketing — we help you get featured in top publications, build brand credibility, and improve search visibility through strategic media placements across 500+ journalist contacts.', category: 'digital-pr' },
+  { question: 'what is public relations', answer: 'Public Relations (PR) is the practice of managing how information about a brand is communicated to the public and media. Our Digital PR services include press release distribution, media outreach, crisis communication, and brand reputation management.', category: 'digital-pr' },
+  { question: 'what does PR mean', answer: 'PR means Public Relations. It involves building positive relationships between your brand and the public through media coverage, press releases, and strategic communication. Our agency specializes in Digital PR with measurable online results.', category: 'digital-pr' },
+  { question: 'define PR', answer: 'PR (Public Relations) is the strategic communication process that builds mutually beneficial relationships between organizations and their publics. Digital PR extends this to online channels for measurable brand visibility and SEO benefits.', category: 'digital-pr' },
+  { question: 'what is PR in marketing', answer: 'PR in marketing refers to using media relations and public communication strategies to build brand awareness, credibility, and trust. Unlike advertising which you pay for, PR earns attention through newsworthy stories and media placements.', category: 'digital-pr' },
+
+  // ── Missing "who are you" (all stop words, needs exact match) ──
+  { question: 'who are you', answer: 'I am the DigiSharks Communications chatbot assistant! DigiSharks is a top AI-powered Digital PR and Digital Marketing agency founded in 2017 by Vansh Mehra. We help businesses grow through digital PR, SEO, social media, web development, and more. How can I help you today?', category: 'about' },
+  { question: 'who are you guys', answer: 'We are DigiSharks Communications — an AI-powered Digital PR and Marketing agency founded in 2017. We have served 4000+ clients, completed 500+ campaigns, and have a 98% client retention rate. Our team of 25+ specialists is based in Noida, India.', category: 'about' },
+  { question: 'tell me about yourself', answer: 'DigiSharks Communications is a premier digital PR and marketing agency established in 2017 in New Delhi. We help businesses achieve measurable growth through innovative, data-driven strategies across Digital PR, SEO, Social Media, Web Development, and Brand Promotion.', category: 'about' },
+  { question: 'introduce yourself', answer: 'Hello! I am the DigiSharks chatbot assistant. DigiSharks Communications is an award-winning Digital PR and Marketing agency founded by Vansh Mehra in 2017. We offer end-to-end digital marketing services with a focus on transparency and measurable results. What can I help you with?', category: 'about' },
+
   // ====================================================================
   // GAP-FILLER: comparisons, process, problem-focused, industry, etc.
   // ====================================================================

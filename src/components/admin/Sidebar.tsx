@@ -132,9 +132,9 @@ export default function AdminSidebar({ onNavClick, isOpen }: AdminSidebarProps) 
         <>
           <div className="nav-section">🤖 Chatbot</div>
           {navItem('/admin/chatbot', '📊 Dashboard')}
-          {permissions?.chatbot?.manage && navItem('/admin/chatbot/qna', '💬 Q&A Manager')}
-          {permissions?.chatbot?.manage && navItem('/admin/chatbot/upload', '📤 Upload')}
-          {permissions?.chatbot?.settings && navItem('/admin/chatbot/settings', '⚙ Settings')}
+          {(role === 'admin' || permissions?.chatbot?.manage) && navItem('/admin/chatbot/qna', '💬 Q&A Manager')}
+          {(role === 'admin' || permissions?.chatbot?.manage) && navItem('/admin/chatbot/upload', '📤 Upload')}
+          {(role === 'admin' || permissions?.chatbot?.settings) && navItem('/admin/chatbot/settings', '⚙ Settings')}
         </>
       )}
 

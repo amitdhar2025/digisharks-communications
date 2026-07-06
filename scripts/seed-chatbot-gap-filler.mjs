@@ -6,6 +6,17 @@
 
 const GAP_ENTRIES = [
 
+  // ── 2-char acronym fix + missing "who are you" ─────────────────
+  { question: 'what is PR', answer: 'PR stands for Public Relations. At DigiSharks, Digital PR combines media relations with online marketing. We help you get featured in top publications, build brand credibility, and improve search visibility through strategic media placements across 500+ journalist contacts.', category: 'digital-pr' },
+  { question: 'what is public relations', answer: 'Public Relations (PR) is the practice of managing how information about a brand is communicated to the public and media. Our Digital PR services include press release distribution, media outreach, crisis communication, and brand reputation management.', category: 'digital-pr' },
+  { question: 'what does PR mean', answer: 'PR means Public Relations. It involves building positive relationships between your brand and the public through media coverage, press releases, and strategic communication.', category: 'digital-pr' },
+  { question: 'define PR', answer: 'PR (Public Relations) is the strategic communication process that builds mutually beneficial relationships between organizations and their publics.', category: 'digital-pr' },
+  { question: 'what is PR in marketing', answer: 'PR in marketing uses media relations and communication strategies to build brand awareness and credibility. Unlike advertising, PR earns attention through newsworthy stories.', category: 'digital-pr' },
+  { question: 'who are you', answer: 'I am the DigiSharks Communications chatbot assistant! DigiSharks is a top AI-powered Digital PR and Marketing agency founded in 2017 by Vansh Mehra. We help businesses grow through digital PR, SEO, social media, web development, and more. How can I help you today?', category: 'about' },
+  { question: 'who are you guys', answer: 'We are DigiSharks Communications - an AI-powered Digital PR and Marketing agency since 2017. 4000+ clients, 500+ campaigns, 98% retention rate. Our team of 25+ specialists is based in Noida, India.', category: 'about' },
+  { question: 'tell me about yourself', answer: 'DigiSharks Communications is a premier digital PR and marketing agency established in 2017. We help businesses achieve measurable growth through Digital PR, SEO, Social Media, Web Development, and Brand Promotion.', category: 'about' },
+  { question: 'introduce yourself', answer: 'Hello! I am the DigiSharks chatbot. DigiSharks Communications is an award-winning Digital PR and Marketing agency founded by Vansh Mehra in 2017. What can I help you with?', category: 'about' },
+
   // ── COMPARISONS ────────────────────────────────────────────────
   { question: 'SEO vs PPC', answer: "SEO is organic (free) traffic over time. PPC is paid traffic with immediate results. We recommend both for maximum impact.", category: 'seo-ppc' },
   { question: 'difference between SEO and PPC', answer: 'SEO earns organic traffic through optimized content. PPC drives traffic through paid ads with instant results. Both together = best results.', category: 'seo-ppc' },
