@@ -97,7 +97,7 @@ export async function getPublishedPosts(
 ): Promise<{ posts: BlogPostPublic[]; total: number; pages: number }> {
   await connectMongoose()
 
-  const query: any = { status: { $in: ['published', 'active', 'featured'] } }
+  const query: any = { status: { $in: ['published', 'active', 'featured'] }, isDeleted: { $ne: true } }
 
   if (categorySlug) {
     const { default: Category } = await import('./models/Category')
@@ -139,7 +139,7 @@ export async function getPublishedPosts(
 export async function getPostBySlug(slug: string): Promise<BlogPostPublic | null> {
   await connectMongoose()
 
-  const post = await BlogPost.findOne({ slug, status: { $in: ['published', 'active', 'featured'] } })
+  const post = await BlogPost.findOne({ slug, status: { $in: ['published', 'active', 'featured'] }, isDeleted: { $ne: true } })
     .populate('categories', 'name slug color')
     .populate('tags', 'name slug')
     .lean()
@@ -163,6 +163,7 @@ export async function getRelatedPosts(
     _id: { $ne: postId },
     status: { $in: ['published', 'active', 'featured'] },
     categories: { $in: categories },
+    isDeleted: { $ne: true },
   })
     .populate('categories', 'name slug color')
     .populate('tags', 'name slug')
@@ -176,7 +177,7 @@ export async function getRelatedPosts(
 export async function getLatestPosts(limit = 5): Promise<BlogPostPublic[]> {
   await connectMongoose()
 
-  const items = await BlogPost.find({ status: { $in: ['published', 'active', 'featured'] } })
+  const items = await BlogPost.find({ status: { $in: ['published', 'active', 'featured'] }, isDeleted: { $ne: true } })
     .populate('categories', 'name slug color')
     .populate('tags', 'name slug')
     .sort({ publishedAt: -1 })
@@ -190,7 +191,7 @@ export async function getAllBlogSlugs(): Promise<{ slug: string; updatedAt: Date
   await connectMongoose()
 
   const posts = await BlogPost.find(
-    { status: { $in: ['published', 'active', 'featured'] } },
+    { status: { $in: ['published', 'active', 'featured'] }, isDeleted: { $ne: true } },
     { slug: 1, updatedAt: 1 }
   )
     .sort({ publishedAt: -1 })
@@ -208,7 +209,7 @@ export async function getAllBlogPostsForSitemap(): Promise<
   await connectMongoose()
 
   const posts = await BlogPost.find(
-    { status: { $in: ['published', 'active', 'featured'] } },
+    { status: { $in: ['published', 'active', 'featured'] }, isDeleted: { $ne: true } },
     { slug: 1, updatedAt: 1, seoTitle: 1, seoDescription: 1 }
   )
     .sort({ publishedAt: -1 })
