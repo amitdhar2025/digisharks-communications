@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "seed:menus": "tsx scripts/seed-menus.mjs",
+    "seed:settings": "tsx scripts/seed-settings.mjs",
     "dev": "next dev",
     "build": "npm run convert:avif && npm run convert:webp && npm run optimize:assets && next build",
     "start": "next start",
@@ -20,6 +22,9 @@
     "convert:avif:dry": "node scripts/convert-to-avif.js --dry-run --verbose"
   },
   "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "@hookform/resolvers": "^5.4.0",
     "@tanstack/react-table": "^8.21.3",
     "@tiptap/extension-character-count": "^3.27.0",

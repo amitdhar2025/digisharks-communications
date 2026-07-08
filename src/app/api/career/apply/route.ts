@@ -4,6 +4,7 @@ import CareerApplication from '@/lib/models/CareerApplication'
 import CareerJob from '@/lib/models/CareerJob'
 import { sendMail } from '@/lib/mailer'
 import { buildAdminNewApplicationEmail } from '@/lib/email-templates'
+import SiteSettings from '@/models/SiteSettings'
 import slugify from 'slugify'
 import { v2 as cloudinary } from 'cloudinary'
 import { validateFile } from '@/lib/validateFile'
@@ -127,6 +128,20 @@ export async function POST(req: NextRequest) {
     const ADMIN_EMAIL = process.env.ADMIN_EMAIL || process.env.SMTP_USER
     if (ADMIN_EMAIL) {
       try {
+        // Fetch legal links from site settings for email footer
+        let legalUrls = undefined
+        try {
+          const settings = await SiteSettings.findOne({ key: 'global' }).lean()
+          if (settings) {
+            legalUrls = {
+              privacyPolicyUrl: settings.privacyPolicyUrl || '#',
+              termsUrl: settings.termsUrl || '#',
+              refundPolicyUrl: settings.refundPolicyUrl || '#',
+            }
+          }
+        } catch (e) {
+          console.error('Failed to fetch site settings for admin email:', e)
+        }
         const adminEmail = buildAdminNewApplicationEmail({
           applicantName,
           email,
@@ -137,7 +152,7 @@ export async function POST(req: NextRequest) {
           coverLetter,
           resumeUrl,
           applicationId: String(application._id),
-        })
+        }, legalUrls)
         const adminResult = await sendMail({
           to: ADMIN_EMAIL,
           subject: adminEmail.subject,

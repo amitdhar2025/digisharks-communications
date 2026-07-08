@@ -18,6 +18,8 @@ import AlertBar from "../components/AlertBar";
 import Navigation from "../components/Navigation";
 import ClientScripts from "./ClientScripts";
 import ChatWidget from "../components/ChatWidget";
+import MaintenanceGuard from "../components/MaintenanceGuard";
+import FaviconInjector from "../components/FaviconInjector";
 
 // Body copy -> Inter (400 regular / 600 buttons)
 const inter = Inter({
@@ -81,11 +83,14 @@ export default function RootLayout({
             __html: `if (!document.documentElement.classList.contains("js-ready")) document.documentElement.classList.add("js-ready");`,
           }}
         />
-        <AlertBar />
-        <Navigation />
-        {children}
-        <ChatWidget />
+        <MaintenanceGuard>
+          <AlertBar />
+          <Navigation />
+          {children}
+          <ChatWidget />
+        </MaintenanceGuard>
         <ClientScripts />
+        <FaviconInjector />
       </body>
     </html>
   );

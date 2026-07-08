@@ -4,6 +4,8 @@ import { buildContactConfirmationEmail } from '@/lib/email-templates'
 import { sendMail } from '@/lib/mailer'
 import { sanitizePlainTextFields } from '@/lib/sanitize'
 import { checkSecurity } from '@/lib/anti-spam'
+import { connectMongoose } from '@/lib/mongoose'
+import SiteSettings from '@/models/SiteSettings'
 
 export const dynamic = 'force-dynamic'
 
@@ -73,13 +75,28 @@ export async function POST(req: NextRequest) {
     // persisted to the database.
     let emailStatus: { sent: boolean; mode?: string; error?: string } = { sent: false }
     try {
+      // Fetch legal links from site settings for the email footer
+      let legalUrls = undefined
+      try {
+        await connectMongoose()
+        const settings = await SiteSettings.findOne({ key: 'global' }).lean()
+        if (settings) {
+          legalUrls = {
+            privacyPolicyUrl: settings.privacyPolicyUrl || '#',
+            termsUrl: settings.termsUrl || '#',
+            refundPolicyUrl: settings.refundPolicyUrl || '#',
+          }
+        }
+      } catch (e) {
+        console.error('Failed to fetch site settings for email:', e)
+      }
       const built = buildContactConfirmationEmail({
         fullName: doc.fullName,
         email: doc.email,
         phone: doc.phone,
         service: doc.service,
         message: doc.message,
-      })
+      }, legalUrls)
       const sendResult = await sendMail({
         to: doc.email,
         subject: built.subject,

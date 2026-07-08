@@ -1,32 +1,40 @@
-# Design System Update — Implementation Plan
+# UI Update Plan — Admin Login (c:/DG/digisharks-communications)
 
-## Goal
-Apply a unified orange-red + dark navy design system across the entire Next.js site,
-following the user's spec. MongoDB / API code is NOT touched — only the CSS layer.
+## Information gathered
+- `src/app/admin/login/page.tsx` renders a centered login card using classes:
+  - `.admin-login-wrap`, `.admin-login-card`, `.admin-login-logo`, `.admin-login-sub`
+  - form elements rely on `.admin-shell .field`, `.admin-shell .btn`, and input/textarea styling.
+- `src/app/admin/layout.tsx` wraps all admin pages with:
+  - `<div className="admin-shell"> ... </div>`
+- `src/app/admin/admin.css` contains most admin styles.
+  - Input/select/textarea styles are scoped under `.admin-shell .field input, .admin-shell .field textarea`.
+  - Login card background + layout exists (`.admin-login-wrap`, `.admin-login-card`), but login form control styling is scoped to `.admin-shell`, while the login page uses `.field` and `.btn` but isn’t under a dedicated `.admin-shell`-scoped wrapper.
+  - There is no explicit styling for `.admin-login-wrap .field` / `.admin-login-wrap .field input` etc.
 
-## Color tokens (new)
-- Action orange:  #FF5B2E  (was #FF6B47)
-- Dark navy:      #0F1628  (was #1E2A4A)
-- Body text:      #4A5568  (was #1F2937)
-- Page bg:        #F8F9FB  (was #FAFAFA)
-- Card bg:        #FFFFFF  (unchanged)
-- Border:         #E5E7EB  (unchanged)
+## Plan
+1. Fix the root cause of “input/textarea not visible properly”:
+   - Ensure login form controls inherit the same dark background, light text, borders, focus ring.
+   - Add explicit CSS rules for login page elements, scoped to `.admin-login-wrap` (and/or adjust selectors if safe).
+2. Bring login UI closer to dashboard look:
+   - Use the same border radius, border color, focus glow, button gradient, and spacing as dashboard cards.
+   - Add alignment + sizing constraints so labels, inputs, and button align consistently.
+3. Add error message styling:
+   - Style `.alert-error`/error text and connect it to existing state (note: current component has `error` state but does not render it).
+4. Add accessibility:
+   - Ensure `aria-live` for error text.
+   - Ensure focus-visible outlines for inputs.
 
-## Fonts
-- Headings: Plus Jakarta Sans 700 (replacing Sora)
-- Body:     Inter 400 / 600 (unchanged)
+## Dependent files to edit
+- `src/app/admin/admin.css`
+- `src/app/admin/login/page.tsx`
 
-## Steps
-- [ ] 1. Update `src/app/theme.css` — swap canonical tokens to new colors,
-        add `--color-text` body color, soften legacy navy references.
-- [ ] 2. Update `src/app/layout.tsx` — swap Sora → Plus Jakarta Sans, keep Inter,
-        remove JetBrains Mono (use Plus Jakarta 800 for stat numbers).
-- [ ] 3. Update `src/app/globals.css` — body text color, ensure reset.
-- [ ] 4. Patch hardcoded colors in `src/components/Footer.tsx`,
-        `src/components/Navigation.tsx`, and any inline-styled spots.
-- [ ] 5. Sweep hardcoded hex values in `src/app/home.css`,
-        `src/app/multi-color.css`, `src/app/home-overrides.css`,
-        `src/app/services.css`, `src/app/stat-pattern.css`.
-- [ ] 6. Sweep hardcoded values in `(public)` pages:
-        `dp.css`, `portfolio.css`, `blog.css`.
-- [ ] 7. Build & smoke-test.
+## Followup steps
+- Run `npm run dev` (or existing dev server) and verify:
+  - `http://localhost:3000/admin` and `http://localhost:3000/content/admin/login`
+  - Inputs/textarea visibility: background, text, border, focus.
+  - Alignment and spacing match the dashboard.
+
+<ask_followup_question>
+Proceed with these edits (update `admin.css` + render `error` in login page) to improve login UI visibility and alignment?
+</ask_followup_question>
+

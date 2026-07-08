@@ -33,8 +33,17 @@ function header(eyebrow: string): string {
   return '<tr><td style="padding:0;"><table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%"><tr><td align="center" style="background:linear-gradient(135deg,' + COLORS.bg + ' 0%,#0f172a 50%,#111827 100%);padding:36px 24px 28px 24px;"><img src="' + LOGO_URL + '" alt="Digisharks Communications" width="180" style="display:block;width:180px;max-width:60%;height:auto;margin:0 auto 18px auto;"><div style="display:inline-block;background:rgba(14,165,233,.15);color:#7dd3fc;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:6px 14px;border-radius:999px;border:1px solid rgba(14,165,233,.35);">' + eyebrow + '</div></td></tr></table></td>'
 }
 
-function footer(): string {
-  return '<tr><td style="background:' + COLORS.footerBg + ';padding:24px;text-align:center;border-top:1px solid ' + COLORS.border + ';"><div style="font-size:13px;color:' + COLORS.muted + ';line-height:1.6;"><strong style="color:' + COLORS.text + ';">Digisharks Communications</strong><br>B-2, C-87, C Block, Sector 63, Noida, Uttar Pradesh 201301<br>Phone: <a href="tel:+919627332332" style="color:' + COLORS.brandA + ';text-decoration:none;">+91 96273 32332</a> &nbsp;' + ENT.middot + '&nbsp; Email: <a href="mailto:marketing@digisharkscommunications.com" style="color:' + COLORS.brandA + ';text-decoration:none;">marketing@digisharkscommunications.com</a></div><div style="margin-top:14px;"><a href="' + SITE_URL + '/about-us" style="color:' + COLORS.muted + ';text-decoration:none;font-size:12px;margin:0 8px;">About</a> ' + ENT.middot + ' <a href="' + SITE_URL + '/services-top-pr-digital-marketing/" style="color:' + COLORS.muted + ';text-decoration:none;font-size:12px;margin:0 8px;">Services</a> ' + ENT.middot + ' <a href="' + SITE_URL + '/contact-us" style="color:' + COLORS.muted + ';text-decoration:none;font-size:12px;margin:0 8px;">Contact</a> ' + ENT.middot + ' <a href="' + SITE_URL + '/press-release/" style="color:' + COLORS.muted + ';text-decoration:none;font-size:12px;margin:0 8px;">Press</a></div><div style="margin-top:14px;font-size:11px;color:#9ca3af;">' + ENT.copy + ' ' + new Date().getFullYear() + ' Digisharks Communications. All rights reserved.</div></td></tr>'
+export interface LegalUrls {
+  privacyPolicyUrl?: string
+  termsUrl?: string
+  refundPolicyUrl?: string
+}
+
+function footer(legalUrls?: LegalUrls): string {
+  const pp = legalUrls?.privacyPolicyUrl || '#'
+  const tos = legalUrls?.termsUrl || '#'
+  const refund = legalUrls?.refundPolicyUrl || '#'
+  return '<tr><td style="background:' + COLORS.footerBg + ';padding:24px;text-align:center;border-top:1px solid ' + COLORS.border + ';"><div style="font-size:13px;color:' + COLORS.muted + ';line-height:1.6;"><strong style="color:' + COLORS.text + ';">Digisharks Communications</strong><br>B-2, C-87, C Block, Sector 63, Noida, Uttar Pradesh 201301<br>Phone: <a href="tel:+919627332332" style="color:' + COLORS.brandA + ';text-decoration:none;">+91 96273 32332</a> &nbsp;' + ENT.middot + '&nbsp; Email: <a href="mailto:marketing@digisharkscommunications.com" style="color:' + COLORS.brandA + ';text-decoration:none;">marketing@digisharkscommunications.com</a></div><div style="margin-top:14px;"><a href="' + SITE_URL + '/about-us" style="color:' + COLORS.muted + ';text-decoration:none;font-size:12px;margin:0 8px;">About</a> ' + ENT.middot + ' <a href="' + SITE_URL + '/services-top-pr-digital-marketing/" style="color:' + COLORS.muted + ';text-decoration:none;font-size:12px;margin:0 8px;">Services</a> ' + ENT.middot + ' <a href="' + SITE_URL + '/contact-us" style="color:' + COLORS.muted + ';text-decoration:none;font-size:12px;margin:0 8px;">Contact</a> ' + ENT.middot + ' <a href="' + SITE_URL + '/press-release/" style="color:' + COLORS.muted + ';text-decoration:none;font-size:12px;margin:0 8px;">Press</a></div><div style="margin-top:8px;"><a href="' + pp + '" style="color:' + COLORS.muted + ';text-decoration:none;font-size:12px;margin:0 8px;">Privacy Policy</a> ' + ENT.middot + ' <a href="' + tos + '" style="color:' + COLORS.muted + ';text-decoration:none;font-size:12px;margin:0 8px;">Terms and Conditions</a> ' + ENT.middot + ' <a href="' + refund + '" style="color:' + COLORS.muted + ';text-decoration:none;font-size:12px;margin:0 8px;">Refund Policy</a></div><div style="margin-top:14px;font-size:11px;color:#9ca3af;">' + ENT.copy + ' ' + new Date().getFullYear() + ' Digisharks Communications. All rights reserved.</div></td></tr>'
 }
 
 function stepRow(num: string, title: string, body: string): string {
@@ -58,7 +67,7 @@ export interface BuiltEmail {
   subject: string; html: string; text: string
 }
 
-export function buildContactConfirmationEmail(enquiry: ContactEnquiry): BuiltEmail {
+export function buildContactConfirmationEmail(enquiry: ContactEnquiry, legalUrls?: LegalUrls): BuiltEmail {
   const firstName = (enquiry.fullName || '').split(' ')[0] || enquiry.fullName || 'there'
   const nameSafe = escapeHtml(firstName)
   const fullNameSafe = escapeHtml(enquiry.fullName || '')
@@ -90,7 +99,7 @@ export function buildContactConfirmationEmail(enquiry: ContactEnquiry): BuiltEma
     stepRow('3', 'Connect.', 'Expect a personal reply with next steps and a free consultation slot.') +
     '</table></td></tr>' +
     '<tr><td align="center" style="padding:18px 36px 32px 36px;"><a href="' + SITE_URL + '/services-top-pr-digital-marketing/" style="background:linear-gradient(135deg,' + COLORS.brandA + ' 0%,' + COLORS.brandB + ' 100%);border-radius:8px;color:' + COLORS.buttonText + ';display:inline-block;font-weight:600;padding:14px 32px;text-decoration:none;font-size:15px;">Explore Our Services</a><div style="margin-top:14px;font-size:12px;color:' + COLORS.muted + ';">or call us directly at <a href="tel:+919627332332" style="color:' + COLORS.brandA + ';text-decoration:none;font-weight:600;">+91 96273 32332</a></div></td></tr>' +
-    footer()
+    footer(legalUrls)
 
   const html = layout(body)
   const text =
@@ -147,7 +156,7 @@ function statusBg(status: string): string {
   return '#fef2f2'
 }
 
-function buildSeoAuditHtml(report: SeoAuditReport): string {
+function buildSeoAuditHtml(report: SeoAuditReport, legalUrls?: LegalUrls): string {
   const nameSafe = escapeHtml(report.name || 'there')
   const urlSafe = escapeHtml(report.url || '')
   const domainSafe = escapeHtml(report.domain || '')
@@ -251,7 +260,7 @@ function buildSeoAuditHtml(report: SeoAuditReport): string {
     '<a href="' + SITE_URL + '/contact-us" style="color:' + COLORS.brandA + ';text-decoration:none;font-weight:600;">Schedule a free consultation</a> ' +
     'or call us at <a href="tel:+919627332332" style="color:' + COLORS.brandA + ';text-decoration:none;font-weight:600;">+91 96273 32332</a>.' +
     '</p></div></td></tr>' +
-    footer()
+    footer(legalUrls)
 
   return layout(body)
 }
@@ -311,7 +320,7 @@ const STATUS_CONFIG: Record<CareerStatus, { eyebrow: string; icon: string; headi
   },
 }
 
-export function buildApplicationStatusEmail(info: ApplicationStatusInfo): BuiltEmail {
+export function buildApplicationStatusEmail(info: ApplicationStatusInfo, legalUrls?: LegalUrls): BuiltEmail {
   const nameSafe = escapeHtml(info.name || 'there')
   const jobSafe = escapeHtml(info.jobTitle || 'the position')
   const notesSafe = info.adminNotes ? escapeHtml(info.adminNotes).replace(/\n/g, '<br>') : ''
@@ -330,7 +339,7 @@ export function buildApplicationStatusEmail(info: ApplicationStatusInfo): BuiltE
     header(eyebrow) +
     '<tr><td style="padding:36px 36px 8px 36px;"><h1 style="margin:0 0 12px 0;font-size:26px;line-height:32px;color:' + COLORS.text + ';font-weight:700;">' + heading + '</h1><p style="margin:0 0 22px 0;font-size:16px;line-height:24px;color:' + COLORS.muted + ';">' + message + '</p></td></tr>' +
     notesSection +
-    footer()
+    footer(legalUrls)
 
   const html = layout(body)
 
@@ -358,7 +367,7 @@ export interface AdminNewApplicationInfo {
   applicationId: string
 }
 
-export function buildAdminNewApplicationEmail(info: AdminNewApplicationInfo): BuiltEmail {
+export function buildAdminNewApplicationEmail(info: AdminNewApplicationInfo, legalUrls?: LegalUrls): BuiltEmail {
   const nameSafe = escapeHtml(info.applicantName || 'Unknown')
   const emailSafe = escapeHtml(info.email || '')
   const phoneSafe = escapeHtml(info.phone || '—')
@@ -382,7 +391,7 @@ export function buildAdminNewApplicationEmail(info: AdminNewApplicationInfo): Bu
     detailRow('Resume', info.resumeUrl ? '<a href="' + escapeHtml(info.resumeUrl) + '" target="_blank" rel="noopener" style="color:' + COLORS.brandA + ';text-decoration:none;font-weight:600;">📄 View Resume / CV</a>' : '—') +
     detailRow('Cover Letter', coverHtml, true) +
     '</table></td></tr>' +
-    footer()
+    footer(legalUrls)
 
   return {
     subject: 'New Application: ' + info.applicantName + ' for ' + info.jobTitle,
@@ -403,7 +412,7 @@ export interface AdminStatusChangeInfo {
   applicationId: string
 }
 
-export function buildAdminStatusChangeEmail(info: AdminStatusChangeInfo): BuiltEmail {
+export function buildAdminStatusChangeEmail(info: AdminStatusChangeInfo, legalUrls?: LegalUrls): BuiltEmail {
   const nameSafe = escapeHtml(info.applicantName || 'Unknown')
   const emailSafe = escapeHtml(info.email || '')
   const jobSafe = escapeHtml(info.jobTitle || 'Unknown Position')
@@ -422,7 +431,7 @@ export function buildAdminStatusChangeEmail(info: AdminStatusChangeInfo): BuiltE
     detailRow('Position', jobSafe) +
     detailRow('Admin Notes', notesSafe, true) +
     '</table></td></tr>' +
-    footer()
+    footer(legalUrls)
 
   return {
     subject: 'Application status updated: ' + info.applicantName + ' → ' + newStatusLabel,
@@ -431,10 +440,10 @@ export function buildAdminStatusChangeEmail(info: AdminStatusChangeInfo): BuiltE
   }
 }
 
-export function buildSeoAuditReportEmail(report: SeoAuditReport): BuiltEmail {
+export function buildSeoAuditReportEmail(report: SeoAuditReport, legalUrls?: LegalUrls): BuiltEmail {
   const firstName = (report.name || '').split(' ')[0] || report.name || 'there'
   const subject = 'Your SEO Audit Report for ' + escapeHtml(report.domain) + ' is Ready!'
-  const html = buildSeoAuditHtml(report)
+  const html = buildSeoAuditHtml(report, legalUrls)
   const text =
     'Hi ' + firstName + ',\n\n' +
     'Your SEO audit report for ' + report.domain + ' is ready!\n\n' +

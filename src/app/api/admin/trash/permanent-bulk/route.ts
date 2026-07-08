@@ -25,11 +25,28 @@ export async function DELETE(req: NextRequest) {
 
     // Clean up Cloudinary files for each item (best-effort)
     const trashCol = await getTrashCollection()
+    const { getDb } = await import('@/lib/db')
+    const db = await getDb()
     for (const id of ids) {
       try {
-        const trashDoc = await trashCol.findOne({ _id: new ObjectId(id) })
+        const oid = new ObjectId(id)
+        let docData: Record<string, unknown> | null = null
+
+        // Try trash_items first
+        const trashDoc = await trashCol.findOne({ _id: oid })
         if (trashDoc?.data) {
-          await deleteAllItemFiles(trashDoc.data)
+          docData = trashDoc.data as Record<string, unknown>
+        } else if (ObjectId.isValid(id)) {
+          // Fallback: blogposts collection (soft-deleted with isDeleted=true)
+          const blogDoc = await db.collection('blogposts').findOne({ _id: oid })
+          if (blogDoc) {
+            const { _id: __, ...rest } = blogDoc
+            docData = rest as Record<string, unknown>
+          }
+        }
+
+        if (docData) {
+          await deleteAllItemFiles(docData)
         }
       } catch (cloudErr) {
         console.warn(`Cloudinary cleanup failed for ${id} (non-blocking):`, cloudErr)

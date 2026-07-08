@@ -1,0 +1,336 @@
+'use client'
+
+import { useState, useCallback } from 'react'
+import Link from 'next/link'
+import Footer from '@/components/Footer'
+import QuickEditButton from '@/components/QuickEditButton'
+import './portfolio.css'
+
+const teamMembers = [
+  {
+    name: 'Uday Kumar',
+    role: 'Digital Marketing Executive',
+    image: '/Uday Kumar.png'
+  },
+  {
+    name: 'Vansh Mehra',
+    role: 'Digital Marketing Head',
+    image: '/Vansh Mehra.png'
+  },
+  {
+    name: 'Team Member',
+    role: 'PR & Communications',
+    image: '/Team Member.png'
+  }
+]
+
+const portfolioItems = [
+  {
+    title: 'Top 30 Women Entrepreneurs of the Year 2023',
+    image: '/Top 30 Women Entrepreneurs of the Year 2023.jpg',
+    category: 'Awards'
+  },
+  {
+    title: 'Top 10 CEOs 2021–2022',
+    image: '/Top 10 CEOs 2021–2022.jpeg',
+    category: 'Awards'
+  },
+  {
+    title: 'Top 10 Dynamic Entrepreneurs 2021–2022',
+    image: '/Top 10 Dynamic Entrepreneurs 2021–2022.jpeg',
+    category: 'Awards'
+  },
+  {
+    title: 'Top 50 Entrepreneurs 2022',
+    image: '/Top 50 Entrepreneurs 2022.jpeg',
+    category: 'Awards'
+  },
+  {
+    title: 'Top 10 Influential Businesses of the Year 2022',
+    image: '/Top 10 Influential Businesses of the Year 2022.jpeg',
+    category: 'Awards'
+  },
+  {
+    title: 'The Indian Alert',
+    image: '/The Indian Alert.jpeg',
+    category: 'Publication'
+  }
+]
+
+const clientColors = ['#4F46E5', '#7C3AED', '#6366F1', '#FB7185', '#F97316']
+
+interface PortfolioContent {
+  heroEyebrow: string
+  heroHeading: string
+  heroSubtitle: string
+  heroDescription: string
+  heroPrimaryCta: { text: string; href: string }
+  heroSecondaryCta: { text: string; href: string }
+  aboutLabel: string
+  aboutHeading: string
+  aboutDescription: string
+  aboutCta: { text: string; href: string }
+  teamLabel: string
+  teamHeading: string
+  teamIntro: string
+  portfolioLabel: string
+  portfolioHeading: string
+  portfolioDescription: string
+  portfolioCta: { text: string; href: string }
+  clientsLabel: string
+  clientsHeading: string
+  clients: string[]
+  ctaEyebrow: string
+  ctaHeading: string
+  ctaDescription: string
+  ctaPrimaryCta: { text: string; href: string }
+  ctaSecondaryCta: { text: string; href: string }
+  mapLabel: string
+  mapAddress: string
+  [key: string]: unknown
+}
+
+export default function PortfolioPageClient({ content }: { content: PortfolioContent }) {
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null)
+
+  const openLightbox = useCallback((url: string) => setLightboxUrl(url), [])
+  const closeLightbox = useCallback(() => setLightboxUrl(null), [])
+
+  return (
+    <div className="portfolio-page">
+      {/* ===== HERO BANNER ===== */}
+      <section className="pf-hero">
+        <div className="pf-hero-inner">
+          <div className="pf-hero-content">
+          <div className="hero-eyebrow fade-up" style={{ marginBottom: '1.5rem' }}>
+            <span className="eyebrow-dot" />
+            {content.heroEyebrow}
+          </div>
+          <h1 className="fade-up stagger-1" dangerouslySetInnerHTML={{ __html: content.heroHeading }} />
+          <p className="pf-hero-sub fade-up stagger-2">{content.heroSubtitle}</p>
+          <p className="pf-hero-text fade-up stagger-2">
+            {content.heroDescription}
+          </p>
+            <div className="hero-ctas fade-up stagger-3">
+              <Link href={content.heroPrimaryCta.href || '#'} className="btn-primary">
+                {content.heroPrimaryCta.text}
+              </Link>
+              <Link href={content.heroSecondaryCta.href || '#'} className="btn-outline">
+                {content.heroSecondaryCta.text}
+              </Link>
+            </div>
+          </div>
+          <div className="pf-hero-image fade-up stagger-3">
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              disablePictureInPicture
+              style={{ width: '100%', maxWidth: '420px', borderRadius: 16, display: 'block', boxShadow: '0 20px 60px rgba(255,107,71,.2)' }}
+            >
+              <source src="/50-Entrepreneurs-of-The-Year-Awards-2024-2ND-EDITION.mp4" type="video/mp4" />
+            </video>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== 50 ENTREPRENEURS OF THE YEAR — FLAGSHIP EVENT ===== */}
+      <section className="flagship-section section-bg-white">
+        <div className="container">
+          <div className="section-label fade-up" style={{ justifyContent: 'center', display: 'flex' }}>Our Flagship Event</div>
+          <h2 className="fade-up stagger-1" style={{ textAlign: 'center' }}>
+            50 Entrepreneurs <span className="orange-text">of the Year</span>
+          </h2>
+          <p className="fade-up stagger-2 text-muted" style={{ textAlign: 'center', maxWidth: '700px', margin: '0.5rem auto 2rem', fontSize: '1.05rem', lineHeight: 1.75 }}>
+            A prestigious award ceremony recognizing and celebrating visionary business leaders across industries. A platform that builds credibility, authority, and lasting networks.
+          </p>
+
+          {/* Three Pillars */}
+          <div className="services-grid-3">
+            <div className="service-card-pf fade-up stagger-1" style={{ textAlign: 'center' }}>
+              <div className="sc-icon" style={{ margin: '0 auto 1.25rem' }}>🏔️</div>
+              <h3>Summit</h3>
+              <p style={{ textAlign: 'center' }}>
+                A global leadership summit fostering collaboration between industry pioneers, innovators, and decision-makers. Network with India's most influential business minds and explore groundbreaking opportunities.
+              </p>
+            </div>
+            <div className="service-card-pf fade-up stagger-2" style={{ textAlign: 'center' }}>
+              <div className="sc-icon" style={{ margin: '0 auto 1.25rem' }}>🏆</div>
+              <h3>Awards</h3>
+              <p style={{ textAlign: 'center' }}>
+                Celebrating exceptional achievements across sectors — from startups to enterprises. Our awards recognize the visionaries who are shaping the future of business in India and beyond.
+              </p>
+            </div>
+            <div className="service-card-pf fade-up stagger-3" style={{ textAlign: 'center' }}>
+              <div className="sc-icon" style={{ margin: '0 auto 1.25rem' }}>📖</div>
+              <h3>Magazine</h3>
+              <p style={{ textAlign: 'center' }}>
+                Featuring success stories, industry trends, and in-depth interviews with award-winning entrepreneurs. A digital publication that amplifies the voices of India's business leaders.
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      {/* ===== ABOUT US ===== */}
+      <section className="about-section section-bg-warm">
+        <div className="container">
+          <div className="section-label fade-up" style={{ justifyContent: 'center', display: 'flex' }}>{content.aboutLabel}</div>
+          <h2 className="fade-up stagger-1" style={{ textAlign: 'center' }} dangerouslySetInnerHTML={{ __html: content.aboutHeading }} />
+          <div className="about-content">
+            <p className="fade-up stagger-2">
+              {content.aboutDescription}
+            </p>
+            <Link href={content.aboutCta.href || '/contact-us'} className="btn-primary fade-up stagger-3">
+              {content.aboutCta.text}
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== MEET OUR TEAM ===== */}
+      <section className="team-section section-bg-white">
+        <div className="container">
+          <div className="section-label fade-up" style={{ justifyContent: 'center', display: 'flex' }}>{content.teamLabel}</div>
+          <h2 className="fade-up stagger-1" style={{ textAlign: 'center' }} dangerouslySetInnerHTML={{ __html: content.teamHeading }} />
+          <p className="team-intro fade-up stagger-2">
+            {content.teamIntro}
+          </p>
+          <div className="team-grid">
+            {teamMembers.map((member, i) => (
+              <div key={member.name} className={`team-card fade-up stagger-${i + 1}`}>
+                <div className="team-card-img">
+                  <img src={member.image} alt={member.name} width={300} height={360} />
+                </div>
+                <div className="team-card-body">
+                  <h3>{member.name}</h3>
+                  <p className="team-role">{member.role}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== OUR PORTFOLIO (MAIN HIGHLIGHT) ===== */}
+      <section className="pf-featured-section section-bg-cool">
+        <div className="container">
+          <div className="section-label fade-up" style={{ justifyContent: 'center', display: 'flex' }}>{content.portfolioLabel}</div>
+          <h2 className="fade-up stagger-1" style={{ textAlign: 'center' }} dangerouslySetInnerHTML={{ __html: content.portfolioHeading }} />
+          <p className="fade-up stagger-2 text-muted" style={{ textAlign: 'center', maxWidth: '700px', margin: '0.5rem auto 0', fontSize: '1.05rem', lineHeight: 1.75 }}>
+            {content.portfolioDescription}
+          </p>
+          <div className="pf-featured-grid">
+            {portfolioItems.map((item, i) => (
+              <div
+                key={item.title}
+                className={`pf-featured-card fade-up stagger-${(i % 3) + 1}`}
+                onClick={() => openLightbox(item.image)}
+              >
+                <div className="pf-featured-card-header">
+                  <img src={item.image} alt={item.title} width={400} height={260} />
+                </div>
+                <div className="pf-featured-card-body">
+                  <h3>{item.title}</h3>
+                  <p>{item.category}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="pf-cta-row" style={{ marginTop: '2.5rem' }}>
+            <Link href={content.portfolioCta.href || '/contact-us'} className="btn-primary">
+              {content.portfolioCta.text}
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Lightbox */}
+      {lightboxUrl && (
+        <div className="pf-lightbox" onClick={closeLightbox}>
+          <button className="pf-lightbox-close" onClick={closeLightbox} aria-label="Close">
+            ✕
+          </button>
+          <img src={lightboxUrl} alt="Portfolio preview" onClick={(e) => e.stopPropagation()} />
+        </div>
+      )}
+
+      {/* ===== OUR CLIENTS ===== */}
+      <section className="clients-section section-bg-white">
+        <div className="container">
+          <div className="section-label fade-up" style={{ justifyContent: 'center', display: 'flex' }}>{content.clientsLabel}</div>
+          <h2 className="fade-up stagger-1" style={{ textAlign: 'center' }} dangerouslySetInnerHTML={{ __html: content.clientsHeading }} />
+          <div className="clients-row-grid fade-up stagger-2">
+            {(content.clients || []).map((client, i) => (
+              <div key={client} className="client-logo-card" style={{ animationDelay: `${i * 0.1}s` }}>
+                <span
+                  style={{
+                    width: 34, height: 34, borderRadius: 8,
+                    background: clientColors[i % clientColors.length],
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: '#fff', fontWeight: 800, fontSize: '0.85rem',
+                    flexShrink: 0
+                  }}
+                >
+                  {client.charAt(0)}
+                </span>
+                {client}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== CALL TO ACTION ===== */}
+      <section className="pf-cta-section section-bg-warm">
+        <div className="cta-box-pf fade-up container">
+          <div className="cta-eyebrow" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.4rem 1rem', background: 'rgba(255,107,71,.08)', border: '1px solid rgba(255,107,71,.25)', borderRadius: '50px', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-orange)', marginBottom: '1.5rem' }}>
+            {content.ctaEyebrow}
+          </div>
+          <h2 dangerouslySetInnerHTML={{ __html: content.ctaHeading }} />
+          <p>
+            {content.ctaDescription}
+          </p>
+          <div className="cta-actions-pf">
+            <Link href={content.ctaPrimaryCta.href || '/contact-us'} className="btn-primary">
+              {content.ctaPrimaryCta.text}
+            </Link>
+            <a href={content.ctaSecondaryCta.href || 'tel:+919627332332'} className="btn-outline">
+              {content.ctaSecondaryCta.text}
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== GOOGLE MAP ===== */}
+      <section className="map-section" style={{ padding: '2rem 5%', borderTop: '1px solid var(--border)' }}>
+        <div className="container" style={{ textAlign: 'center' }}>
+          <div className="section-label fade-up" style={{ justifyContent: 'center', display: 'flex', marginBottom: '1.5rem' }}>{content.mapLabel}</div>
+          <div style={{ maxWidth: 700, margin: '0 auto', borderRadius: 16, overflow: 'hidden', boxShadow: '0 12px 30px rgba(0,0,0,.3)' }}>
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3502.4033403298517!2d77.38127177437849!3d28.61767128475733!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390cf102f308787f%3A0x6cb9cee4f683a077!2sDigisharks%20Communications%20Private%20Limited!5e0!3m2!1sen!2sin!4v1783139093251!5m2!1sen!2sin"
+              width="100%"
+              height="300"
+              style={{ border: 0, borderRadius: 16 }}
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title="Digisharks Communications Noida Office"
+            />
+          </div>
+          <p className="fade-up stagger-1" style={{ color: 'var(--muted)', fontSize: '0.9rem', marginTop: '1rem' }}>
+            {content.mapAddress}
+          </p>
+        </div>
+      </section>
+
+      {/* ===== FOOTER ===== */}
+      <div className="pf-footer-wrap">
+        <Footer />
+      </div>
+      <QuickEditButton slug="portfolio" />
+    </div>
+  )
+}

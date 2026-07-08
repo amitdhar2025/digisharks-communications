@@ -5,7 +5,7 @@ import { connectMongoose } from '@/lib/mongoose'
 import BlogPost from '@/lib/models/BlogPost'
 import mongoose from 'mongoose'
 import { stripHtml } from '@/lib/sanitize'
-import { getTrashCollection } from '@/lib/trash'
+import { softDeleteFromMongoose } from '@/lib/trash'
 
 export const dynamic = 'force-dynamic'
 
@@ -190,51 +190,19 @@ export async function DELETE(
       return NextResponse.json({ error: 'Invalid post ID' }, { status: 400 })
     }
 
-    // Find and soft-delete the post by setting isDeleted=true
-    // We keep the document in the blogposts collection so Duplicate and other refs still work.
-    const post = await BlogPost.findByIdAndUpdate(
+    // Move the post to trash_items using the standard trash system.
+    // The post is deleted from the blogposts collection and a full data
+    // snapshot is stored in trash_items for proper restore and Cloudinary cleanup.
+    // Cloudinary files are NOT deleted here — they stay in Cloudinary so the post
+    // can be restored with its images. They will be cleaned up when the user
+    // clicks "Delete Forever" from the trash section.
+    await softDeleteFromMongoose(
+      'blogposts',
+      BlogPost,
       id,
-      {
-        $set: {
-          isDeleted: true,
-          deletedAt: new Date(),
-          deletedBy: { username: admin.username, role: admin.role },
-          autoDeleteAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        },
-      },
-      { new: true },
-    ).select('featuredImage bannerImage content title').lean()
-
-    if (!post) {
-      // Post not found in blogposts — check if it's already flagged as deleted
-      const alreadyDeleted = await BlogPost.findOne({ _id: id, isDeleted: true }).lean()
-      if (alreadyDeleted) {
-        return NextResponse.json({ success: true, message: 'Post already in trash.' })
-      }
-      return NextResponse.json({ error: 'Post not found' }, { status: 404 })
-    }
-
-    // Cloudinary cleanup is secondary — never block the delete if it fails.
-    try {
-      const { v2: cloudinary } = await import('cloudinary')
-      cloudinary.config({
-        cloud_name: process.env.CLOUDINARY_CLOUD_NAME || '',
-        api_key: process.env.CLOUDINARY_API_KEY || '',
-        api_secret: process.env.CLOUDINARY_API_SECRET || '',
-      })
-
-      const deletePromises: Promise<any>[] = []
-      if (post.featuredImage?.publicId) {
-        deletePromises.push(cloudinary.uploader.destroy(post.featuredImage.publicId).catch(() => {}))
-      }
-      if (post.bannerImage?.publicId) {
-        deletePromises.push(cloudinary.uploader.destroy(post.bannerImage.publicId).catch(() => {}))
-      }
-
-      await Promise.allSettled(deletePromises)
-    } catch (cloudErr) {
-      console.warn('Cloudinary cleanup failed (non-blocking):', cloudErr)
-    }
+      { username: admin.username, role: admin.role },
+      (doc) => String(doc.title || 'Untitled Post'),
+    )
 
     return NextResponse.json({ success: true, message: 'Post moved to trash.' })
   } catch (err) {

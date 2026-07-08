@@ -2,6 +2,51 @@ export const dynamic = "force-dynamic";
 
 import type { Metadata } from "next";
 import Footer from "../../../components/Footer";
+import { getPageContent } from '@/lib/cms-page-content'
+import QuickEditButton from '@/components/QuickEditButton'
+
+// ── Hardcoded default content (used when no CMS data exists) ──────────
+const DEFAULT_CONTENT = {
+  heroEyebrow: '✦ Build a Brand Customers Trust',
+  heroHeading: 'Strategic <span class="orange-text">Brand Promotion</span> That Stands Out',
+  heroDescription: 'In today\'s competitive market, brand recognition is everything. We help you cut through the noise with brand promotion strategies that combine creativity, market research, digital marketing, and public relations.',
+  heroPrimaryCta: { text: 'Promote Your Brand Today →', href: '/contact-us/' },
+  heroSecondaryCta: { text: 'Our Process', href: '#process' },
+  approachLabel: 'Brand Promotion Experts',
+  approachHeading: 'A <span class="orange-text">360-Degree Approach</span>',
+  approachSubtitle: 'Great brands are built at the intersection of creativity, data, and storytelling. We bring all three together for every client engagement.',
+  approachCards: [
+    { icon: '🎨', title: 'Creativity', desc: 'Award-winning creative work that captures attention and stays in memory.' },
+    { icon: '📊', title: 'Market Research', desc: 'Deep audience, competitor, and category research that informs every move.' },
+    { icon: '💻', title: 'Digital Marketing', desc: 'Performance media, content, and SEO to amplify your brand across every channel.' },
+    { icon: '📰', title: 'Public Relations', desc: 'Strategic media outreach that earns third-party validation and trust.' },
+  ],
+  servicesLabel: 'Our Brand Promotion Services',
+  servicesHeading: 'Solutions for <span class="orange-text">Every Brand Goal</span>',
+  servicesSubtitle: 'Whether you\'re launching a new brand or reinvigorating an established one, our services scale to fit.',
+  benefitsHeading: 'Why <span class="orange-text">Brand Promotion</span> Matters',
+  benefits: [
+    { icon: '🌟', title: 'Increase Brand Awareness', desc: 'Get your brand in front of more of the right people, more often.' },
+    { icon: '❤️', title: 'Build Customer Trust', desc: 'Consistent, authentic promotion earns long-term customer loyalty.' },
+    { icon: '📈', title: 'Improve Market Position', desc: 'Stand out from competitors and own your category narrative.' },
+    { icon: '📥', title: 'Generate More Leads', desc: 'Strong brands convert more visitors into qualified leads and sales.' },
+    { icon: '🔁', title: 'Strengthen Customer Loyalty', desc: 'Promoted brands earn repeat business and word-of-mouth referrals.' },
+    { icon: '⚡', title: 'Boost Brand Recognition', desc: 'Stand out in crowded markets with a distinctive, memorable brand identity.' },
+  ],
+  processHeading: 'Our <span class="orange-text">Brand Promotion Process</span>',
+  processSubtitle: 'A proven five-step framework for building, executing, and optimizing brand promotion campaigns that deliver.',
+  processSteps: [
+    { icon: '1', title: 'Brand Analysis', desc: 'Deep research into your brand, audience, competitors, and market positioning.' },
+    { icon: '2', title: 'Strategy Development', desc: 'Custom strategy built around your goals, audience, and budget.' },
+    { icon: '3', title: 'Campaign Execution', desc: 'Creative production, media buying, and campaign launch across channels.' },
+    { icon: '4', title: 'Performance Monitoring', desc: 'Real-time tracking of every metric that matters to your goals.' },
+    { icon: '5', title: 'Optimization', desc: 'Continuous testing and refinement to maximize return on investment.' },
+    { icon: '6', title: 'Reporting & Insights', desc: 'Detailed reports with actionable insights to guide your next campaign decisions.' },
+  ],
+  ctaHeading: 'Get Your <span class="orange-text">Free Brand Promotion</span> Consultation',
+  ctaDescription: 'Book a complimentary consultation with our brand promotion experts. We\'ll analyze your brand, identify growth opportunities, and recommend a custom strategy — at zero cost.',
+  ctaPrimaryCta: { text: 'Get Free Brand Promotion Consultation →', href: '/contact-us/' },
+}
 
 const siteUrl = "https://digisharks-communications.vercel.app/brand-promotion/";
 
@@ -13,7 +58,10 @@ export const metadata: Metadata = {
   alternates: { canonical: siteUrl },
 };
 
-export default function BrandPromotionPage() {
+export default async function BrandPromotionPage() {
+  // Fetch CMS content — if available, it overrides DEFAULT_CONTENT
+  const cmsContent = await getPageContent('brand-promotion')
+  const content = { ...DEFAULT_CONTENT, ...(cmsContent || {}) }
   return (
     <>
       <div className="orb orb-1"></div>
@@ -24,16 +72,12 @@ export default function BrandPromotionPage() {
         {/* HERO */}
         <section className="hero centered compact">
           <div className="hero-inner">
-            <div className="hero-eyebrow fade-up">✦ Build a Brand Customers Trust</div>
-            <h1 className="fade-up stagger-1">
-              Strategic <span className="orange-text">Brand Promotion</span> That Stands Out
-            </h1>
-            <p className="fade-up stagger-2">
-              In today's competitive market, brand recognition is everything. We help you cut through the noise with brand promotion strategies that combine creativity, market research, digital marketing, and public relations.
-            </p>
+            <div className="hero-eyebrow fade-up">{content.heroEyebrow}</div>
+            <h1 className="fade-up stagger-1" dangerouslySetInnerHTML={{ __html: content.heroHeading }} />
+            <p className="fade-up stagger-2">{content.heroDescription}</p>
             <div className="hero-ctas fade-up stagger-3">
-              <a href="/contact-us/" className="btn-primary">Promote Your Brand Today →</a>
-              <a href="#process" className="btn-outline">Our Process</a>
+              <a href={content.heroPrimaryCta.href || '#'} className="btn-primary">{content.heroPrimaryCta.text}</a>
+              <a href={content.heroSecondaryCta.href || '#'} className="btn-outline">{content.heroSecondaryCta.text}</a>
             </div>
           </div>
         </section>
@@ -41,48 +85,19 @@ export default function BrandPromotionPage() {
         {/* BRAND PROMOTION EXPERTS */}
         <section className="section-bg-white">
           <div className="container">
-            <div className="section-label fade-up">Brand Promotion Experts</div>
-            <h2 className="fade-up stagger-1">A <span className="orange-text">360-Degree Approach</span></h2>
+            <div className="section-label fade-up">{content.approachLabel}</div>
+            <h2 className="fade-up stagger-1" dangerouslySetInnerHTML={{ __html: content.approachHeading }} />
             <p className="fade-up stagger-2" style={{ color: "var(--muted)", maxWidth: "720px", marginTop: "0.75rem" }}>
-              Great brands are built at the intersection of creativity, data, and storytelling. We bring all three together for every client engagement.
+              {content.approachSubtitle}
             </p>
             <div className="bp-approach-grid">
-              <div className="bp-approach-card fade-up stagger-1" style={{ "--card-accent": "#FF5B2E", "--card-accent-bg": "rgba(255,91,46,0.08)" } as React.CSSProperties}>
-                <div className="bp-approach-icon">🎨</div>
-                <h3>Creativity</h3>
-                <p className="bp-approach-desc">Award-winning creative work that captures attention and stays in memory.</p>
-                <div className="bp-approach-stat">
-                  <span className="bp-approach-stat-num">12+</span>
-                  <span className="bp-approach-stat-label">Awards Won</span>
-                </div>
+              {(content.approachCards || []).map((card, i) => (
+                <div className={`bp-approach-card fade-up stagger-${(i % 4) + 1}`} key={i} style={{ "--card-accent": i === 0 ? '#FF5B2E' : i === 1 ? '#3B82F6' : i === 2 ? '#EC4899' : '#10B981', "--card-accent-bg": `rgba(${i === 0 ? '255,91,46' : i === 1 ? '59,130,246' : i === 2 ? '236,72,153' : '16,185,129'},0.08)` } as React.CSSProperties}>
+                <div className="bp-approach-icon">{card.icon}</div>
+                <h3>{card.title}</h3>
+                <p className="bp-approach-desc">{card.desc}</p>
               </div>
-              <div className="bp-approach-card fade-up stagger-2" style={{ "--card-accent": "#3B82F6", "--card-accent-bg": "rgba(59,130,246,0.08)" } as React.CSSProperties}>
-                <div className="bp-approach-icon">📊</div>
-                <h3>Market Research</h3>
-                <p className="bp-approach-desc">Deep audience, competitor, and category research that informs every move.</p>
-                <div className="bp-approach-stat">
-                  <span className="bp-approach-stat-num">10K+</span>
-                  <span className="bp-approach-stat-label">Data Points Analysed</span>
-                </div>
-              </div>
-              <div className="bp-approach-card fade-up stagger-3" style={{ "--card-accent": "#EC4899", "--card-accent-bg": "rgba(236,72,153,0.08)" } as React.CSSProperties}>
-                <div className="bp-approach-icon">💻</div>
-                <h3>Digital Marketing</h3>
-                <p className="bp-approach-desc">Performance media, content, and SEO to amplify your brand across every channel.</p>
-                <div className="bp-approach-stat">
-                  <span className="bp-approach-stat-num">320%</span>
-                  <span className="bp-approach-stat-label">Avg. Traffic Growth</span>
-                </div>
-              </div>
-              <div className="bp-approach-card fade-up stagger-4" style={{ "--card-accent": "#10B981", "--card-accent-bg": "rgba(16,185,129,0.08)" } as React.CSSProperties}>
-                <div className="bp-approach-icon">📰</div>
-                <h3>Public Relations</h3>
-                <p className="bp-approach-desc">Strategic media outreach that earns third-party validation and trust.</p>
-                <div className="bp-approach-stat">
-                  <span className="bp-approach-stat-num">50+</span>
-                  <span className="bp-approach-stat-label">Media Partnerships</span>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </section>
@@ -90,10 +105,10 @@ export default function BrandPromotionPage() {
         {/* SERVICES */}
         <section id="services" className="section-bg-soft">
           <div className="container">
-            <div className="section-label fade-up">Our Brand Promotion Services</div>
-            <h2 className="fade-up stagger-1">Solutions for <span className="orange-text">Every Brand Goal</span></h2>
+            <div className="section-label fade-up">{content.servicesLabel}</div>
+            <h2 className="fade-up stagger-1" dangerouslySetInnerHTML={{ __html: content.servicesHeading }} />
             <p className="fade-up stagger-2" style={{ color: "var(--muted)", maxWidth: "720px", marginTop: "0.75rem" }}>
-              Whether you're launching a new brand or reinvigorating an established one, our services scale to fit.
+              {content.servicesSubtitle}
             </p>
 
             <div className="bp-cap-grid">
@@ -228,38 +243,15 @@ export default function BrandPromotionPage() {
         <section className="pr-media">
           <div className="container">
             <div className="section-label fade-up">Why It Matters</div>
-            <h2 className="fade-up stagger-1">Why <span className="orange-text">Brand Promotion</span> Matters</h2>
+            <h2 className="fade-up stagger-1" dangerouslySetInnerHTML={{ __html: content.benefitsHeading }} />
             <div className="benefits-grid">
-              <div className="benefit-card fade-up stagger-1">
-                <div className="b-icon">🌟</div>
-                <h3>Increase Brand Awareness</h3>
-                <p>Get your brand in front of more of the right people, more often.</p>
-              </div>
-              <div className="benefit-card fade-up stagger-2">
-                <div className="b-icon">❤️</div>
-                <h3>Build Customer Trust</h3>
-                <p>Consistent, authentic promotion earns long-term customer loyalty.</p>
-              </div>
-              <div className="benefit-card fade-up stagger-3">
-                <div className="b-icon">📈</div>
-                <h3>Improve Market Position</h3>
-                <p>Stand out from competitors and own your category narrative.</p>
-              </div>
-              <div className="benefit-card fade-up stagger-1">
-                <div className="b-icon">📥</div>
-                <h3>Generate More Leads</h3>
-                <p>Strong brands convert more visitors into qualified leads and sales.</p>
-              </div>
-              <div className="benefit-card fade-up stagger-2">
-                <div className="b-icon">🔁</div>
-                <h3>Strengthen Customer Loyalty</h3>
-                <p>Promoted brands earn repeat business and word-of-mouth referrals.</p>
-              </div>
-              <div className="benefit-card fade-up stagger-3">
-                <div className="b-icon">⚡</div>
-                <h3>Boost Brand Recognition</h3>
-                <p>Stand out in crowded markets with a distinctive, memorable brand identity.</p>
-              </div>
+              {(content.benefits || []).map((b, i) => (
+                <div className={`benefit-card fade-up stagger-${(i % 3) + 1}`} key={i}>
+                  <div className="b-icon">{b.icon}</div>
+                  <h3>{b.title}</h3>
+                  <p>{b.desc}</p>
+                </div>
+              ))}
             </div>
           </div>
         </section>
@@ -333,41 +325,18 @@ export default function BrandPromotionPage() {
         <section id="process" className="section-bg-white">
           <div className="container">
             <div className="section-label fade-up">Our Process</div>
-            <h2 className="fade-up stagger-1">Our <span className="orange-text">Brand Promotion Process</span></h2>
+            <h2 className="fade-up stagger-1" dangerouslySetInnerHTML={{ __html: content.processHeading }} />
             <p className="fade-up stagger-2" style={{ color: "var(--muted)", maxWidth: "720px", marginTop: "0.75rem" }}>
-              A proven five-step framework for building, executing, and optimizing brand promotion campaigns that deliver.
+              {content.processSubtitle}
             </p>
             <div className="process-grid">
-              <div className="process-step fade-up stagger-1">
-                <div className="step-num">1</div>
-                <h4>Brand Analysis</h4>
-                <p>Deep research into your brand, audience, competitors, and market positioning.</p>
-              </div>
-              <div className="process-step fade-up stagger-2">
-                <div className="step-num">2</div>
-                <h4>Strategy Development</h4>
-                <p>Custom strategy built around your goals, audience, and budget.</p>
-              </div>
-              <div className="process-step fade-up stagger-3">
-                <div className="step-num">3</div>
-                <h4>Campaign Execution</h4>
-                <p>Creative production, media buying, and campaign launch across channels.</p>
-              </div>
-              <div className="process-step fade-up stagger-1">
-                <div className="step-num">4</div>
-                <h4>Performance Monitoring</h4>
-                <p>Real-time tracking of every metric that matters to your goals.</p>
-              </div>
-              <div className="process-step fade-up stagger-2">
-                <div className="step-num">5</div>
-                <h4>Optimization</h4>
-                <p>Continuous testing and refinement to maximize return on investment.</p>
-              </div>
-              <div className="process-step fade-up stagger-3">
-                <div className="step-num">6</div>
-                <h4>Reporting &amp; Insights</h4>
-                <p>Detailed reports with actionable insights to guide your next campaign decisions.</p>
-              </div>
+              {(content.processSteps || []).map((step, i) => (
+                <div className={`process-step fade-up stagger-${(i % 3) + 1}`} key={i}>
+                  <div className="step-num">{step.icon}</div>
+                  <h4>{step.title}</h4>
+                  <p>{step.desc}</p>
+                </div>
+              ))}
             </div>
           </div>
         </section>
@@ -375,12 +344,10 @@ export default function BrandPromotionPage() {
         {/* CTA */}
         <section className="final-cta section-bg-white">
           <div className="cta-box fade-up container">
-            <h2>Get Your <span className="orange-text">Free Brand Promotion</span> Consultation</h2>
-            <p>
-              Book a complimentary consultation with our brand promotion experts. We'll analyze your brand, identify growth opportunities, and recommend a custom strategy — at zero cost.
-            </p>
+            <h2 dangerouslySetInnerHTML={{ __html: content.ctaHeading }} />
+            <p>{content.ctaDescription}</p>
             <div className="hero-ctas" style={{ justifyContent: "center", marginBottom: 0 }}>
-              <a href="/contact-us/" className="btn-primary">Get Free Brand Promotion Consultation →</a>
+              <a href={content.ctaPrimaryCta.href || '#'} className="btn-primary">{content.ctaPrimaryCta.text}</a>
               <a href="/services-top-pr-digital-marketing/" className="btn-outline">View Pricing</a>
             </div>
           </div>
@@ -388,7 +355,7 @@ export default function BrandPromotionPage() {
 
         <Footer />
       </div>
-
+      <QuickEditButton slug="brand-promotion" />
     </>
   );
 }

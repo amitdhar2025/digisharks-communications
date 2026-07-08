@@ -2,6 +2,33 @@ export const dynamic = "force-dynamic";
 
 import type { Metadata } from "next";
 import Footer from "../../../components/Footer";
+import { getPageContent } from '@/lib/cms-page-content'
+import QuickEditButton from '@/components/QuickEditButton'
+
+// ── Hardcoded default content (used when no CMS data exists) ──────────
+const DEFAULT_CONTENT = {
+  heroEyebrow: '✦ One of India\'s Most Trusted PR Agencies',
+  heroHeading: 'Digital PR & <span class="orange-text">Press Release</span> Services',
+  heroDescription: 'Build a powerful digital presence through strategic media house partnerships. We craft compelling brand stories, distribute them across India\'s leading publications, and amplify your message to the audiences that matter most.',
+  heroPrimaryCta: { text: 'Apply for PR →', href: '/contact-us/' },
+  heroSecondaryCta: { text: 'View Pricing', href: '/services-top-pr-digital-marketing/' },
+  digitalPrLabel: 'Why Digital PR?',
+  digitalPrHeading: 'Earned Media That <span class="orange-text">Builds Authority</span>',
+  digitalPrSubtitle: 'Digital PR blends the credibility of traditional public relations with the measurability of online marketing — generating brand awareness, stronger search visibility, and lasting reputation.',
+  whyDigisharksLabel: 'Why Digisharks Communications?',
+  whyDigisharksHeading: 'Outcomes That <span class="orange-text">Move the Needle</span>',
+  mediaNetworkLabel: 'Our Media Network',
+  mediaNetworkHeading: 'Featured on <span class="orange-text">India\'s Top Publications</span>',
+  mediaNetworkSubtitle: 'Your story deserves to be told on the platforms that move industries. Our media partners include some of the most respected names in journalism.',
+  reasonsLabel: 'Why It Works',
+  reasonsHeading: 'Ten Reasons to <span class="orange-text">Use Digital PR</span>',
+  benefitsLabel: 'Why Press Releases Matter',
+  benefitsHeading: 'Tangible <span class="orange-text">Benefits of Press Releases</span>',
+  ctaHeading: 'Start <span class="orange-text">Growing Your Brand</span> Today',
+  ctaDescription: 'Our demographic analysis approach is used by Digisharks Communications to help you understand the characteristics of the people who buy your products and services. By leads, you can see who buys your products and services — also you can see who your brand appeals to the most by age, location, gender, job title, income, and hundreds of other variables.',
+  ctaPrimaryCta: { text: 'Apply for PR →', href: '/contact-us/' },
+  ctaSecondaryCta: { text: 'View Pricing', href: '/services-top-pr-digital-marketing/' },
+}
 
 const siteUrl = "https://digisharks-communications.vercel.app/press-release/";
 
@@ -20,7 +47,10 @@ export const metadata: Metadata = {
   },
 };
 
-export default function PressReleasePage() {
+export default async function PressReleasePage() {
+  // Fetch CMS content — if available, it overrides DEFAULT_CONTENT
+  const cmsContent = await getPageContent('press-release')
+  const content = { ...DEFAULT_CONTENT, ...(cmsContent || {}) }
   return (
     <>
       <div className="orb orb-1"></div>
@@ -31,16 +61,14 @@ export default function PressReleasePage() {
         {/* HERO */}
         <section className="hero centered compact">
           <div className="hero-inner">
-            <div className="hero-eyebrow fade-up">✦ One of India's Most Trusted PR Agencies</div>
-            <h1 className="fade-up stagger-1">
-              Digital PR & <span className="orange-text">Press Release</span> Services
-            </h1>
+            <div className="hero-eyebrow fade-up">{content.heroEyebrow}</div>
+            <h1 className="fade-up stagger-1" dangerouslySetInnerHTML={{ __html: content.heroHeading }} />
             <p className="fade-up stagger-2">
-              Build a powerful digital presence through strategic media house partnerships. We craft compelling brand stories, distribute them across India's leading publications, and amplify your message to the audiences that matter most.
+              {content.heroDescription}
             </p>
             <div className="hero-ctas fade-up stagger-3">
-              <a href="/contact-us/" className="btn-primary">Apply for PR →</a>
-              <a href="/services-top-pr-digital-marketing/" className="btn-outline">View Pricing</a>
+              <a href={content.heroPrimaryCta.href || '#'} className="btn-primary">{content.heroPrimaryCta.text}</a>
+              <a href={content.heroSecondaryCta.href || '#'} className="btn-outline">{content.heroSecondaryCta.text}</a>
             </div>
           </div>
         </section>
@@ -48,10 +76,10 @@ export default function PressReleasePage() {
         {/* WHY CHOOSE DIGITAL PR */}
         <section className="section-bg-white">
           <div className="container">
-            <div className="section-label fade-up">Why Digital PR?</div>
-            <h2 className="fade-up stagger-1">Earned Media That <span className="orange-text">Builds Authority</span></h2>
+            <div className="section-label fade-up">{content.digitalPrLabel}</div>
+            <h2 className="fade-up stagger-1" dangerouslySetInnerHTML={{ __html: content.digitalPrHeading }} />
             <p className="fade-up stagger-2" style={{ color: "var(--muted)", maxWidth: "720px", marginTop: "0.75rem" }}>
-              Digital PR blends the credibility of traditional public relations with the measurability of online marketing — generating brand awareness, stronger search visibility, and lasting reputation.
+              {content.digitalPrSubtitle}
             </p>
 
             <div className="benefits-grid">
@@ -92,8 +120,8 @@ export default function PressReleasePage() {
         {/* WHY DIGISHARKS */}
         <section className="pr-media">
           <div className="container">
-            <div className="section-label fade-up">Why Digisharks Communications?</div>
-            <h2 className="fade-up stagger-1">Outcomes That <span className="orange-text">Move the Needle</span></h2>
+            <div className="section-label fade-up">{content.whyDigisharksLabel}</div>
+            <h2 className="fade-up stagger-1" dangerouslySetInnerHTML={{ __html: content.whyDigisharksHeading }} />
             <div className="benefits-grid">
               <div className="benefit-card fade-up stagger-1">
                 <div className="b-icon">📈</div>
@@ -132,10 +160,10 @@ export default function PressReleasePage() {
         {/* MEDIA PARTNERS */}
         <section className="section-bg-white">
           <div className="container">
-            <div className="section-label fade-up">Our Media Network</div>
-            <h2 className="fade-up stagger-1">Featured on <span className="orange-text">India's Top Publications</span></h2>
+            <div className="section-label fade-up">{content.mediaNetworkLabel}</div>
+            <h2 className="fade-up stagger-1" dangerouslySetInnerHTML={{ __html: content.mediaNetworkHeading }} />
             <p className="fade-up stagger-2" style={{ color: "var(--muted)", maxWidth: "720px", marginTop: "0.75rem" }}>
-              Your story deserves to be told on the platforms that move industries. Our media partners include some of the most respected names in journalism.
+              {content.mediaNetworkSubtitle}
             </p>
             <div className="media-partners" style={{ marginTop: "2.5rem" }}>
               <div className="mp">Forbes India</div>
@@ -154,8 +182,8 @@ export default function PressReleasePage() {
         {/* TEN REASONS */}
         <section className="section-bg-soft">
           <div className="container">
-            <div className="section-label fade-up">Why It Works</div>
-            <h2 className="fade-up stagger-1">Ten Reasons to <span className="orange-text">Use Digital PR</span></h2>
+            <div className="section-label fade-up">{content.reasonsLabel}</div>
+            <h2 className="fade-up stagger-1" dangerouslySetInnerHTML={{ __html: content.reasonsHeading }} />
             <div className="reasons-list reasons-list-4">
               <div className="reason-card fade-up stagger-1">
                 <span className="r-num">01</span>
@@ -214,8 +242,8 @@ export default function PressReleasePage() {
         {/* BENEFITS OF PRESS RELEASES */}
         <section className="pr-media">
           <div className="container">
-            <div className="section-label fade-up">Why Press Releases Matter</div>
-            <h2 className="fade-up stagger-1">Tangible <span className="orange-text">Benefits of Press Releases</span></h2>
+            <div className="section-label fade-up">{content.benefitsLabel}</div>
+            <h2 className="fade-up stagger-1" dangerouslySetInnerHTML={{ __html: content.benefitsHeading }} />
             <div className="benefits-grid">
               <div className="benefit-card benefit-card-enhanced fade-up stagger-1" style={{ "--card-accent": "#FF5B2E", "--card-accent-bg": "rgba(255,91,46,0.08)" } as React.CSSProperties}>
                 <div className="b-icon">👁️</div>
@@ -269,20 +297,18 @@ export default function PressReleasePage() {
         {/* CLOSING CTA */}
         <section className="final-cta section-bg-white">
           <div className="cta-box fade-up container">
-            <h2>Start <span className="orange-text">Growing Your Brand</span> Today</h2>
-            <p>
-              Our demographic analysis approach is used by Digisharks Communications to help you understand the characteristics of the people who buy your products and services. By leads, you can see who buys your products and services — also you can see who your brand appeals to the most by age, location, gender, job title, income, and hundreds of other variables.
-            </p>
+            <h2 dangerouslySetInnerHTML={{ __html: content.ctaHeading }} />
+            <p>{content.ctaDescription}</p>
             <div className="hero-ctas" style={{ justifyContent: "center", marginBottom: 0 }}>
-              <a href="/contact-us/" className="btn-primary">Apply for PR →</a>
-              <a href="/services-top-pr-digital-marketing/" className="btn-outline">View Pricing</a>
+              <a href={content.ctaPrimaryCta.href || '#'} className="btn-primary">{content.ctaPrimaryCta.text}</a>
+              <a href={content.ctaSecondaryCta.href || '#'} className="btn-outline">{content.ctaSecondaryCta.text}</a>
             </div>
           </div>
         </section>
 
         <Footer />
       </div>
-
+      <QuickEditButton slug="press-release" />
     </>
   );
 }

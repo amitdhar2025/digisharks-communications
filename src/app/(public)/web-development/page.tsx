@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import type { Metadata } from "next";
 import type React from "react";
 import Footer from "../../../components/Footer";
+import QuickEditButton from '@/components/QuickEditButton'
 
 const siteUrl = "https://digisharks-communications.vercel.app/web-development/";
 
@@ -455,7 +456,7 @@ export default function WebDevelopmentPage() {
 
         <Footer />
       </div>
-
+      <QuickEditButton slug="web-development" />
     </>
   );
 }

@@ -2,6 +2,30 @@ export const dynamic = "force-dynamic";
 
 import type { Metadata } from "next";
 import Footer from "../../../components/Footer";
+import { getPageContent } from '@/lib/cms-page-content'
+import QuickEditButton from '@/components/QuickEditButton'
+
+// ── Hardcoded default content (used when no CMS data exists) ──────────
+const DEFAULT_CONTENT = {
+  heroEyebrow: '✦ Get Instant Growth Results for Your Business',
+  heroHeading: 'India\'s Leading <span class="orange-text">Digital Marketing Agency</span>',
+  heroDescription: 'We are a leading digital marketing agency helping brands grow through data-driven strategies, performance media, and high-quality content. Our campaigns are designed to deliver measurable ROI and long-term business outcomes.',
+  heroPrimaryCta: { text: 'Start Now →', href: '/contact-us/' },
+  heroSecondaryCta: { text: 'Explore Services', href: '#services' },
+  pillarsLabel: 'Digital Marketing Experts',
+  pillarsHeading: 'Built on Three <span class="orange-text">Core Pillars</span>',
+  pillarsSubtitle: 'Every campaign we run is designed around the three pillars that drive real digital growth.',
+  servicesLabel: 'Our Digital Marketing Services',
+  servicesHeading: 'End-to-End <span class="orange-text">Performance Marketing</span>',
+  servicesSubtitle: 'From search to social, content to conversion — explore the full suite of services that power your digital growth.',
+  whyLabel: 'Why Choose Digisharks?',
+  whyHeading: 'Strategy Backed by <span class="orange-text">Demographic Intelligence</span>',
+  whyDescription: 'Our demographic analysis approach is used by Digisharks Communications to help you understand the characteristics of the people who buy your products and services. We map your audience by age, location, gender, job title, income, interests, and behaviors — so every campaign hits the right target.',
+  ctaHeading: 'Ready for <span class="orange-text">Instant Growth?</span>',
+  ctaDescription: 'Let\'s build a digital marketing strategy that compounds your growth month over month. From SEO to Google Ads, content to conversion — we handle the heavy lifting so you can focus on running your business.',
+  ctaPrimaryCta: { text: 'Start Now →', href: '/contact-us/' },
+  ctaSecondaryCta: { text: 'View Pricing', href: '/services-top-pr-digital-marketing/' },
+}
 
 const siteUrl = "https://digisharks-communications.vercel.app/digital-marketing-agency/";
 
@@ -19,7 +43,10 @@ export const metadata: Metadata = {
   },
 };
 
-export default function DigitalMarketingPage() {
+export default async function DigitalMarketingPage() {
+  // Fetch CMS content — if available, it overrides DEFAULT_CONTENT
+  const cmsContent = await getPageContent('digital-marketing-agency')
+  const content = { ...DEFAULT_CONTENT, ...(cmsContent || {}) }
   return (
     <>
       <div className="orb orb-1"></div>
@@ -30,16 +57,14 @@ export default function DigitalMarketingPage() {
         {/* HERO */}
         <section className="hero centered compact">
           <div className="hero-inner">
-            <div className="hero-eyebrow fade-up">✦ Get Instant Growth Results for Your Business</div>
-            <h1 className="fade-up stagger-1">
-              India's Leading <span className="orange-text">Digital Marketing Agency</span>
-            </h1>
+            <div className="hero-eyebrow fade-up">{content.heroEyebrow}</div>
+            <h1 className="fade-up stagger-1" dangerouslySetInnerHTML={{ __html: content.heroHeading }} />
             <p className="fade-up stagger-2">
-              We are a leading digital marketing agency helping brands grow through data-driven strategies, performance media, and high-quality content. Our campaigns are designed to deliver measurable ROI and long-term business outcomes.
+              {content.heroDescription}
             </p>
             <div className="hero-ctas fade-up stagger-3">
-              <a href="/contact-us/" className="btn-primary">Start Now →</a>
-              <a href="#services" className="btn-outline">Explore Services</a>
+              <a href={content.heroPrimaryCta.href || '#'} className="btn-primary">{content.heroPrimaryCta.text}</a>
+              <a href={content.heroSecondaryCta.href || '#'} className="btn-outline">{content.heroSecondaryCta.text}</a>
             </div>
           </div>
         </section>
@@ -47,10 +72,10 @@ export default function DigitalMarketingPage() {
         {/* THREE PILLARS */}
         <section className="section-bg-white">
           <div className="container">
-            <div className="section-label fade-up">Digital Marketing Experts</div>
-            <h2 className="fade-up stagger-1">Built on Three <span className="orange-text">Core Pillars</span></h2>
+            <div className="section-label fade-up">{content.pillarsLabel}</div>
+            <h2 className="fade-up stagger-1" dangerouslySetInnerHTML={{ __html: content.pillarsHeading }} />
             <p className="fade-up stagger-2" style={{ color: "var(--muted)", maxWidth: "720px", marginTop: "0.75rem" }}>
-              Every campaign we run is designed around the three pillars that drive real digital growth.
+              {content.pillarsSubtitle}
             </p>
             <div className="benefits-grid">
               <div className="benefit-card fade-up stagger-1">
@@ -75,10 +100,10 @@ export default function DigitalMarketingPage() {
         {/* SERVICES */}
         <section id="services" className="section-bg-soft">
           <div className="container">
-            <div className="section-label fade-up">Our Digital Marketing Services</div>
-            <h2 className="fade-up stagger-1">End-to-End <span className="orange-text">Performance Marketing</span></h2>
+            <div className="section-label fade-up">{content.servicesLabel}</div>
+            <h2 className="fade-up stagger-1" dangerouslySetInnerHTML={{ __html: content.servicesHeading }} />
             <p className="fade-up stagger-2" style={{ color: "var(--muted)", maxWidth: "720px", marginTop: "0.75rem" }}>
-              From search to social, content to conversion — explore the full suite of services that power your digital growth.
+              {content.servicesSubtitle}
             </p>
 
             <div className="dm-cap-grid">
@@ -271,10 +296,10 @@ export default function DigitalMarketingPage() {
         {/* WHY DIGISHARKS */}
         <section className="pr-media">
           <div className="container">
-            <div className="section-label fade-up">Why Choose Digisharks?</div>
-            <h2 className="fade-up stagger-1">Strategy Backed by <span className="orange-text">Demographic Intelligence</span></h2>
+            <div className="section-label fade-up">{content.whyLabel}</div>
+            <h2 className="fade-up stagger-1" dangerouslySetInnerHTML={{ __html: content.whyHeading }} />
             <p className="fade-up stagger-2" style={{ color: "var(--muted)", maxWidth: "720px", marginTop: "0.75rem" }}>
-              Our demographic analysis approach is used by Digisharks Communications to help you understand the characteristics of the people who buy your products and services. We map your audience by age, location, gender, job title, income, interests, and behaviors — so every campaign hits the right target.
+              {content.whyDescription}
             </p>
             <div className="benefits-grid">
               <div className="benefit-card fade-up stagger-1">
@@ -314,20 +339,18 @@ export default function DigitalMarketingPage() {
         {/* CTA */}
         <section className="final-cta section-bg-white">
           <div className="cta-box fade-up container">
-            <h2>Ready for <span className="orange-text">Instant Growth?</span></h2>
-            <p>
-              Let's build a digital marketing strategy that compounds your growth month over month. From SEO to Google Ads, content to conversion — we handle the heavy lifting so you can focus on running your business.
-            </p>
+            <h2 dangerouslySetInnerHTML={{ __html: content.ctaHeading }} />
+            <p>{content.ctaDescription}</p>
             <div className="hero-ctas" style={{ justifyContent: "center", marginBottom: 0 }}>
-              <a href="/contact-us/" className="btn-primary">Start Now →</a>
-              <a href="/services-top-pr-digital-marketing/" className="btn-outline">View Pricing</a>
+              <a href={content.ctaPrimaryCta.href || '#'} className="btn-primary">{content.ctaPrimaryCta.text}</a>
+              <a href={content.ctaSecondaryCta.href || '#'} className="btn-outline">{content.ctaSecondaryCta.text}</a>
             </div>
           </div>
         </section>
 
         <Footer />
       </div>
-
+      <QuickEditButton slug="digital-marketing-agency" />
     </>
   );
 }

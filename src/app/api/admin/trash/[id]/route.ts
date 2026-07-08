@@ -28,18 +28,26 @@ export async function DELETE(
     const trashCol = await getTrashCollection()
     let itemData: Record<string, unknown> | null = null
 
-    // Try trash_items first, then source collections (blogposts isDeleted=true)
+    // Try trash_items first, then source collections (blogposts isDeleted=true or not)
     const trashDoc = await trashCol.findOne({ _id: oid })
     if (trashDoc?.data) {
       itemData = trashDoc.data as Record<string, unknown>
-    } else if (ObjectId.isValid(id)) {
+    } else {
       const { getDb } = await import('@/lib/db')
       const db = await getDb()
-      const blogDoc = await db.collection('blogposts').findOne({ _id: oid, isDeleted: true })
-      if (blogDoc) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { _id, ...rest } = blogDoc
-        itemData = rest as Record<string, unknown>
+
+      // Try blogposts — look up by _id (blog posts are soft-deleted with
+      // isDeleted=true in the blogposts collection, never moved to trash_items).
+      // Cloudinary cleanup only happens here on permanent delete, not on soft delete.
+      if (ObjectId.isValid(id)) {
+        const blogDoc = await db.collection('blogposts').findOne({
+          _id: oid,
+        })
+        if (blogDoc) {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { _id, ...rest } = blogDoc
+          itemData = rest as Record<string, unknown>
+        }
       }
     }
 

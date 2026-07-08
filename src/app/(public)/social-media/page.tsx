@@ -2,6 +2,37 @@ export const dynamic = "force-dynamic";
 
 import type { Metadata } from "next";
 import Footer from "../../../components/Footer";
+import { getPageContent } from '@/lib/cms-page-content'
+import QuickEditButton from '@/components/QuickEditButton'
+
+// ── Hardcoded default content (used when no CMS data exists) ──────────
+const DEFAULT_CONTENT = {
+  heroEyebrow: '✦ Get Instant Growth Results for Your Business',
+  heroHeading: 'Social Media Marketing <span class="orange-text">That Scales Brands</span>',
+  heroDescription: 'Our Social Media Experts build engaged communities, scroll-stopping content, and performance-driven campaigns that turn followers into customers — across every platform that matters.',
+  heroPrimaryCta: { text: 'Start Now →', href: '/contact-us/' },
+  heroSecondaryCta: { text: 'Explore Services', href: '#services' },
+  servicesLabel: 'What We Do For Your Business',
+  servicesHeading: 'Full-Funnel <span class="orange-text">Social Media Management</span>',
+  servicesSubtitle: 'From strategy to execution, we handle everything that goes into making your brand win on social media.',
+  solutionsLabel: 'Social Media Marketing Solutions',
+  solutionsHeading: 'Outcomes That <span class="orange-text">Drive Real Growth</span>',
+  advertisingLabel: 'Social Advertising Services',
+  advertisingHeading: 'Paid Social That <span class="orange-text">Performs</span>',
+  advertisingSubtitle: 'Strategic paid campaigns across Meta, LinkedIn, YouTube, Twitter (X), and TikTok — with targeting, creative, and budgets tuned to your goals.',
+  globalLabel: 'Global Insights',
+  globalHeading: 'Social Media Marketing <span class="orange-text">Across the Globe</span>',
+  globalSubtitle: 'Our social media marketing services reach audiences across key global markets — combining cultural insight with platform expertise.',
+  investLabel: 'Why Invest',
+  investHeading: 'Why Businesses Invest in <span class="orange-text">Social Media Marketing</span>',
+  investSubtitle: 'Social media is no longer optional — it\'s where your customers live, work, and make buying decisions. Every segment of your business benefits from a strong social presence.',
+  benefitsLabel: 'Benefits of Social Media Marketing',
+  benefitsHeading: 'Why <span class="orange-text">Social Media Marketing</span> Works',
+  ctaHeading: 'Start Your <span class="orange-text">Growth Journey</span>',
+  ctaDescription: 'Our demographic analysis approach is used by Digisharks Communications to help you understand the characteristics of the people who buy your products and services. We map your audience by age, location, gender, job title, income, interests, and behaviors — so every social campaign hits the right people with the right message.',
+  ctaPrimaryCta: { text: 'Get Free Consultation →', href: '/contact-us/' },
+  ctaSecondaryCta: { text: 'View Pricing', href: '/services-top-pr-digital-marketing/' },
+}
 
 const siteUrl = "https://digisharks-communications.vercel.app/social-media/";
 
@@ -13,7 +44,10 @@ export const metadata: Metadata = {
   alternates: { canonical: siteUrl },
 };
 
-export default function SocialMediaPage() {
+export default async function SocialMediaPage() {
+  // Fetch CMS content — if available, it overrides DEFAULT_CONTENT
+  const cmsContent = await getPageContent('social-media')
+  const content = { ...DEFAULT_CONTENT, ...(cmsContent || {}) }
   return (
     <>
       <div className="orb orb-1"></div>
@@ -24,16 +58,14 @@ export default function SocialMediaPage() {
         {/* HERO */}
         <section className="hero centered compact">
           <div className="hero-inner">
-            <div className="hero-eyebrow fade-up">✦ Get Instant Growth Results for Your Business</div>
-            <h1 className="fade-up stagger-1">
-              Social Media Marketing <span className="orange-text">That Scales Brands</span>
-            </h1>
+            <div className="hero-eyebrow fade-up">{content.heroEyebrow}</div>
+            <h1 className="fade-up stagger-1" dangerouslySetInnerHTML={{ __html: content.heroHeading }} />
             <p className="fade-up stagger-2">
-              Our Social Media Experts build engaged communities, scroll-stopping content, and performance-driven campaigns that turn followers into customers — across every platform that matters.
+              {content.heroDescription}
             </p>
             <div className="hero-ctas fade-up stagger-3">
-              <a href="/contact-us/" className="btn-primary">Start Now →</a>
-              <a href="#services" className="btn-outline">Explore Services</a>
+              <a href={content.heroPrimaryCta.href || '#'} className="btn-primary">{content.heroPrimaryCta.text}</a>
+              <a href={content.heroSecondaryCta.href || '#'} className="btn-outline">{content.heroSecondaryCta.text}</a>
             </div>
           </div>
         </section>
@@ -41,10 +73,10 @@ export default function SocialMediaPage() {
         {/* WHAT WE DO */}
         <section id="services" className="section-bg-white">
           <div className="container">
-            <div className="section-label fade-up">What We Do For Your Business</div>
-            <h2 className="fade-up stagger-1">Full-Funnel <span className="orange-text">Social Media Management</span></h2>
+            <div className="section-label fade-up">{content.servicesLabel}</div>
+            <h2 className="fade-up stagger-1" dangerouslySetInnerHTML={{ __html: content.servicesHeading }} />
             <p className="fade-up stagger-2" style={{ color: "var(--muted)", maxWidth: "720px", marginTop: "0.75rem" }}>
-              From strategy to execution, we handle everything that goes into making your brand win on social media.
+              {content.servicesSubtitle}
             </p>
             <div className="benefits-grid">
               <div className="benefit-card fade-up stagger-1">
@@ -99,8 +131,8 @@ export default function SocialMediaPage() {
         {/* SOLUTIONS */}
         <section className="pr-media">
           <div className="container">
-            <div className="section-label fade-up">Social Media Marketing Solutions</div>
-            <h2 className="fade-up stagger-1">Outcomes That <span className="orange-text">Drive Real Growth</span></h2>
+            <div className="section-label fade-up">{content.solutionsLabel}</div>
+            <h2 className="fade-up stagger-1" dangerouslySetInnerHTML={{ __html: content.solutionsHeading }} />
             <div className="benefits-grid">
               <div className="benefit-card fade-up stagger-1">
                 <div className="b-icon">🏗️</div>
@@ -139,10 +171,10 @@ export default function SocialMediaPage() {
         {/* SOCIAL ADVERTISING */}
         <section className="section-bg-white">
           <div className="container">
-            <div className="section-label fade-up">Social Advertising Services</div>
-            <h2 className="fade-up stagger-1">Paid Social That <span className="orange-text">Performs</span></h2>
+            <div className="section-label fade-up">{content.advertisingLabel}</div>
+            <h2 className="fade-up stagger-1" dangerouslySetInnerHTML={{ __html: content.advertisingHeading }} />
             <p className="fade-up stagger-2" style={{ color: "var(--muted)", maxWidth: "720px", marginTop: "0.75rem" }}>
-              Strategic paid campaigns across Meta, LinkedIn, YouTube, Twitter (X), and TikTok — with targeting, creative, and budgets tuned to your goals.
+              {content.advertisingSubtitle}
             </p>
             <div className="reasons-list">
               <div className="reason-card fade-up stagger-1">
@@ -182,10 +214,10 @@ export default function SocialMediaPage() {
         {/* GLOBAL INSIGHTS */}
         <section className="pr-media">
           <div className="container">
-            <div className="section-label fade-up">Global Insights</div>
-            <h2 className="fade-up stagger-1">Social Media Marketing <span className="orange-text">Across the Globe</span></h2>
+            <div className="section-label fade-up">{content.globalLabel}</div>
+            <h2 className="fade-up stagger-1" dangerouslySetInnerHTML={{ __html: content.globalHeading }} />
             <p className="fade-up stagger-2" style={{ color: "var(--muted)", maxWidth: "720px", marginTop: "0.75rem" }}>
-              Our social media marketing services reach audiences across key global markets — combining cultural insight with platform expertise.
+              {content.globalSubtitle}
             </p>
             <div className="industries-grid">
               <div className="industry-tile">USA</div>
@@ -204,10 +236,10 @@ export default function SocialMediaPage() {
         {/* WHY INVEST */}
         <section className="section-bg-white">
           <div className="container">
-            <div className="section-label fade-up">Why Invest</div>
-            <h2 className="fade-up stagger-1">Why Businesses Invest in <span className="orange-text">Social Media Marketing</span></h2>
+            <div className="section-label fade-up">{content.investLabel}</div>
+            <h2 className="fade-up stagger-1" dangerouslySetInnerHTML={{ __html: content.investHeading }} />
             <p className="fade-up stagger-2" style={{ color: "var(--muted)", maxWidth: "720px", marginTop: "0.75rem" }}>
-              Social media is no longer optional — it's where your customers live, work, and make buying decisions. Every segment of your business benefits from a strong social presence.
+              {content.investSubtitle}
             </p>
             <div className="benefits-grid">
               <div className="benefit-card fade-up stagger-1">
@@ -247,8 +279,8 @@ export default function SocialMediaPage() {
         {/* BENEFITS */}
         <section className="pr-media">
           <div className="container">
-            <div className="section-label fade-up">Benefits of Social Media Marketing</div>
-            <h2 className="fade-up stagger-1">Why <span className="orange-text">Social Media Marketing</span> Works</h2>
+            <div className="section-label fade-up">{content.benefitsLabel}</div>
+            <h2 className="fade-up stagger-1" dangerouslySetInnerHTML={{ __html: content.benefitsHeading }} />
             <div className="benefits-grid">
               <div className="benefit-card fade-up stagger-1">
                 <div className="b-icon">🌟</div>
@@ -302,20 +334,18 @@ export default function SocialMediaPage() {
         {/* CTA */}
         <section className="final-cta section-bg-white">
           <div className="cta-box fade-up container">
-            <h2>Start Your <span className="orange-text">Growth Journey</span></h2>
-            <p>
-              Our demographic analysis approach is used by Digisharks Communications to help you understand the characteristics of the people who buy your products and services. We map your audience by age, location, gender, job title, income, interests, and behaviors — so every social campaign hits the right people with the right message.
-            </p>
+            <h2 dangerouslySetInnerHTML={{ __html: content.ctaHeading }} />
+            <p>{content.ctaDescription}</p>
             <div className="hero-ctas" style={{ justifyContent: "center", marginBottom: 0 }}>
-              <a href="/contact-us/" className="btn-primary">Get Free Consultation →</a>
-              <a href="/services-top-pr-digital-marketing/" className="btn-outline">View Pricing</a>
+              <a href={content.ctaPrimaryCta.href || '#'} className="btn-primary">{content.ctaPrimaryCta.text}</a>
+              <a href={content.ctaSecondaryCta.href || '#'} className="btn-outline">{content.ctaSecondaryCta.text}</a>
             </div>
           </div>
         </section>
 
         <Footer />
       </div>
-
+      <QuickEditButton slug="social-media" />
     </>
   );
 }

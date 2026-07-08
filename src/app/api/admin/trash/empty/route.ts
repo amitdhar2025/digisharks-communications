@@ -19,7 +19,7 @@ export async function DELETE(req: NextRequest) {
     const trashCol = await getTrashCollection()
     const items = await trashCol.find({ permanentlyDeletedAt: null }).toArray()
 
-    // Clean up Cloudinary files for each item (best-effort, concurrent)
+    // Clean up Cloudinary files for each item from trash_items (best-effort, concurrent)
     await Promise.allSettled(
       items.map(async (item) => {
         if (item?.data) {
@@ -31,6 +31,7 @@ export async function DELETE(req: NextRequest) {
         }
       }),
     )
+
 
     const count = await emptyAllTrash({ username: admin.username, role: admin.role })
 

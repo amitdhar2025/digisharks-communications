@@ -1,4 +1,5 @@
 import DigitalProductsPageClient from '../digital-products-page-client'
+import QuickEditButton from '@/components/QuickEditButton'
 
 
 export const dynamic = 'force-dynamic'
@@ -9,5 +10,8 @@ export const metadata = {
 }
 
 export default function DigitalProductsPage() {
-  return <DigitalProductsPageClient />
+  return <>
+    <DigitalProductsPageClient />
+    <QuickEditButton slug="digital-products" />
+  </>
 }

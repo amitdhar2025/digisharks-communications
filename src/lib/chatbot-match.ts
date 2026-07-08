@@ -14,6 +14,9 @@ export const STOP_WORDS = new Set([
   'do', 'does', 'doing', 'please', 'tell', 'know', 'hi', 'hello', 'hey', 'thanks',
 ])
 
+// ── Short acronyms that are meaningful even at 2 characters ────────────
+export const ACRONYM_WHITELIST = new Set(['pr', 'ai'])
+
 // ── Types ──────────────────────────────────────────────────────────────
 export interface QAPlain {
   _id: string
@@ -34,13 +37,17 @@ export interface Scored {
 
 // ── Helpers ────────────────────────────────────────────────────────────
 
-/** Extract meaningful (non-stop, >=3 chars) words from a string. */
+/**
+ * Extract meaningful (non-stop, >=3 chars) words from a string.
+ * Short industry acronyms in ACRONYM_WHITELIST (e.g. "pr", "ai") are
+ * kept even though they are only 2 characters.
+ */
 export function meaningfulWords(s: string): string[] {
   return s
     .toLowerCase()
     .split(/\s+/)
     .map((w) => w.replace(/[^a-z0-9]/g, ''))
-    .filter((w) => w.length >= 3 && !STOP_WORDS.has(w))
+    .filter((w) => (w.length >= 3 || ACRONYM_WHITELIST.has(w)) && !STOP_WORDS.has(w))
 }
 
 /**
@@ -49,6 +56,34 @@ export function meaningfulWords(s: string): string[] {
  */
 export function escapeRegex(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+/**
+ * Match two lowercase words allowing for simple English plurals.
+ * Handles:
+ *   - Regular plural:  "services" ↔ "service"
+ *   - -es plural:      "boxes" ↔ "box"
+ *   - -ies plural:     "cities" ↔ "city"
+ *   - Same word:       "campaign" ↔ "campaign"
+ */
+export function wordsMatch(a: string, b: string): boolean {
+  if (a === b) return true
+  const singular = (w: string): string => {
+    if (w.endsWith('sses') && w.length > 4) return w.slice(0, -2)   // businesses → business
+    if (w.endsWith('ies') && w.length > 4) return w.slice(0, -3) + 'y'  // companies → company
+    if (w.endsWith('xes') && w.length > 4) return w.slice(0, -2)   // boxes → box
+    if (w.endsWith('s') && !w.endsWith('ss') && w.length > 3) return w.slice(0, -1)  // services → service
+    return w
+  }
+  return singular(a) === singular(b)
+}
+
+/**
+ * Count how many of the question's meaningful words match any user word,
+ * using the plural-aware `wordsMatch` helper.
+ */
+export function countOverlap(qWords: string[], userWords: string[]): number {
+  return qWords.filter((qw) => userWords.some((uw) => wordsMatch(uw, qw))).length
 }
 
 /**
@@ -89,17 +124,29 @@ export function findExactMatch(items: QAPlain[], query: string): QAPlain | undef
  */
 export function findFuseBest(
   results: Array<{ item: QAPlain; score?: number }>,
-  userWordsSet: Set<string>,
+  userWords: string[],
   threshold: number = 0.5,
 ): QAPlain | undefined {
-  const match = results.find((r) => {
-    if (r.score === undefined || r.score > threshold) return false
+  let best: QAPlain | undefined
+  let bestOverlap = 0
+  let bestScore = Infinity
+
+  for (const r of results) {
+    if (r.score === undefined || r.score > threshold) continue
     const qWords = meaningfulWords(r.item.question)
-    if (qWords.length === 0) return false
-    const overlap = qWords.filter((w) => userWordsSet.has(w)).length
-    return overlap >= 1
-  })
-  return match?.item
+    if (qWords.length === 0) continue
+    const overlap = countOverlap(qWords, userWords)
+    if (overlap === 0) continue
+
+    // Prefer higher overlap; tiebreak by lower (better) Fuse score
+    if (overlap > bestOverlap || (overlap === bestOverlap && r.score < bestScore)) {
+      best = r.item
+      bestOverlap = overlap
+      bestScore = r.score
+    }
+  }
+
+  return best
 }
 
 /**
@@ -111,7 +158,6 @@ export function findFuseBest(
 export function scoreItems(
   items: QAPlain[],
   userWords: string[],
-  userWordsSet: Set<string>,
 ): Scored[] {
   return items.map((item) => {
     const qLower = item.question.toLowerCase()
@@ -121,7 +167,8 @@ export function scoreItems(
     const questionMatches = userWords.filter((w) => wordBoundaryTest(w, qLower)).length
     const answerMatches = userWords.filter((w) => wordBoundaryTest(w, aLower)).length
     const score = questionMatches * 4 + answerMatches * 1
-    const sharedTokens = qWords.filter((w) => userWordsSet.has(w)).length
+    // Use wordsMatch for plural-aware shared token counting
+    const sharedTokens = countOverlap(qWords, userWords)
 
     return { item, score, questionMatches, answerMatches, sharedTokens }
   })

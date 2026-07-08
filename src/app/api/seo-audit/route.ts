@@ -4,6 +4,8 @@ import { sendMail } from '@/lib/mailer'
 import { buildSeoAuditReportEmail } from '@/lib/email-templates'
 import { checkRateLimit, getClientIp } from '@/lib/rateLimit'
 import { sanitizePlainTextFields } from '@/lib/sanitize'
+import { connectMongoose } from '@/lib/mongoose'
+import SiteSettings from '@/models/SiteSettings'
 
 export async function POST(req: NextRequest) {
   try {
@@ -48,6 +50,21 @@ export async function POST(req: NextRequest) {
           : 'http://localhost:3000'
 
         const resultsUrl = `${siteUrl}/seo-audit/${result.id}`
+        // Fetch legal links from site settings for the email footer
+        let legalUrls = undefined
+        try {
+          await connectMongoose()
+          const settings = await SiteSettings.findOne({ key: 'global' }).lean()
+          if (settings) {
+            legalUrls = {
+              privacyPolicyUrl: settings.privacyPolicyUrl || '#',
+              termsUrl: settings.termsUrl || '#',
+              refundPolicyUrl: settings.refundPolicyUrl || '#',
+            }
+          }
+        } catch (e) {
+          console.error('Failed to fetch site settings for seo audit email:', e)
+        }
         const emailContent = buildSeoAuditReportEmail({
           name,
           email,
@@ -63,7 +80,7 @@ export async function POST(req: NextRequest) {
           })),
           pagespeed: result.pagespeed,
           resultsUrl,
-        })
+        }, legalUrls)
 
         await sendMail({
           to: email,

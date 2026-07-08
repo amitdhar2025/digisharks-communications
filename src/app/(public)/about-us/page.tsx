@@ -1,8 +1,123 @@
 import Footer from "../../../components/Footer";
+import { getPageContent } from '@/lib/cms-page-content'
+import QuickEditButton from '@/components/QuickEditButton'
 
 export const dynamic = "force-dynamic";
 
-export default function AboutUs() {
+// ── Hardcoded default content (used when no CMS data exists) ──────────
+const DEFAULT_CONTENT = {
+  heroEyebrow: '✦ About Digisharks',
+  heroHeading: 'Build lasting brand value with digital PR & growth.',
+  heroDescription: 'Digisharks Communications is a pioneer digital marketing agency established in 2017 in New Delhi—enhancing customer experiences through innovative digital marketing and Digital PR strategies that help businesses grow, engage their audiences, and achieve measurable outcomes.',
+  heroPrimaryCta: { text: 'Start Your Growth Journey →', href: '#' },
+  heroSecondaryCta: { text: 'Free Consultation', href: '#' },
+  heroStats: [
+    { number: '4000', suffix: '', label: 'Satisfied Customers' },
+    { number: '120', suffix: '', label: 'Completed Projects' },
+    { number: '50', suffix: '', label: 'Live Projects' },
+    { number: '100', suffix: '%', label: 'Results Focus' },
+  ],
+  heroBadges: ['🌟 Transparency', '⭐ Quality Service', '📈 Measurable Results', '💡 Innovation'],
+  aboutCompanyLabel: 'About The Company',
+  aboutCompanyHeading: 'Digisharks Communications Since 2017',
+  aboutCompanyDescription: 'Digisharks Communications is a pioneer and creative digital marketing agency established in 2017 in New Delhi. Through innovative digital solutions and customer-focused strategies, the company has built a strong client base across multiple industries. Digisharks Communications believes in transparency, quality service, creativity, and measurable results that drive real business outcomes.',
+  aboutCompanyAchievements: [
+    { icon: '🏆', title: '10+', desc: 'Years of Excellence' },
+    { icon: '😊', title: '4000+', desc: 'Happy Customers' },
+    { icon: '📊', title: '120+', desc: 'Projects Delivered' },
+    { icon: '🚀', title: '50+', desc: 'Active Campaigns' },
+  ],
+  visionHeading: 'Vision',
+  visionDescription: 'To enhance customer experiences through innovative digital marketing and Digital PR strategies that help businesses grow, engage their audiences, and build lasting brand value across every digital touchpoint.',
+  missionHeading: 'Mission',
+  missionDescription: 'To become the most trusted digital partner for our clients by delivering excellence through innovative marketing solutions, strategic communication, and measurable business outcomes that exceed expectations.',
+  whatWeOfferHeading: 'What We Offer',
+  whatWeOfferItems: ['Digital PR & Media Coverage', 'Social Media Marketing', 'SEO & PPC Advertising', 'Website Design & Development', 'Political Campaign Management', 'Online Reputation Management'],
+  valuesLabel: 'Our Core Values',
+  valuesHeading: 'What Drives Us Forward',
+  valuesDescription: 'Our values aren\'t just words on a wall — they shape every strategy, every campaign, and every relationship we build with our clients.',
+  values: [
+    { icon: '🔍', title: 'Transparency', desc: 'Complete honesty in our communication, pricing, and reporting. You always know where your money is going and what results it\'s generating.' },
+    { icon: '⭐', title: 'Quality Service', desc: 'Premium deliverables across every project. From strategy to execution, we hold ourselves to the highest standards of craftsmanship and care.' },
+    { icon: '💡', title: 'Creativity', desc: 'Fresh ideas that stand out. Our creative team crafts campaigns that capture attention, drive engagement, and leave lasting impressions.' },
+    { icon: '📊', title: 'Measurable Results', desc: 'Data-driven decisions and transparent reporting. We focus on KPIs that matter to your business — leads, sales, and revenue growth.' },
+    { icon: '🤝', title: 'Client-First Approach', desc: 'Your goals are our goals. We become an extension of your team, fully invested in your success with dedicated account management.' },
+    { icon: '🚀', title: 'Innovation', desc: 'Always learning, always improving. We adopt new tools, trends, and technologies to keep our clients ahead of the competition.' },
+  ],
+  leaderImage: '/Vansh.webp',
+  leaderName: 'Vansh Mehra',
+  leaderRole: '🏆 Founder & Managing Director',
+  leaderBio: 'Vansh Mehra is a young and dynamic entrepreneur with extensive experience in digital marketing and political campaign management. As the founder of Digisharks Communications, he has led the organization to become a recognized name in digital marketing, public relations, and political campaign management across India. His vision combines innovation, data-driven strategy, and a relentless focus on client success.',
+  leaderCredentials: ['📰 BJP IT Convenor', '🎓 Uttarakhand Elections 2017', '🏆 Top 10 CEOs', '🚀 Top 10 Entrepreneurs'],
+  timelineLabel: 'Our Journey',
+  timelineHeading: '10+ Years of Building & Growing',
+  timelineDescription: 'From a small New Delhi studio to a trusted national PR & digital marketing partner — the milestones that shaped us.',
+  timelineItems: [
+    { year: '2017', heading: '🚀 The Foundation', description: 'Digisharks Communications was founded in New Delhi with a vision to bring data-driven digital PR and marketing to Indian brands.' },
+    { year: '2018', heading: '📰 First 50 Clients', description: 'Crossed 50 happy clients within our first year. Expanded our media network to 20+ top publications across India.' },
+    { year: '2019', heading: '🏆 Industry Recognition', description: 'Started building the team, formalized processes, and won our first major industry recognition for digital PR innovation.' },
+    { year: '2020', heading: '💻 Digital Transformation Wave', description: 'Pivoted strongly into full-stack digital marketing — SEO, PPC, SMO — helping brands survive and grow through the pandemic.' },
+    { year: '2021', heading: '🌟 Top 10 CEOs Award', description: 'Founder Vansh Mehra recognized among the Top 10 CEOs 2021–2022 for outstanding leadership in the digital marketing space.' },
+    { year: '2022', heading: '🚀 Dynamic Entrepreneur Feature', description: 'Featured in the Top 10 Dynamic Entrepreneurs list, validating our innovation-first approach to PR and digital growth.' },
+    { year: '2023', heading: '📈 500+ Campaigns Milestone', description: 'Reached the milestone of executing 500+ successful digital PR and marketing campaigns across multiple industries and geographies.' },
+    { year: '2024', heading: '💼 Top 10 PR Leaders in India', description: 'Featured in Top 10 PR Leaders in India for transforming the PR landscape through data-driven digital PR campaigns and measurable ROI.' },
+    { year: '2026', heading: '🎯 The Next Chapter', description: 'Expanding services into AI-powered marketing, video PR, and influencer-led campaigns. The journey to becoming India\'s #1 PR partner continues.' },
+  ],
+  boothHeading: 'Booth Management Services',
+  boothDescription: 'Digisharks Communications provides specialized booth-level election management services for political campaigns. Our booth management strategy combines grassroots voter engagement, data-driven targeting, and on-ground execution that delivers measurable impact where it matters most — at the booth.',
+  boothFeatures: [
+    'Strategic voter outreach planning',
+    'Innovative campaign execution',
+    'Grassroots-level engagement',
+    'Booth-level volunteer management',
+    'Voter database management',
+    'Targeted communication campaigns',
+    'Vote-base expansion strategies',
+    'Real-time ground reporting',
+  ],
+  boothStats: [
+    { number: '500+', suffix: '', label: 'Booths Managed' },
+    { number: '95%', suffix: '', label: 'Voter Turnout Boost' },
+    { number: '50+', suffix: '', label: 'Campaigns Won' },
+    { number: '1M+', suffix: '', label: 'Voters Reached' },
+  ],
+  achievementsLabel: 'By The Numbers',
+  achievementsHeading: 'Our Achievements in Numbers',
+  achievementsDescription: 'Real numbers that reflect the trust our clients place in us and the consistent results we deliver across every campaign.',
+  achievements: [
+    { icon: '😊', title: '4000+', desc: 'Satisfied Customers', description: 'High-quality brand promotion that builds long-term confidence and trust.' },
+    { icon: '📊', title: '120+', desc: 'Completed Projects', description: 'From strategy to execution — delivering measurable growth across multiple industries.' },
+    { icon: '🚀', title: '50+', desc: 'Live Projects', description: 'Ongoing campaigns that keep your brand visible and relevant in a fast-changing market.' },
+    { icon: '💎', title: '98%', desc: 'Client Satisfaction', description: 'Consistent results that earn trust and lasting partnerships with every client.' },
+  ],
+  faqLabel: 'Frequently Asked Questions',
+  faqHeading: 'About Working With Us',
+  faqDescription: 'Quick answers to the most common questions about partnering with Digisharks Communications.',
+  faqItems: [
+    { question: 'When was Digisharks Communications founded?', answer: 'Digisharks Communications was founded in 2017 in New Delhi. Since then, we have grown to serve 4000+ customers across India with 500+ successful digital PR and marketing campaigns.' },
+    { question: 'Who is the founder of Digisharks Communications?', answer: "Vansh Mehra is the Founder & Managing Director of Digisharks Communications. He has been recognized among India's Top 10 CEOs and Top 10 Dynamic Entrepreneurs for his work in digital marketing and political campaign management." },
+    { question: 'What industries do you serve?', answer: 'We work across 12+ industries including E-Commerce, Healthcare, Finance, Real Estate, Education, F&B, Fashion, Beauty, Technology, Automotive, Entertainment, and Manufacturing. Our strategies are tailored to each industry\'s unique dynamics and audience behavior.' },
+    { question: 'Do you offer political campaign management?', answer: 'Yes, we have extensive experience managing political campaigns, including booth-level management, voter outreach, digital communication, and IT cell operations. We\'ve supported multiple state and national election campaigns with measurable on-ground impact.' },
+    { question: 'How can I get in touch with your team?', answer: 'You can reach us via phone at +91 96273 32332, email at marketing@digisharkscommunications.com, or visit our office at B-2, C-87, C Block, Sector 63, Noida, UP 201301. We also offer free consultation calls — just book through our website.' },
+  ],
+  ctaEyebrow: "💼 Let's Start a Conversation",
+  ctaHeading: 'Ready to Grow With Us?',
+  ctaDescription: "Whether you're a startup looking to launch, a growing brand aiming to scale, or an established company seeking fresh digital momentum — we have the expertise, team, and proven strategies to make it happen.",
+  ctaFeatures: [
+    'Free 30-min Strategy Call',
+    'Custom Growth Roadmap',
+    'No Long-term Contracts',
+    'Dedicated Account Manager',
+    'Transparent Monthly Reports',
+  ],
+  ctaPrimaryCta: { text: 'Get Started Today →', href: '#' },
+  ctaSecondaryCta: { text: '📞 +91 96273 32332', href: '#' },
+}
+
+export default async function AboutUs() {
+  // Fetch CMS content — if available, it overrides DEFAULT_CONTENT
+  const cmsContent = await getPageContent('about-us')
+  const content = { ...DEFAULT_CONTENT, ...(cmsContent || {}) }
   return (
     <>
 
@@ -12,44 +127,28 @@ export default function AboutUs() {
           <div className="hero-inner">
             <div className="hero-grid">
               <div className="hero-copy">
-                <div className="hero-eyebrow fade-up">✦ About Digisharks</div>
-                <h1 className="fade-up stagger-1">
-                  Build lasting <span className="orange-text">brand value</span> with digital PR
-                  & growth.
-                </h1>
+                <div className="hero-eyebrow fade-up">{content.heroEyebrow}</div>
+                <h1 className="fade-up stagger-1" dangerouslySetInnerHTML={{ __html: content.heroHeading }} />
                 <p className="fade-up stagger-2">
-                  Digisharks Communications is a pioneer digital marketing agency established in 2017 in
-                  New Delhi—enhancing customer experiences through innovative digital marketing and
-                  Digital PR strategies that help businesses grow, engage their audiences, and achieve
-                  measurable outcomes.
+                  {content.heroDescription}
                 </p>
 
                 <div className="hero-ctas fade-up stagger-3">
-                  <a href="#" className="btn-primary">
-                    Start Your Growth Journey →
+                  <a href={content.heroPrimaryCta.href || '#'} className="btn-primary">
+                    {content.heroPrimaryCta.text}
                   </a>
-                  <a href="#" className="btn-outline">
-                    Free Consultation
+                  <a href={content.heroSecondaryCta.href || '#'} className="btn-outline">
+                    {content.heroSecondaryCta.text}
                   </a>
                 </div>
 
                 <div className="stats-row fade-up stagger-4">
-                  <div className="stat-item">
-                    <span className="stat-num" data-target="4000">4000</span>
-                    <span className="stat-label">Satisfied Customers</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-num" data-target="120">120</span>
-                    <span className="stat-label">Completed Projects</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-num" data-target="50">50</span>
-                    <span className="stat-label">Live Projects</span>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-num">100%</span>
-                    <span className="stat-label">Results Focus</span>
-                  </div>
+                  {(content.heroStats || []).map((stat, i) => (
+                    <div className="stat-item" key={i}>
+                      <span className="stat-num" data-target={stat.number}>{stat.number}{stat.suffix}</span>
+                      <span className="stat-label">{stat.label}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
 
@@ -65,10 +164,9 @@ export default function AboutUs() {
                   </div>
 
                   <div className="hero-visual-badges">
-                    <div className="hero-badge">🌟 Transparency</div>
-                    <div className="hero-badge">⭐ Quality Service</div>
-                    <div className="hero-badge">📈 Measurable Results</div>
-                    <div className="hero-badge">💡 Innovation</div>
+                    {(content.heroBadges || []).map((badge, i) => (
+                      <div className="hero-badge" key={i}>{badge}</div>
+                    ))}
                   </div>
 
                   <div className="hero-visual-progress">
@@ -100,50 +198,33 @@ export default function AboutUs() {
         {/* ============== ABOUT COMPANY ============== */}
         <section>
           <div className="container">
-            <div className="section-label fade-up">About The Company</div>
-            <h2 className="fade-up stagger-1">
-              Digisharks Communications <span className="orange-text">Since 2017</span>
-            </h2>
+            <div className="section-label fade-up">{content.aboutCompanyLabel}</div>
+            <h2 className="fade-up stagger-1" dangerouslySetInnerHTML={{ __html: content.aboutCompanyHeading }} />
             <p className="fade-up stagger-2 text-muted" style={{ marginTop: "1.25rem", lineHeight: 1.9, fontSize: '1.05rem', textAlign: 'justify', textAlignLast: 'left' }}>
-              Digisharks Communications is a pioneer and creative digital marketing agency established in 2017 in New Delhi.
-              Through innovative digital solutions and customer-focused strategies, the company has built a strong client base
-              across multiple industries. Digisharks Communications believes in transparency, quality service, creativity, and
-              measurable results that drive real business outcomes.
+              {content.aboutCompanyDescription}
             </p>
 
             <div className="achievement-grid" style={{ marginTop: "2.75rem" }}>
-              <div className="ach-card fade-up stagger-1" style={{ "--card-accent": "#FF5B2E", "--card-accent-bg": "rgba(255,91,46,0.08)" } as React.CSSProperties}>
-                <div className="ach-icon">🏆</div>
-                <span className="ach-num">10+</span>
-                <span className="ach-label">Years of Excellence</span>
-              </div>
-              <div className="ach-card fade-up stagger-2" style={{ "--card-accent": "#3B82F6", "--card-accent-bg": "rgba(59,130,246,0.08)" } as React.CSSProperties}>
-                <div className="ach-icon">😊</div>
-                <span className="ach-num">4000+</span>
-                <span className="ach-label">Happy Customers</span>
-              </div>
-              <div className="ach-card fade-up stagger-3" style={{ "--card-accent": "#10B981", "--card-accent-bg": "rgba(16,185,129,0.08)" } as React.CSSProperties}>
-                <div className="ach-icon">📊</div>
-                <span className="ach-num">120+</span>
-                <span className="ach-label">Projects Delivered</span>
-              </div>
-              <div className="ach-card fade-up stagger-4" style={{ "--card-accent": "#8B5CF6", "--card-accent-bg": "rgba(139,92,246,0.08)" } as React.CSSProperties}>
-                <div className="ach-icon">🚀</div>
-                <span className="ach-num">50+</span>
-                <span className="ach-label">Active Campaigns</span>
-              </div>
+              {(content.aboutCompanyAchievements || []).map((ach, i) => (
+                <div className="ach-card fade-up" key={i} style={{
+                  animationDelay: `${(i + 1) * 0.1}s`,
+                  "--card-accent": i === 0 ? '#FF5B2E' : i === 1 ? '#3B82F6' : i === 2 ? '#10B981' : '#8B5CF6',
+                  "--card-accent-bg": `rgba(${i === 0 ? '255,91,46' : i === 1 ? '59,130,246' : i === 2 ? '16,185,129' : '139,92,246'},0.08)`
+                } as React.CSSProperties}>
+                  <div className="ach-icon">{ach.icon}</div>
+                  <span className="ach-num">{ach.title}</span>
+                  <span className="ach-label">{ach.desc}</span>
+                </div>
+              ))}
             </div>
 
             <div className="dm-grid" style={{ marginTop: "2.75rem" }}>
               <div className="dm-card dm-card-enhanced fade-up stagger-1" style={{ "--card-accent": "#FF5B2E", "--card-accent-bg": "rgba(255,91,46,0.08)" } as React.CSSProperties}>
                 <div className="dm-card-header">
                   <div className="dm-card-icon">✨</div>
-                  <h3>Vision</h3>
+                  <h3>{content.visionHeading}</h3>
                 </div>
-                <p>
-                  To enhance customer experiences through innovative digital marketing and Digital PR strategies that help
-                  businesses grow, engage their audiences, and build lasting brand value across every digital touchpoint.
-                </p>
+                <p>{content.visionDescription}</p>
                 <div className="dm-card-stats">
                   <div className="dm-card-stat">
                     <span className="dm-card-stat-num">10+</span>
@@ -159,12 +240,9 @@ export default function AboutUs() {
               <div className="dm-card dm-card-enhanced fade-up stagger-2" style={{ "--card-accent": "#6366F1", "--card-accent-bg": "rgba(99,102,241,0.08)" } as React.CSSProperties}>
                 <div className="dm-card-header">
                   <div className="dm-card-icon">🎯</div>
-                  <h3>Mission</h3>
+                  <h3>{content.missionHeading}</h3>
                 </div>
-                <p>
-                  To become the most trusted digital partner for our clients by delivering excellence through innovative marketing
-                  solutions, strategic communication, and measurable business outcomes that exceed expectations.
-                </p>
+                <p>{content.missionDescription}</p>
                 <div className="dm-card-stats">
                   <div className="dm-card-stat">
                     <span className="dm-card-stat-num">120+</span>
@@ -180,18 +258,15 @@ export default function AboutUs() {
               <div className="dm-card dm-card-enhanced fade-up stagger-3" style={{ "--card-accent": "#0EA5E9", "--card-accent-bg": "rgba(14,165,233,0.08)" } as React.CSSProperties}>
                 <div className="dm-card-header">
                   <div className="dm-card-icon">🧩</div>
-                  <h3>What We Offer</h3>
+                  <h3>{content.whatWeOfferHeading}</h3>
                 </div>
                 <p style={{ marginBottom: ".85rem" }}>
                   A comprehensive range of digital and conventional marketing services designed to cover every brand need:
                 </p>
                 <ul className="feature-list">
-                  <li>Digital PR & Media Coverage</li>
-                  <li>Social Media Marketing</li>
-                  <li>SEO & PPC Advertising</li>
-                  <li>Website Design & Development</li>
-                  <li>Political Campaign Management</li>
-                  <li>Online Reputation Management</li>
+                  {(content.whatWeOfferItems || []).map((item, i) => (
+                    <li key={i}>{item}</li>
+                  ))}
                 </ul>
                 <div className="dm-card-stats">
                   <div className="dm-card-stat">
@@ -211,42 +286,19 @@ export default function AboutUs() {
         {/* ============== OUR VALUES ============== */}
         <section style={{ background: 'var(--surface)' }}>
           <div className="container">
-            <div className="section-label fade-up" style={{ justifyContent: 'center', display: 'flex' }}>Our Core Values</div>
-            <h2 className="fade-up stagger-1" style={{ textAlign: 'center' }}>What <span className="orange-text">Drives Us</span> Forward</h2>
+            <div className="section-label fade-up" style={{ justifyContent: 'center', display: 'flex' }}>{content.valuesLabel}</div>
+            <h2 className="fade-up stagger-1" style={{ textAlign: 'center' }} dangerouslySetInnerHTML={{ __html: content.valuesHeading }} />
             <p className="fade-up stagger-2 text-muted" style={{ textAlign: 'center', maxWidth: '700px', margin: '1rem auto 0', fontSize: '1.05rem', lineHeight: 1.75, textAlignLast: 'center' }}>
-              Our values aren't just words on a wall — they shape every strategy, every campaign, and every relationship we build with our clients.
+              {content.valuesDescription}
             </p>
             <div className="value-grid">
-              <div className="value-card fade-up stagger-1">
-                <div className="value-icon">🔍</div>
-                <h3>Transparency</h3>
-                <p>Complete honesty in our communication, pricing, and reporting. You always know where your money is going and what results it's generating.</p>
-              </div>
-              <div className="value-card fade-up stagger-2">
-                <div className="value-icon">⭐</div>
-                <h3>Quality Service</h3>
-                <p>Premium deliverables across every project. From strategy to execution, we hold ourselves to the highest standards of craftsmanship and care.</p>
-              </div>
-              <div className="value-card fade-up stagger-3">
-                <div className="value-icon">💡</div>
-                <h3>Creativity</h3>
-                <p>Fresh ideas that stand out. Our creative team crafts campaigns that capture attention, drive engagement, and leave lasting impressions.</p>
-              </div>
-              <div className="value-card fade-up stagger-1">
-                <div className="value-icon">📊</div>
-                <h3>Measurable Results</h3>
-                <p>Data-driven decisions and transparent reporting. We focus on KPIs that matter to your business — leads, sales, and revenue growth.</p>
-              </div>
-              <div className="value-card fade-up stagger-2">
-                <div className="value-icon">🤝</div>
-                <h3>Client-First Approach</h3>
-                <p>Your goals are our goals. We become an extension of your team, fully invested in your success with dedicated account management.</p>
-              </div>
-              <div className="value-card fade-up stagger-3">
-                <div className="value-icon">🚀</div>
-                <h3>Innovation</h3>
-                <p>Always learning, always improving. We adopt new tools, trends, and technologies to keep our clients ahead of the competition.</p>
-              </div>
+              {(content.values || []).map((v, i) => (
+                <div className={`value-card fade-up stagger-${(i % 3) + 1}`} key={i}>
+                  <div className="value-icon">{v.icon}</div>
+                  <h3>{v.title}</h3>
+                  <p>{v.desc}</p>
+                </div>
+              ))}
             </div>
           </div>
         </section>
@@ -261,23 +313,17 @@ export default function AboutUs() {
 
             <div className="leader-card fade-up" style={{ marginTop: "2.5rem" }}>
               <div className="leader-avatar-wrap">
-                <img src="/Vansh.webp" alt="Vansh Mehra" />
+                <img src={content.leaderImage || '/Vansh.webp'} alt={content.leaderName} />
               </div>
               <div>
-                <div className="leader-name">Vansh Mehra</div>
-                <div className="leader-role">🏆 Founder & Managing Director</div>
-                <p className="leader-bio">
-                  Vansh Mehra is a young and dynamic entrepreneur with extensive experience in digital marketing and political campaign
-                  management. As the founder of Digisharks Communications, he has led the organization to become a recognized name in
-                  digital marketing, public relations, and political campaign management across India. His vision combines innovation,
-                  data-driven strategy, and a relentless focus on client success.
-                </p>
+                <div className="leader-name">{content.leaderName}</div>
+                <div className="leader-role">{content.leaderRole}</div>
+                <p className="leader-bio">{content.leaderBio}</p>
 
                 <div className="leader-credentials">
-                  <span className="cred-tag">📰 BJP IT Convenor</span>
-                  <span className="cred-tag">🎓 Uttarakhand Elections 2017</span>
-                  <span className="cred-tag">🏆 Top 10 CEOs</span>
-                  <span className="cred-tag">🚀 Top 10 Entrepreneurs</span>
+                  {(content.leaderCredentials || []).map((cred, i) => (
+                    <span className="cred-tag" key={i}>{cred}</span>
+                  ))}
                 </div>
 
                 <div style={{ marginTop: "1.4rem" }}>
@@ -312,66 +358,20 @@ export default function AboutUs() {
         {/* ============== JOURNEY / TIMELINE ============== */}
         <section style={{ background: 'var(--surface)' }}>
           <div className="container">
-            <div className="section-label fade-up" style={{ justifyContent: 'center', display: 'flex' }}>Our Journey</div>
-            <h2 className="fade-up stagger-1" style={{ textAlign: 'center' }}>10+ Years of <span className="orange-text">Building & Growing</span></h2>
+            <div className="section-label fade-up" style={{ justifyContent: 'center', display: 'flex' }}>{content.timelineLabel}</div>
+            <h2 className="fade-up stagger-1" style={{ textAlign: 'center' }} dangerouslySetInnerHTML={{ __html: content.timelineHeading }} />
             <p className="fade-up stagger-2 text-muted" style={{ textAlign: 'center', maxWidth: '700px', margin: '1rem auto 0', fontSize: '1.05rem', lineHeight: 1.75, textAlignLast: 'center' }}>
-              From a small New Delhi studio to a trusted national PR & digital marketing partner — the milestones that shaped us.
+              {content.timelineDescription}
             </p>
             <div className="timeline">
-              <div className="timeline-item fade-up">
-                <div className="timeline-dot"></div>
-                <span className="timeline-year">2017</span>
-                <h3>🚀 The Foundation</h3>
-                <p>Digisharks Communications was founded in New Delhi with a vision to bring data-driven digital PR and marketing to Indian brands.</p>
-              </div>
-              <div className="timeline-item fade-up">
-                <div className="timeline-dot"></div>
-                <span className="timeline-year">2018</span>
-                <h3>📰 First 50 Clients</h3>
-                <p>Crossed 50 happy clients within our first year. Expanded our media network to 20+ top publications across India.</p>
-              </div>
-              <div className="timeline-item fade-up">
-                <div className="timeline-dot"></div>
-                <span className="timeline-year">2019</span>
-                <h3>🏆 Industry Recognition</h3>
-                <p>Started building the team, formalized processes, and won our first major industry recognition for digital PR innovation.</p>
-              </div>
-              <div className="timeline-item fade-up">
-                <div className="timeline-dot"></div>
-                <span className="timeline-year">2020</span>
-                <h3>💻 Digital Transformation Wave</h3>
-                <p>Pivoted strongly into full-stack digital marketing — SEO, PPC, SMO — helping brands survive and grow through the pandemic.</p>
-              </div>
-              <div className="timeline-item fade-up">
-                <div className="timeline-dot"></div>
-                <span className="timeline-year">2021</span>
-                <h3>🌟 Top 10 CEOs Award</h3>
-                <p>Founder Vansh Mehra recognized among the Top 10 CEOs 2021–2022 for outstanding leadership in the digital marketing space.</p>
-              </div>
-              <div className="timeline-item fade-up">
-                <div className="timeline-dot"></div>
-                <span className="timeline-year">2022</span>
-                <h3>🚀 Dynamic Entrepreneur Feature</h3>
-                <p>Featured in the Top 10 Dynamic Entrepreneurs list, validating our innovation-first approach to PR and digital growth.</p>
-              </div>
-              <div className="timeline-item fade-up">
-                <div className="timeline-dot"></div>
-                <span className="timeline-year">2023</span>
-                <h3>📈 500+ Campaigns Milestone</h3>
-                <p>Reached the milestone of executing 500+ successful digital PR and marketing campaigns across multiple industries and geographies.</p>
-              </div>
-              <div className="timeline-item fade-up">
-                <div className="timeline-dot"></div>
-                <span className="timeline-year">2024</span>
-                <h3>💼 Top 10 PR Leaders in India</h3>
-                <p>Featured in Top 10 PR Leaders in India for transforming the PR landscape through data-driven digital PR campaigns and measurable ROI.</p>
-              </div>
-              <div className="timeline-item fade-up">
-                <div className="timeline-dot"></div>
-                <span className="timeline-year">2026</span>
-                <h3>🎯 The Next Chapter</h3>
-                <p>Expanding services into AI-powered marketing, video PR, and influencer-led campaigns. The journey to becoming India's #1 PR partner continues.</p>
-              </div>
+              {(content.timelineItems || []).map((item, i) => (
+                <div className="timeline-item fade-up" key={i}>
+                  <div className="timeline-dot"></div>
+                  <span className="timeline-year">{item.year}</span>
+                  <h3>{item.heading}</h3>
+                  <p>{item.description}</p>
+                </div>
+              ))}
             </div>
           </div>
         </section>
@@ -381,24 +381,17 @@ export default function AboutUs() {
           <div className="pr-grid">
             <div className="fade-up">
               <div className="section-label">Specialized Services</div>
-              <h2>Booth Management <span className="orange-text">Services</span></h2>
+              <h2 dangerouslySetInnerHTML={{ __html: content.boothHeading }} />
               <p className="text-muted" style={{ marginTop: "1.25rem", lineHeight: 1.8, fontSize: '1rem', textAlign: 'justify', textAlignLast: 'left' }}>
-                Digisharks Communications provides specialized booth-level election management services for political campaigns.
-                Our booth management strategy combines grassroots voter engagement, data-driven targeting, and on-ground execution
-                that delivers measurable impact where it matters most — at the booth.
+                {content.boothDescription}
               </p>
               <ul className="feature-list" style={{ marginTop: '1.5rem' }}>
-                <li>Strategic voter outreach planning</li>
-                <li>Innovative campaign execution</li>
-                <li>Grassroots-level engagement</li>
-                <li>Booth-level volunteer management</li>
-                <li>Voter database management</li>
-                <li>Targeted communication campaigns</li>
-                <li>Vote-base expansion strategies</li>
-                <li>Real-time ground reporting</li>
+                {(content.boothFeatures || []).map((f, i) => (
+                  <li key={i}>{f}</li>
+                ))}
               </ul>
               <div style={{ marginTop: '2rem' }}>
-                <a href="#" className="btn-primary">
+                <a href="/contact-us" className="btn-primary">
                   Contact Us →
                 </a>
               </div>
@@ -411,22 +404,12 @@ export default function AboutUs() {
                 We help parties and candidates build robust, on-the-ground networks that mobilize voters effectively.
               </p>
               <div className="booth-stats-row">
-                <div className="booth-stat-cell">
-                  <div className="booth-stat-num">500+</div>
-                  <div className="booth-stat-label">Booths Managed</div>
-                </div>
-                <div className="booth-stat-cell">
-                  <div className="booth-stat-num">95%</div>
-                  <div className="booth-stat-label">Voter Turnout Boost</div>
-                </div>
-                <div className="booth-stat-cell">
-                  <div className="booth-stat-num">50+</div>
-                  <div className="booth-stat-label">Campaigns Won</div>
-                </div>
-                <div className="booth-stat-cell">
-                  <div className="booth-stat-num">1M+</div>
-                  <div className="booth-stat-label">Voters Reached</div>
-                </div>
+                {(content.boothStats || []).map((stat, i) => (
+                  <div className="booth-stat-cell" key={i}>
+                    <div className="booth-stat-num">{stat.number}{stat.suffix}</div>
+                    <div className="booth-stat-label">{stat.label}</div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -435,36 +418,24 @@ export default function AboutUs() {
         {/* ============== ACHIEVEMENTS / METRICS ============== */}
         <section>
           <div className="container">
-            <div className="section-label fade-up" style={{ justifyContent: 'center', display: 'flex' }}>By The Numbers</div>
-            <h2 className="fade-up stagger-1" style={{ textAlign: 'center' }}>Our Achievements in <span className="orange-text">Numbers</span></h2>
+            <div className="section-label fade-up" style={{ justifyContent: 'center', display: 'flex' }}>{content.achievementsLabel}</div>
+            <h2 className="fade-up stagger-1" style={{ textAlign: 'center' }} dangerouslySetInnerHTML={{ __html: content.achievementsHeading }} />
             <p className="fade-up stagger-2 text-muted" style={{ textAlign: 'center', maxWidth: '700px', margin: '1rem auto 0', fontSize: '1.05rem', lineHeight: 1.75, textAlignLast: 'center' }}>
-              Real numbers that reflect the trust our clients place in us and the consistent results we deliver across every campaign.
+              {content.achievementsDescription}
             </p>
             <div className="achievement-grid" style={{ marginTop: "2.75rem" }}>
-              <div className="ach-card fade-up stagger-1" style={{ "--card-accent": "#FF5B2E", "--card-accent-bg": "rgba(255,91,46,0.08)" } as React.CSSProperties}>
-                <div className="ach-icon">😊</div>
-                <span className="ach-num">4000+</span>
-                <span className="ach-label">Satisfied Customers</span>
-                <p className="ach-desc">High-quality brand promotion that builds long-term confidence and trust.</p>
-              </div>
-              <div className="ach-card fade-up stagger-2" style={{ "--card-accent": "#3B82F6", "--card-accent-bg": "rgba(59,130,246,0.08)" } as React.CSSProperties}>
-                <div className="ach-icon">📊</div>
-                <span className="ach-num">120+</span>
-                <span className="ach-label">Completed Projects</span>
-                <p className="ach-desc">From strategy to execution — delivering measurable growth across multiple industries.</p>
-              </div>
-              <div className="ach-card fade-up stagger-3" style={{ "--card-accent": "#10B981", "--card-accent-bg": "rgba(16,185,129,0.08)" } as React.CSSProperties}>
-                <div className="ach-icon">🚀</div>
-                <span className="ach-num">50+</span>
-                <span className="ach-label">Live Projects</span>
-                <p className="ach-desc">Ongoing campaigns that keep your brand visible and relevant in a fast-changing market.</p>
-              </div>
-              <div className="ach-card fade-up stagger-4" style={{ "--card-accent": "#8B5CF6", "--card-accent-bg": "rgba(139,92,246,0.08)" } as React.CSSProperties}>
-                <div className="ach-icon">💎</div>
-                <span className="ach-num">98%</span>
-                <span className="ach-label">Client Satisfaction</span>
-                <p className="ach-desc">Consistent results that earn trust and lasting partnerships with every client.</p>
-              </div>
+              {(content.achievements || []).map((ach, i) => (
+                <div className="ach-card fade-up" key={i} style={{
+                  animationDelay: `${(i + 1) * 0.1}s`,
+                  "--card-accent": i === 0 ? '#FF5B2E' : i === 1 ? '#3B82F6' : i === 2 ? '#10B981' : '#8B5CF6',
+                  "--card-accent-bg": `rgba(${i === 0 ? '255,91,46' : i === 1 ? '59,130,246' : i === 2 ? '16,185,129' : '139,92,246'},0.08)`
+                } as React.CSSProperties}>
+                  <div className="ach-icon">{ach.icon}</div>
+                  <span className="ach-num">{ach.title}</span>
+                  <span className="ach-label">{ach.desc}</span>
+                  <p className="ach-desc">{ach.description || ''}</p>
+                </div>
+              ))}
             </div>
           </div>
         </section>
@@ -585,32 +556,18 @@ export default function AboutUs() {
         {/* ============== FAQ ============== */}
         <section>
           <div className="container">
-            <div className="section-label fade-up" style={{ justifyContent: 'center', display: 'flex' }}>Frequently Asked Questions</div>
-            <h2 className="fade-up stagger-1" style={{ textAlign: 'center' }}>About <span className="orange-text">Working With Us</span></h2>
+            <div className="section-label fade-up" style={{ justifyContent: 'center', display: 'flex' }}>{content.faqLabel}</div>
+            <h2 className="fade-up stagger-1" style={{ textAlign: 'center' }} dangerouslySetInnerHTML={{ __html: content.faqHeading }} />
             <p className="fade-up stagger-2 text-muted" style={{ textAlign: 'center', maxWidth: '700px', margin: '1rem auto 0', fontSize: '1.05rem', lineHeight: 1.75, textAlignLast: 'center' }}>
-              Quick answers to the most common questions about partnering with Digisharks Communications.
+              {content.faqDescription}
             </p>
             <div className="faq-list" style={{ maxWidth: '900px', margin: '2.5rem auto 0' }}>
-              <div className="faq-item fade-up">
-                <div className="faq-q"><span className="faq-q-icon">Q</span>When was Digisharks Communications founded?</div>
-                <div className="faq-a">Digisharks Communications was founded in 2017 in New Delhi. Since then, we have grown to serve 4000+ customers across India with 500+ successful digital PR and marketing campaigns.</div>
-              </div>
-              <div className="faq-item fade-up">
-                <div className="faq-q"><span className="faq-q-icon">Q</span>Who is the founder of Digisharks Communications?</div>
-                <div className="faq-a">Vansh Mehra is the Founder & Managing Director of Digisharks Communications. He has been recognized among India's Top 10 CEOs and Top 10 Dynamic Entrepreneurs for his work in digital marketing and political campaign management.</div>
-              </div>
-              <div className="faq-item fade-up">
-                <div className="faq-q"><span className="faq-q-icon">Q</span>What industries do you serve?</div>
-                <div className="faq-a">We work across 12+ industries including E-Commerce, Healthcare, Finance, Real Estate, Education, F&B, Fashion, Beauty, Technology, Automotive, Entertainment, and Manufacturing. Our strategies are tailored to each industry's unique dynamics and audience behavior.</div>
-              </div>
-              <div className="faq-item fade-up">
-                <div className="faq-q"><span className="faq-q-icon">Q</span>Do you offer political campaign management?</div>
-                <div className="faq-a">Yes, we have extensive experience managing political campaigns, including booth-level management, voter outreach, digital communication, and IT cell operations. We've supported multiple state and national election campaigns with measurable on-ground impact.</div>
-              </div>
-              <div className="faq-item fade-up">
-                <div className="faq-q"><span className="faq-q-icon">Q</span>How can I get in touch with your team?</div>
-                <div className="faq-a">You can reach us via phone at +91 96273 32332, email at marketing@digisharkscommunications.com, or visit our office at B-2, C-87, C Block, Sector 63, Noida, UP 201301. We also offer free consultation calls — just book through our website.</div>
-              </div>
+              {(content.faqItems || []).map((faq, i) => (
+                <div className="faq-item fade-up" key={i}>
+                  <div className="faq-q"><span className="faq-q-icon">Q</span>{faq.question}</div>
+                  <div className="faq-a">{faq.answer}</div>
+                </div>
+              ))}
             </div>
           </div>
         </section>
@@ -771,25 +728,24 @@ export default function AboutUs() {
         {/* ============== FINAL CTA ============== */}
         <section className="final-cta">
           <div className="cta-box fade-up container">
-            <div className="cta-eyebrow">💼 Let's Start a Conversation</div>
-            <h2>Ready to <span className="orange-text">Grow With Us</span>?</h2>
-            <p>Whether you're a startup looking to launch, a growing brand aiming to scale, or an established company seeking fresh digital momentum — we have the expertise, team, and proven strategies to make it happen.</p>
+            <div className="cta-eyebrow">{content.ctaEyebrow}</div>
+            <h2 dangerouslySetInnerHTML={{ __html: content.ctaHeading }} />
+            <p>{content.ctaDescription}</p>
             <div className="cta-features">
-              <div className="cta-feature"><span className="cta-feature-icon">✓</span>Free 30-min Strategy Call</div>
-              <div className="cta-feature"><span className="cta-feature-icon">✓</span>Custom Growth Roadmap</div>
-              <div className="cta-feature"><span className="cta-feature-icon">✓</span>No Long-term Contracts</div>
-              <div className="cta-feature"><span className="cta-feature-icon">✓</span>Dedicated Account Manager</div>
-              <div className="cta-feature"><span className="cta-feature-icon">✓</span>Transparent Monthly Reports</div>
+              {(content.ctaFeatures || []).map((feat, i) => (
+                <div className="cta-feature" key={i}><span className="cta-feature-icon">✓</span>{feat}</div>
+              ))}
             </div>
             <div className="cta-actions">
-              <a href="#" className="btn-primary">Get Started Today →</a>
-              <a href="#" className="btn-outline">📞 +91 96273 32332</a>
+              <a href={content.ctaPrimaryCta.href || '#'} className="btn-primary">{content.ctaPrimaryCta.text}</a>
+              <a href={content.ctaSecondaryCta.href || '#'} className="btn-outline">{content.ctaSecondaryCta.text}</a>
             </div>
           </div>
         </section>
 
         <Footer />
       </div>
+      <QuickEditButton slug="about-us" />
     </>
   );
 }

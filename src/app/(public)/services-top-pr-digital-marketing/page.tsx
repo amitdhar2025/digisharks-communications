@@ -2,6 +2,37 @@ export const dynamic = "force-dynamic";
 
 import type { Metadata } from "next";
 import Footer from "../../../components/Footer";
+import { getPageContent } from '@/lib/cms-page-content'
+import QuickEditButton from '@/components/QuickEditButton'
+
+// ── Hardcoded default content (used when no CMS data exists) ──────────
+const DEFAULT_CONTENT = {
+  heroEyebrow: '✦ Top PR Agency in India',
+  heroHeading: 'Our <span class="orange-text">Services & Pricing</span>',
+  heroDescription: 'Digisharks Communications provides top PR and digital marketing services. We firmly believe in transparency and high-quality standards through contemporary and creative Digital Press Release and digital marketing tactics. We offer a wide range of digital marketing and conventional marketing services including social media services, SEO, Website Design, Political Campaigns, Digital PR, Corporate Events, Road Shows, Award Shows, and Pricing.',
+  heroPrimaryCta: { text: 'Get Free Consultation →', href: '/contact-us/' },
+  heroSecondaryCta: { text: 'View Pricing', href: '#pricing' },
+  pricingLabel: 'Transparent Pricing',
+  pricingHeading: 'Choose the Right <span class="orange-text">Growth Package</span>',
+  pricingSubtitle: 'Pick a service that aligns with your brand goals. Every plan is built for measurable outcomes, transparent deliverables, and dedicated support.',
+  aiToolsLabel: 'AI-Powered Market Edge',
+  aiToolsHeading: 'New <span class="orange-text">AI Launch Tools</span> for 2026',
+  aiToolsSubtitle: 'Digisharks has launched a suite of AI-powered marketing tools designed to give your brand a competitive edge. From AI content generation to predictive audience targeting — get ahead of the market.',
+  aiTools: [
+    { icon: '🤖', title: 'AI Content Studio', desc: 'Generate SEO-optimised blogs, press releases, and social media copy in seconds with our proprietary AI engine — trained on 500+ successful campaigns.' },
+    { icon: '🎯', title: 'Predictive Audience Targeting', desc: 'Our AI analyses demographic, psychographic, and behavioral data to predict which audience segments will convert — before you spend a rupee on ads.' },
+    { icon: '📊', title: 'Real-Time Campaign Dashboard', desc: 'Track every campaign metric in real time with AI-powered insights, anomaly detection, and automated optimization suggestions delivered to your inbox daily.' },
+    { icon: '🔍', title: 'AI SEO Auditor', desc: 'Get instant SEO health scores, competitor backlink analysis, and content gap recommendations — all powered by machine learning models updated weekly.' },
+    { icon: '📰', title: 'Smart Media Matchmaker', desc: 'Our AI automatically matches your brand story with the right journalists and publications — increasing pitch acceptance rates by up to 3x versus traditional outreach.' },
+    { icon: '📈', title: 'AI Performance Optimizer', desc: 'Continuous A/B testing and creative iteration powered by AI — your campaigns improve automatically based on real-time performance data and market trends.' },
+  ],
+  capabilitiesHeading: 'End-to-End <span class="orange-text">Digital Services</span>',
+  capabilitiesSubtitle: 'From strategic PR to performance marketing, design to development — explore the full range of services we offer to help your brand grow with measurable results.',
+  ctaHeading: 'Would You Like to <span class="orange-text">Start?</span>',
+  ctaDescription: 'Digisharks Communications is known for its high-quality brand promotions. Representing your brand communicates with the world. Our demographic approach is used by Digisharks Communications to help you understand the characteristics of the people who buy your products and services. By leads, you can see who buys your products and services — also you can see who your brand appeals to the most by age, location, gender, job title, income, and hundreds of other variables. With the right PR agency by your side, growth becomes measurable and consistent.',
+  ctaPrimaryCta: { text: 'Apply for PR →', href: '/contact-us/' },
+  ctaSecondaryCta: { text: 'Talk to an Expert', href: '#' },
+}
 
 const siteUrl = "https://digisharks-communications.vercel.app/services-top-pr-digital-marketing/";
 
@@ -26,7 +57,10 @@ export const metadata: Metadata = {
   },
 };
 
-export default function ServicesPricingPage() {
+export default async function ServicesPricingPage() {
+  // Fetch CMS content — if available, it overrides DEFAULT_CONTENT
+  const cmsContent = await getPageContent('services-top-pr-digital-marketing')
+  const content = { ...DEFAULT_CONTENT, ...(cmsContent || {}) }
   return (
     <>
       <div className="orb orb-1"></div>
@@ -37,16 +71,14 @@ export default function ServicesPricingPage() {
         {/* HERO SECTION */}
         <section className="hero centered compact">
           <div className="hero-inner">
-            <div className="hero-eyebrow fade-up">✦ Top PR Agency in India</div>
-            <h1 className="fade-up stagger-1">
-              Our <span className="orange-text">Services & Pricing</span>
-            </h1>
+            <div className="hero-eyebrow fade-up">{content.heroEyebrow}</div>
+            <h1 className="fade-up stagger-1" dangerouslySetInnerHTML={{ __html: content.heroHeading }} />
             <p className="fade-up stagger-2">
-              Digisharks Communications provides top PR and digital marketing services. We firmly believe in transparency and high-quality standards through contemporary and creative Digital Press Release and digital marketing tactics. We offer a wide range of digital marketing and conventional marketing services including social media services, SEO, Website Design, Political Campaigns, Digital PR, Corporate Events, Road Shows, Award Shows, and Pricing.
+              {content.heroDescription}
             </p>
             <div className="hero-ctas fade-up stagger-3">
-              <a href="/contact-us/" className="btn-primary">Get Free Consultation →</a>
-              <a href="#pricing" className="btn-outline">View Pricing</a>
+              <a href={content.heroPrimaryCta.href || '#'} className="btn-primary">{content.heroPrimaryCta.text}</a>
+              <a href={content.heroSecondaryCta.href || '#'} className="btn-outline">{content.heroSecondaryCta.text}</a>
             </div>
           </div>
         </section>
@@ -54,10 +86,10 @@ export default function ServicesPricingPage() {
         {/* PRICING CARDS SECTION */}
         <section id="pricing" style={{ paddingTop: "2rem" }} className="section-bg-white">
           <div className="container">
-            <div className="section-label fade-up">Transparent Pricing</div>
-            <h2 className="fade-up stagger-1">Choose the Right <span className="orange-text">Growth Package</span></h2>
+            <div className="section-label fade-up">{content.pricingLabel}</div>
+            <h2 className="fade-up stagger-1" dangerouslySetInnerHTML={{ __html: content.pricingHeading }} />
             <p className="fade-up stagger-2" style={{ color: "var(--muted)", maxWidth: "720px", marginTop: "0.75rem" }}>
-              Pick a service that aligns with your brand goals. Every plan is built for measurable outcomes, transparent deliverables, and dedicated support.
+              {content.pricingSubtitle}
             </p>
 
             <div className="pricing-grid">
@@ -210,43 +242,20 @@ export default function ServicesPricingPage() {
           <div className="container">
             <div className="section-label-orange centered-label fade-up">
               <span className="label-dot"></span>
-              AI-Powered Market Edge
+              {content.aiToolsLabel}
             </div>
-            <h2 className="fade-up stagger-1" style={{ textAlign: 'center' }}>New <span className="orange-text">AI Launch Tools</span> for 2026</h2>
+            <h2 className="fade-up stagger-1" style={{ textAlign: 'center' }} dangerouslySetInnerHTML={{ __html: content.aiToolsHeading }} />
             <p className="fade-up stagger-2" style={{ color: "var(--muted)", maxWidth: "720px", marginTop: "0.75rem", textAlign: 'center', marginLeft: 'auto', marginRight: 'auto' }}>
-              Digisharks has launched a suite of AI-powered marketing tools designed to give your brand a competitive edge. From AI content generation to predictive audience targeting — get ahead of the market.
+              {content.aiToolsSubtitle}
             </p>
             <div className="benefits-grid" style={{ marginTop: '2.5rem' }}>
-              <div className="benefit-card fade-up stagger-1">
-                <div className="b-icon">🤖</div>
-                <h3>AI Content Studio</h3>
-                <p>Generate SEO-optimised blogs, press releases, and social media copy in seconds with our proprietary AI engine — trained on 500+ successful campaigns.</p>
-              </div>
-              <div className="benefit-card fade-up stagger-2">
-                <div className="b-icon">🎯</div>
-                <h3>Predictive Audience Targeting</h3>
-                <p>Our AI analyses demographic, psychographic, and behavioral data to predict which audience segments will convert — before you spend a rupee on ads.</p>
-              </div>
-              <div className="benefit-card fade-up stagger-3">
-                <div className="b-icon">📊</div>
-                <h3>Real-Time Campaign Dashboard</h3>
-                <p>Track every campaign metric in real time with AI-powered insights, anomaly detection, and automated optimization suggestions delivered to your inbox daily.</p>
-              </div>
-              <div className="benefit-card fade-up stagger-1">
-                <div className="b-icon">🔍</div>
-                <h3>AI SEO Auditor</h3>
-                <p>Get instant SEO health scores, competitor backlink analysis, and content gap recommendations — all powered by machine learning models updated weekly.</p>
-              </div>
-              <div className="benefit-card fade-up stagger-2">
-                <div className="b-icon">📰</div>
-                <h3>Smart Media Matchmaker</h3>
-                <p>Our AI automatically matches your brand story with the right journalists and publications — increasing pitch acceptance rates by up to 3x versus traditional outreach.</p>
-              </div>
-              <div className="benefit-card fade-up stagger-3">
-                <div className="b-icon">📈</div>
-                <h3>AI Performance Optimizer</h3>
-                <p>Continuous A/B testing and creative iteration powered by AI — your campaigns improve automatically based on real-time performance data and market trends.</p>
-              </div>
+              {(content.aiTools || []).map((tool, i) => (
+                <div className={`benefit-card fade-up stagger-${(i % 3) + 1}`} key={i}>
+                  <div className="b-icon">{tool.icon}</div>
+                  <h3>{tool.title}</h3>
+                  <p>{tool.desc}</p>
+                </div>
+              ))}
             </div>
           </div>
         </section>
@@ -255,9 +264,9 @@ export default function ServicesPricingPage() {
         <section className="section-bg-white">
           <div className="container">
             <div className="section-label fade-up">Our Capabilities</div>
-            <h2 className="fade-up stagger-1">End-to-End <span className="orange-text">Digital Services</span></h2>
+            <h2 className="fade-up stagger-1" dangerouslySetInnerHTML={{ __html: content.capabilitiesHeading }} />
             <p className="fade-up stagger-2" style={{ color: "var(--muted)", maxWidth: "720px", marginTop: "0.75rem" }}>
-              From strategic PR to performance marketing, design to development — explore the full range of services we offer to help your brand grow with measurable results.
+              {content.capabilitiesSubtitle}
             </p>
 
             <div className="svc-cap-grid">
@@ -410,13 +419,11 @@ export default function ServicesPricingPage() {
         {/* CLOSING CTA SECTION */}
         <section className="final-cta section-bg-warm">
           <div className="cta-box fade-up container">
-            <h2>Would You Like to <span className="orange-text">Start?</span></h2>
-            <p>
-              Digisharks Communications is known for its high-quality brand promotions. Representing your brand communicates with the world. Our demographic approach is used by Digisharks Communications to help you understand the characteristics of the people who buy your products and services. By leads, you can see who buys your products and services — also you can see who your brand appeals to the most by age, location, gender, job title, income, and hundreds of other variables. With the right PR agency by your side, growth becomes measurable and consistent.
-            </p>
+            <h2 dangerouslySetInnerHTML={{ __html: content.ctaHeading }} />
+            <p>{content.ctaDescription}</p>
             <div className="hero-ctas" style={{ justifyContent: "center", marginBottom: 0 }}>
-              <a href="/contact-us/" className="btn-primary">Apply for PR →</a>
-              <a href="#" className="btn-outline">Talk to an Expert</a>
+              <a href={content.ctaPrimaryCta.href || '#'} className="btn-primary">{content.ctaPrimaryCta.text}</a>
+              <a href={content.ctaSecondaryCta.href || '#'} className="btn-outline">{content.ctaSecondaryCta.text}</a>
             </div>
           </div>
         </section>
@@ -427,7 +434,7 @@ export default function ServicesPricingPage() {
 
         <Footer />
       </div>
-
+      <QuickEditButton slug="services-top-pr-digital-marketing" />
     </>
   );
 }

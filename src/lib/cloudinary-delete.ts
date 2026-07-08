@@ -69,7 +69,9 @@ export async function deleteFromCloudinary(
       api_secret: process.env.CLOUDINARY_API_SECRET || '',
     })
 
-    const options: Record<string, string> = {}
+    const options: Record<string, string> = {
+      invalidate: 'true',
+    }
     if (resourceType !== 'image') options.resource_type = resourceType
 
     const result = await cloudinary.uploader.destroy(publicId, options)

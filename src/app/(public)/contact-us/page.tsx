@@ -2,10 +2,32 @@ import Image from "next/image";
 import Link from "next/link";
 import ContactForm from './ContactForm'
 import Footer from "../../../components/Footer";
+import { getPageContent } from '@/lib/cms-page-content'
+import QuickEditButton from '@/components/QuickEditButton'
+
+// ── Hardcoded default content (used when no CMS data exists) ──────────
+const DEFAULT_CONTENT = {
+  heroEyebrow: '📞 Get In Touch',
+  heroHeading: 'Let\'s Build Your <span class="orange-text">Next Big Win</span>',
+  heroDescription: 'Have a project in mind? Want to scale your brand with data-driven digital PR and marketing? Our team is ready to craft a custom strategy that delivers measurable, compounding growth.',
+  heroPrimaryCta: { text: 'Send Us a Message →', href: '#contact-form' },
+  heroSecondaryCta: { text: '📞 +91 96273 32332', href: 'tel:+919627332332' },
+  contactHeading: 'Three Ways to <span class="orange-text">Connect</span>',
+  contactAddress: 'B-2, C-87, C Block, Sector 63, Noida, Uttar Pradesh 201301',
+  contactPhone: '+91 96273 32332',
+  contactEmail: 'marketing@digisharkscommunications.com',
+  contactHours: 'Mon–Sat: 10:00 AM – 7:00 PM IST',
+  ctaEyebrow: '💼 Let\'s Start a Conversation',
+  ctaHeading: 'Ready to <span class="orange-text">Grow With Us</span>?',
+  ctaDescription: 'Whether you\'re a startup looking to launch, a growing brand aiming to scale, or an established company seeking fresh digital momentum — we have the expertise, team, and proven strategies to make it happen.',
+}
 
 export const dynamic = 'force-dynamic'
 
-export default function ContactUs() {
+export default async function ContactUs() {
+  // Fetch CMS content — if available, it overrides DEFAULT_CONTENT
+  const cmsContent = await getPageContent('contact-us')
+  const content = { ...DEFAULT_CONTENT, ...(cmsContent || {}) }
   return (
     <>
       <div className="orb orb-1"></div>
@@ -16,21 +38,15 @@ export default function ContactUs() {
           <div className="hero-inner">
             <div className="hero-grid">
               <div className="hero-copy">
-                <div className="hero-eyebrow fade-up">📞 Get In Touch</div>
-                <h1 className="fade-up stagger-1">
-                  Let's Build Your <span className="orange-text">Next Big Win</span>
-                </h1>
-                <p className="fade-up stagger-2">
-                  Have a project in mind? Want to scale your brand with data-driven
-                  digital PR and marketing? Our team is ready to craft a custom
-                  strategy that delivers measurable, compounding growth.
-                </p>
+                <div className="hero-eyebrow fade-up">{content.heroEyebrow}</div>
+                <h1 className="fade-up stagger-1" dangerouslySetInnerHTML={{ __html: content.heroHeading }} />
+                <p className="fade-up stagger-2">{content.heroDescription}</p>
                 <div className="hero-ctas fade-up stagger-3">
-                  <a href="#contact-form" className="btn-primary">
-                    Send Us a Message →
+                  <a href={content.heroPrimaryCta.href || '#contact-form'} className="btn-primary">
+                    {content.heroPrimaryCta.text}
                   </a>
-                  <a href="tel:+919627332332" className="btn-outline">
-                    📞 +91 96273 32332
+                  <a href={content.heroSecondaryCta.href || 'tel:+919627332332'} className="btn-outline">
+                    {content.heroSecondaryCta.text}
                   </a>
                 </div>
               </div>
@@ -62,9 +78,7 @@ export default function ContactUs() {
         <section className="pr-media">
           <div className="container">
             <div className="section-label fade-up">Reach Out</div>
-            <h2 className="fade-up stagger-1" style={{ textAlign: "center" }}>
-              Three Ways to <span className="orange-text">Connect</span>
-            </h2>
+            <h2 className="fade-up stagger-1" style={{ textAlign: "center" }} dangerouslySetInnerHTML={{ __html: content.contactHeading }} />
 
             <div className="contact-grid" style={{ marginTop: "3rem" }}>
               <div className="contact-info-card fade-up">
@@ -73,9 +87,7 @@ export default function ContactUs() {
                   <div className="contact-info-icon">🏢</div>
                   <div>
                     <div className="contact-info-label">Office Address</div>
-                    <div className="contact-info-value">
-                      B-2, C-87, C Block, Sector 63, Noida, Uttar Pradesh 201301
-                    </div>
+                    <div className="contact-info-value">{content.contactAddress}</div>
                   </div>
                 </div>
                 <div className="contact-info-item">
@@ -83,7 +95,7 @@ export default function ContactUs() {
                   <div>
                     <div className="contact-info-label">Phone</div>
                     <div className="contact-info-value">
-                      <a href="tel:+919627332332">+91 96273 32332</a>
+                      <a href={"tel:" + content.contactPhone.replace(/\s/g, '')}>{content.contactPhone}</a>
                     </div>
                   </div>
                 </div>
@@ -92,9 +104,7 @@ export default function ContactUs() {
                   <div>
                     <div className="contact-info-label">Email</div>
                     <div className="contact-info-value">
-                      <a href="mailto:marketing@digisharkscommunications.com">
-                        marketing@digisharkscommunications.com
-                      </a>
+                      <a href={"mailto:" + content.contactEmail}>{content.contactEmail}</a>
                     </div>
                   </div>
                 </div>
@@ -102,7 +112,7 @@ export default function ContactUs() {
                   <div className="contact-info-icon">🕒</div>
                   <div>
                     <div className="contact-info-label">Business Hours</div>
-                    <div className="contact-info-value">Mon–Sat: 10:00 AM – 7:00 PM IST</div>
+                    <div className="contact-info-value">{content.contactHours}</div>
                   </div>
                 </div>
               </div>
@@ -114,14 +124,9 @@ export default function ContactUs() {
 
         <section className="final-cta section-bg-white">
           <div className="cta-box fade-up container">
-            <div className="cta-eyebrow">💼 Let's Start a Conversation</div>
-            <h2>Ready to <span className="orange-text">Grow With Us</span>?</h2>
-            <p>
-              Whether you're a startup looking to launch, a growing brand aiming
-              to scale, or an established company seeking fresh digital momentum
-              — we have the expertise, team, and proven strategies to make it
-              happen.
-            </p>
+            <div className="cta-eyebrow">{content.ctaEyebrow}</div>
+            <h2 dangerouslySetInnerHTML={{ __html: content.ctaHeading }} />
+            <p>{content.ctaDescription}</p>
             <div className="cta-actions">
               <a href="tel:+919627332332" className="btn-primary">📞 Call Us Now</a>
               <a href="mailto:marketing@digisharkscommunications.com" className="btn-outline">✉️ Email Us</a>
@@ -131,6 +136,7 @@ export default function ContactUs() {
 
         <Footer />
       </div>
+      <QuickEditButton slug="contact-us" />
     </>
   );
 }

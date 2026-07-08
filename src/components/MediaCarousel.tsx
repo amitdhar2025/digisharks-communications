@@ -2,29 +2,58 @@
 
 import { useState } from "react";
 
-interface MediaHouse {
-  icon: string;
-  name: string;
+interface MediaHouseItem {
+  image?: string;
+  caption?: string;
+  alt?: string;
+  link?: string;
+  isActive?: boolean;
+  order?: number;
 }
 
-const mediaHouses: MediaHouse[] = [
-  { icon: "📰", name: "The Hindu" },
-  { icon: "📺", name: "NDTV" },
-  { icon: "📡", name: "Times of India" },
-  { icon: "🌐", name: "Hindustan Times" },
-  { icon: "📻", name: "Aaj Tak" },
-  { icon: "💼", name: "Business Standard" },
-  { icon: "📱", name: "India Today" },
-  { icon: "🌍", name: "The Indian Express" },
-  { icon: "🎤", name: "ANI News" },
-  { icon: "📊", name: "Forbes India" },
-  { icon: "🎬", name: "Economic Times" },
-  { icon: "💻", name: "LiveMint" },
+interface MediaHouse {
+  icon?: string;
+  name: string;
+  image?: string;
+}
+
+const DEFAULT_MEDIA_HOUSES = [
+  { icon: "📰", caption: "The Hindu" },
+  { icon: "📺", caption: "NDTV" },
+  { icon: "📡", caption: "Times of India" },
+  { icon: "🌐", caption: "Hindustan Times" },
+  { icon: "📻", caption: "Aaj Tak" },
+  { icon: "💼", caption: "Business Standard" },
+  { icon: "📱", caption: "India Today" },
+  { icon: "🌍", caption: "The Indian Express" },
+  { icon: "🎤", caption: "ANI News" },
+  { icon: "📊", caption: "Forbes India" },
+  { icon: "🎬", caption: "Economic Times" },
+  { icon: "💻", caption: "LiveMint" },
 ];
 
-export default function MediaCarousel() {
+export default function MediaCarousel({ items = [] }: { items?: MediaHouseItem[] }) {
   const [isPaused, setIsPaused] = useState(false);
-  const items = [...mediaHouses, ...mediaHouses, ...mediaHouses];
+
+  // Use CMS items if available, otherwise fallback to hardcoded
+  const mediaHouses: MediaHouse[] = (() => {
+    const activeItems = items
+      .filter((item: MediaHouseItem) => item.isActive !== false)
+      .sort((a: MediaHouseItem, b: MediaHouseItem) => (a.order ?? 0) - (b.order ?? 0));
+    if (activeItems.length > 0) {
+      return activeItems.map((item: MediaHouseItem) => ({
+        image: item.image,
+        name: item.caption || item.alt || "Media House",
+      }));
+    }
+    return DEFAULT_MEDIA_HOUSES.map((m) => ({
+      icon: m.icon,
+      name: m.caption,
+    }));
+  })();
+
+  // Triple the items for seamless infinite scroll
+  const displayItems = [...mediaHouses, ...mediaHouses, ...mediaHouses];
 
   return (
     <div className="media-carousel-wrapper">
@@ -59,6 +88,12 @@ export default function MediaCarousel() {
           box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
           z-index: 10;
         }
+        .media-house-logo-img {
+          width: 28px;
+          height: 28px;
+          object-fit: contain;
+          border-radius: 4px;
+        }
       `}</style>
 
       <div
@@ -70,9 +105,13 @@ export default function MediaCarousel() {
           className="carousel-track"
           style={{ animationPlayState: isPaused ? "paused" : "running" }}
         >
-          {items.map((item, i) => (
+          {displayItems.map((item, i) => (
             <div key={i} className="media-logo carousel-item">
-              <span className="media-logo-icon">{item.icon}</span>
+              {item.image ? (
+                <img src={item.image} alt={item.name} className="media-house-logo-img" />
+              ) : (
+                <span className="media-logo-icon">{item.icon || "📰"}</span>
+              )}
               {item.name}
             </div>
           ))}

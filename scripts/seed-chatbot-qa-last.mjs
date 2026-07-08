@@ -16,6 +16,10 @@ const FAQ_ENTRIES = [
   { question: 'What is a subdomain?', answer: 'A subdomain is a prefix added to your domain name (like blog.yourwebsite.com). It can host separate sections of your site and is treated as a separate entity by search engines.', category: 'web-development' },
   { question: 'What is a subdirectory?', answer: 'A subdirectory (or subfolder) organizes content under folders on your main domain (like yourwebsite.com/blog). Unlike subdomains, subdirectories share domain authority with the main site.', category: 'web-development' },
   { question: 'Should I use subdomain or subdirectory for my blog?', answer: 'For SEO purposes, subdirectories are generally recommended because they inherit the main domain authority. Subdomains are treated as separate sites by search engines.', category: 'web-development' },
+
+  // CATEGORY: political (gap filler — "election campaign service" was wrongly matching "pause my campaign")
+  { question: 'election campaign service', answer: 'We offer comprehensive political campaign services including campaign strategy, booth management, voter outreach, digital communication, and IT cell operations. Our team has managed 500+ booths across multiple election campaigns. Contact us at +91 96273 32332 for a customized consultation.', category: 'political' },
+  { question: 'I need election campaign service', answer: 'We offer comprehensive political campaign services including campaign strategy, booth management, voter outreach, digital communication, and IT cell operations. Our team has managed 500+ booths across multiple election campaigns. Contact us at +91 96273 32332 for a customized consultation.', category: 'political' },
 ]
 
 async function seedQA() {

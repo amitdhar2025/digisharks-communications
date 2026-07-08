@@ -17,6 +17,7 @@ function AdminLoginForm() {
     e.preventDefault()
     setError(null)
     setLoading(true)
+
     try {
       const res = await fetch('/api/admin/login', {
         method: 'POST',
@@ -24,12 +25,6 @@ function AdminLoginForm() {
         body: JSON.stringify({ username, password }),
       })
 
-      // Safely parse the response. The server *should* always reply with
-      // JSON, but in some edge cases (Vercel 502/HTML error pages, network
-      // proxy interference, etc.) the body can be empty or non-JSON, and
-      // a raw `res.json()` call would throw "JSON.parse: unexpected
-      // character at line 1 column 1 of the JSON data" — which is exactly
-      // what users were seeing in production.
       let data: any = null
       try {
         const text = await res.text()
@@ -49,15 +44,11 @@ function AdminLoginForm() {
         return
       }
 
-      // Honor ?next= first, then fall back to ?redirect= (the middleware
-      // currently uses `redirect`, the login page historically used `next`;
-      // accepting both keeps both code paths working).
       const rawNext =
         (typeof search.get('next') === 'string' && search.get('next')) ||
         (typeof search.get('redirect') === 'string' && search.get('redirect')) ||
         '/admin/dashboard'
 
-      // Only allow internal redirects to prevent open-redirect abuse.
       const safeNext =
         typeof rawNext === 'string' &&
         rawNext.startsWith('/') &&
@@ -67,50 +58,58 @@ function AdminLoginForm() {
 
       router.push(safeNext)
       router.refresh()
-    } catch (err) {
+    } catch {
       setError('Network error. Please try again.')
       setLoading(false)
     }
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div className="field">
-        <label htmlFor="username">Username</label>
-        <input
-          id="username"
-          type="text"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          placeholder="admin"
-          autoComplete="username"
-          required
-        />
-      </div>
+    <>
+      {error ? (
+        <div className="alert alert-error" aria-live="polite">
+          {error}
+        </div>
+      ) : null}
 
-      <div className="field">
-        <label htmlFor="password">Password</label>
-        <input
-          id="password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="••••••••"
-          autoComplete="current-password"
-          required
-        />
-      </div>
+      <form onSubmit={handleSubmit}>
+        <div className="field">
+          <label htmlFor="username">Username</label>
+          <input
+            id="username"
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="admin"
+            autoComplete="username"
+            required
+          />
+        </div>
 
-      <button
-        type="submit"
-        className="btn btn-primary btn-block"
-        disabled={loading}
-        style={{ marginTop: 6 }}
-      >
-        {loading ? <span className="spinner" /> : null}
-        {loading ? 'Signing in…' : 'Sign in'}
-      </button>
-    </form>
+        <div className="field">
+          <label htmlFor="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••••"
+            autoComplete="current-password"
+            required
+          />
+        </div>
+
+        <button
+          type="submit"
+          className="btn btn-primary btn-block"
+          disabled={loading}
+          style={{ marginTop: 6 }}
+        >
+          {loading ? <span className="spinner" /> : null}
+          {loading ? 'Signing in…' : 'Sign in'}
+        </button>
+      </form>
+    </>
   )
 }
 
@@ -122,11 +121,15 @@ export default function AdminLoginPage() {
           <span className="dot" />
           Digisharks Admin
         </div>
-        <div className="admin-login-sub">
-          Sign in to manage contact queries
-        </div>
+        <div className="admin-login-sub">Sign in to manage contact queries</div>
 
-        <Suspense fallback={<div style={{ color: '#94a3b8', textAlign: 'center', padding: '2rem 0' }}>Loading…</div>}>
+        <Suspense
+          fallback={
+            <div style={{ color: '#94a3b8', textAlign: 'center', padding: '2rem 0' }}>
+              Loading…
+            </div>
+          }
+        >
           <AdminLoginForm />
         </Suspense>
 
@@ -161,3 +164,4 @@ export default function AdminLoginPage() {
     </div>
   )
 }
+

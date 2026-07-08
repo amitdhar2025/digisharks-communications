@@ -395,10 +395,8 @@ async function getDeletedItemsFromSourceCollections(section?: string): Promise<T
 
   // Check each source collection that supports isDeleted soft-delete
   const collectionsToCheck: { name: string; sectionLabel: string; titleField: string }[] = []
-
-  if (!section || section === 'all' || section === 'blogposts') {
-    collectionsToCheck.push({ name: 'blogposts', sectionLabel: 'Blog Posts', titleField: 'title' })
-  }
+  // Note: blogposts now use trash_items (not isDeleted soft-delete), so
+  // they are not included here.
 
   for (const colInfo of collectionsToCheck) {
     try {
@@ -525,14 +523,7 @@ export async function getTrashCount(): Promise<number> {
   const trashCol = await getTrashCollection()
   const trashCount = await trashCol.countDocuments({ permanentlyDeletedAt: null, restoredAt: null })
 
-  // Add counts from source collections using isDeleted=true
-  const db = await getDb()
-  let sourceCount = 0
-  try {
-    sourceCount += await db.collection('blogposts').countDocuments({ isDeleted: true })
-  } catch { /* ignore */ }
-
-  return trashCount + sourceCount
+  return trashCount
 }
 
 /**
@@ -571,15 +562,6 @@ export async function getTrashCountsBySection(): Promise<Record<string, number>>
   for (const r of results) {
     counts[r._id] = r.count
   }
-
-  // Add counts from source collections using isDeleted=true
-  const db = await getDb()
-  try {
-    const blogDeletedCount = await db.collection('blogposts').countDocuments({ isDeleted: true })
-    if (blogDeletedCount > 0) {
-      counts['blogposts'] = (counts['blogposts'] || 0) + blogDeletedCount
-    }
-  } catch { /* ignore */ }
 
   return counts
 }

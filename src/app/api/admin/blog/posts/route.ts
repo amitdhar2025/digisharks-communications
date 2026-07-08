@@ -3,6 +3,7 @@ import { getAdminFromCookies, isSuperAdmin, getSubAdminPermissions } from '@/lib
 import { requirePermission } from '@/lib/permissions'
 import { connectMongoose } from '@/lib/mongoose'
 import BlogPost from '@/lib/models/BlogPost'
+import { softDeleteFromMongoose } from '@/lib/trash'
 import { sanitizePlainTextFields } from '@/lib/sanitize'
 
 export const dynamic = 'force-dynamic'
@@ -32,7 +33,10 @@ export async function GET(req: NextRequest) {
     const sortField = searchParams.get('sort') || 'updatedAt'
     const sortOrder = searchParams.get('order') === 'asc' ? 1 : -1
 
-    const query: any = { isDeleted: { $ne: true } }
+    const query: any = {}
+    // Keep isDeleted filter as safety net for any legacy posts from before
+    // the migration to trash_items collection.
+    query.isDeleted = { $ne: true }
     if (status && status !== 'all') query.status = status
     if (search) {
       query.$or = [
@@ -209,25 +213,28 @@ export async function DELETE(req: NextRequest) {
   try {
     await connectMongoose()
 
-    // Soft-delete ALL non-deleted posts using updateMany — no hard deletes.
-    const result = await BlogPost.updateMany(
-      { isDeleted: { $ne: true } },
-      {
-        $set: {
-          isDeleted: true,
-          deletedAt: new Date(),
-          deletedBy: { username: admin.username, role: admin.role },
-          autoDeleteAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        },
-      },
-    )
-
-    const deletedCount = result.modifiedCount
+    // Find all non-deleted posts and move each to trash_items individually.
+    const posts = await BlogPost.find({ isDeleted: { $ne: true } }).select('_id title').lean()
+    let successCount = 0
+    for (const post of posts) {
+      try {
+        await softDeleteFromMongoose(
+          'blogposts',
+          BlogPost,
+          String(post._id),
+          { username: admin.username, role: admin.role },
+          (doc) => String(doc.title || 'Untitled Post'),
+        )
+        successCount++
+      } catch {
+        // Continue with remaining posts
+      }
+    }
 
     return NextResponse.json({
       success: true,
-      deleted: deletedCount,
-      message: `${deletedCount} post(s) moved to trash.`,
+      deleted: successCount,
+      message: `${successCount} post(s) moved to trash.`,
     })
   } catch (err) {
     console.error('DELETE /api/admin/blog/posts bulk error', err)

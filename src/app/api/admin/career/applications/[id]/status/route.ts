@@ -7,6 +7,7 @@ import CareerJob from '@/lib/models/CareerJob'
 import mongoose from 'mongoose'
 import { sendMail } from '@/lib/mailer'
 import { buildApplicationStatusEmail, buildAdminStatusChangeEmail, type CareerStatus } from '@/lib/email-templates'
+import SiteSettings from '@/models/SiteSettings'
 
 export const dynamic = 'force-dynamic'
 
@@ -54,6 +55,21 @@ export async function PATCH(
 
     await CareerApplication.findByIdAndUpdate(id, { $set: updateData })
 
+    // Fetch legal links from site settings for email footer
+    let legalUrls = undefined
+    try {
+      const settings = await SiteSettings.findOne({ key: 'global' }).lean()
+      if (settings) {
+        legalUrls = {
+          privacyPolicyUrl: settings.privacyPolicyUrl || '#',
+          termsUrl: settings.termsUrl || '#',
+          refundPolicyUrl: settings.refundPolicyUrl || '#',
+        }
+      }
+    } catch (e) {
+      console.error('Failed to fetch site settings for status email:', e)
+    }
+
     // Send email notification to applicant on any status change
     const jobTitle = (application.jobId as any)?.title || 'Unknown Position'
     const emailData = buildApplicationStatusEmail({
@@ -62,7 +78,7 @@ export async function PATCH(
       jobTitle,
       status: newStatus as CareerStatus,
       adminNotes: adminNotes || '',
-    })
+    }, legalUrls)
 
     const emailResult = await sendMail({
       to: application.email,
@@ -86,7 +102,7 @@ export async function PATCH(
           newStatus,
           adminNotes: adminNotes || '',
           applicationId: id,
-        })
+        }, legalUrls)
         const adminResult = await sendMail({
           to: ADMIN_EMAIL,
           subject: adminEmail.subject,

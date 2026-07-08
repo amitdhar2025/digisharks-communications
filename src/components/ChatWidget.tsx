@@ -197,8 +197,8 @@ export default function ChatWidget() {
     setLoading(false)
   }
 
-  // Single source of truth for contact info.
-  const CONTACT_INFO = {
+  // ── Site contact info (fetched from settings) ─────────────────────────
+  const [contactInfo, setContactInfo] = useState({
     phone: '+91 96273 32332',
     phoneTel: 'tel:+919627332332',
     email: 'marketing@digisharkscommunications.com',
@@ -206,7 +206,29 @@ export default function ChatWidget() {
     address: ['B-2, C-87, C Block, Sector 63', 'Noida, Uttar Pradesh 201301'],
     hours: 'Mon\u2013Sat, 10:00 AM \u2013 7:00 PM IST',
     contactPage: '/contact-us',
-  }    // Words/phrases that are conversational acknowledgments — not actual queries.
+  })
+
+  useEffect(() => {
+    safeJson<{ settings?: { phone?: string; email?: string; address?: string; businessHours?: string } }>('/api/public/settings', { settings: {} })
+      .then((data) => {
+        if (!data.settings) return
+        const s = data.settings
+        setContactInfo((prev) => ({
+          ...prev,
+          phone: s.phone || prev.phone,
+          phoneTel: s.phone ? 'tel:' + s.phone.replace(/\s/g, '') : prev.phoneTel,
+          email: s.email || prev.email,
+          emailMailto: s.email ? 'mailto:' + s.email : prev.emailMailto,
+          address: s.address
+            ? s.address.split('<br').map((p: string) => p.replace(/^\s*\/?\s*/, ''))
+            : prev.address,
+          hours: s.businessHours || prev.hours,
+        }))
+      })
+      .catch(() => {})
+  }, [])
+
+  // Words/phrases that are conversational acknowledgments — not actual queries.
   // The bot should respond with a friendly follow-up rather than searching for content.
   const ACKNOWLEDGMENTS = new Set([
     'ok', 'okay', 'okie', 'k', 'kk', 'kay',
@@ -330,12 +352,12 @@ export default function ChatWidget() {
       const reply = [
         'You can reach Digisharks Communications through any of these channels:',
         '',
-        `📞 Phone: ${CONTACT_INFO.phone}`,
-        `✉️ Email: ${CONTACT_INFO.email}`,
-        `📍 Address: ${CONTACT_INFO.address[0]}, ${CONTACT_INFO.address[1]}`,
-        `🕒 Hours: ${CONTACT_INFO.hours}`,
+        `📞 Phone: ${contactInfo.phone}`,
+        `✉️ Email: ${contactInfo.email}`,
+        `📍 Address: ${contactInfo.address[0]}, ${contactInfo.address[1]}`,
+        `🕒 Hours: ${contactInfo.hours}`,
         '',
-        `👉 Or fill out the form on our [Contact Us page](${CONTACT_INFO.contactPage}) and our team will respond within one business day.`,
+        `👉 Or fill out the form on our [Contact Us page](${contactInfo.contactPage}) and our team will respond within one business day.`,
       ].join('\n')
       setMessages((prev) => [...prev, { role: 'bot', text: reply, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }])
       setFallbackCtaVisible(true)

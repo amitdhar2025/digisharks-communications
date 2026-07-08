@@ -52,10 +52,8 @@ export async function POST(req: NextRequest) {
 
     const items: QAPlain[] = JSON.parse(JSON.stringify(qaItems))
 
-    // Tokens we extracted from the user's question (used both for
-    // Fuse scoring AND the strict overlap check below).
+    // Meaningful tokens extracted from the user's question for all matching steps.
     const userWords = meaningfulWords(trimmed)
-    const userWordsSet = new Set(userWords)
 
     // ── 1) Exact / near-exact match ──
     const exactPhraseMatch = findExactMatch(items, trimmed)
@@ -74,14 +72,14 @@ export async function POST(req: NextRequest) {
       findAllMatches: true,
     })
 
-    const fuseItem = findFuseBest(fuse.search(trimmed), userWordsSet, 0.5)
+    const fuseItem = findFuseBest(fuse.search(trimmed), userWords, 0.5)
     if (fuseItem) {
       ChatbotQA.findByIdAndUpdate(fuseItem._id, { $inc: { hitCount: 1 } }).catch(() => {})
       return NextResponse.json({ answer: fuseItem.answer, matched: fuseItem.question })
     }
 
     // ── 3) Score-based overlap match ──
-    const scored = scoreItems(items, userWords, userWordsSet)
+    const scored = scoreItems(items, userWords)
     const best = findBestScored(scored)
     if (best) {
       ChatbotQA.findByIdAndUpdate(best.item._id, { $inc: { hitCount: 1 } }).catch(() => {})
