@@ -3,13 +3,13 @@ import MediaCarousel from "@/components/MediaCarousel";
 import PortfolioSection from "@/components/PortfolioSection";
 import TestimonialSlider from "@/components/TestimonialSlider";
 import SeoAuditWidget from "@/components/SeoAuditWidget";
+import Footer from "@/components/Footer";
 import { getPageContent } from '@/lib/cms-page-content'
 import QuickEditButton from '@/components/QuickEditButton'
 import SiteSettings from '@/models/SiteSettings'
 import { connectCMSDb } from '@/lib/db-cms'
 import "./home.css";
 import "./multi-color.css";
-import Link from "next/link";
 import Image from "next/image";
 
 // ── Hardcoded default content (used when no CMS data exists) ──────────
@@ -415,87 +415,8 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* ===== FOOTER ===== */}
-        <footer className="footer-dark">
-          <div className="footer-top">
-            <div>
-              <Link href="/" className="footer-logo" aria-label="DigiSharks Home">
-  <Image
-    src="/darks.webp"
-    alt="DigiSharks Logo"
-    width={256}
-    height={171}
-    style={{
-      width: "140px",
-      height: "auto",
-      maxHeight: "50px",
-      objectFit: "contain",
-      display: "block",
-    }}
-  />
-</Link>
-              <p className="footer-tagline">{content.footerTagline}</p>
-              <div className="social-icons">
-                <a href="https://www.facebook.com/digisharks" target="_blank" rel="noopener noreferrer" className="social-icon" aria-label="Facebook">📘</a>
-                <a href="https://www.instagram.com/digisharks" target="_blank" rel="noopener noreferrer" className="social-icon" aria-label="Instagram">📸</a>
-                <a href="https://www.linkedin.com/company/digisharks" target="_blank" rel="noopener noreferrer" className="social-icon" aria-label="LinkedIn">💼</a>
-                <a href="https://twitter.com/digisharks" target="_blank" rel="noopener noreferrer" className="social-icon" aria-label="Twitter">🐦</a>
-                <a href="https://www.youtube.com/@digisharks" target="_blank" rel="noopener noreferrer" className="social-icon" aria-label="YouTube">▶️</a>
-              </div>
-            </div>
-            <div className="footer-col">
-              <h4>Quick Links</h4>
-              <ul>
-                <li><a href="/">Home</a></li>
-                <li><a href="/about-us">About Us</a></li>
-                <li><a href="/services-top-pr-digital-marketing/">Services</a></li>
-                <li><a href="/press-release/">Press Release</a></li>
-                <li><a href="/digital-marketing-agency/">Digital Marketing</a></li>
-                <li><a href="/contact-us">Contact</a></li>
-              </ul>
-            </div>
-            <div className="footer-col">
-              <h4>Services</h4>
-              <ul>
-                <li><a href="/press-release/">Digital PR</a></li>
-                <li><a href="/digital-marketing-agency/">SEO and PPC</a></li>
-                <li><a href="/social-media/">Social Media</a></li>
-                <li><a href="/web-development/">Web Development</a></li>
-                <li><a href="/brand-promotion/">Brand Promotion</a></li>
-                <li><a href="/services-top-pr-digital-marketing/">Political Campaigns</a></li>
-              </ul>
-            </div>
-            <div className="footer-col footer-contact">
-              <h4>Contact Info</h4>
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                <li style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 12, whiteSpace: 'normal' }}>
-                  <span style={{ color: '#ff6b00', fontSize: 16, lineHeight: '20px', flexShrink: 0 }}>📍</span>
-                  <span dangerouslySetInnerHTML={{ __html: content.footerAddress }} />
-                </li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, whiteSpace: 'nowrap' }}>
-                  <span style={{ color: '#ff6b00', fontSize: 16, lineHeight: '20px', flexShrink: 0 }}>📞</span>
-                  <a href={"tel:" + content.footerPhone.replace(/\s/g, '')} style={{ color: 'inherit', textDecoration: 'none' }}>{content.footerPhone}</a>
-                </li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, whiteSpace: 'nowrap' }}>
-                  <span style={{ color: '#ff6b00', fontSize: 16, lineHeight: '20px', flexShrink: 0 }}>✉️</span>
-                  <a href={"mailto:" + content.footerEmail} style={{ color: 'inherit', textDecoration: 'none' }}>{content.footerEmail}</a>
-                </li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: 10, whiteSpace: 'nowrap' }}>
-                  <span style={{ color: '#ff6b00', fontSize: 16, lineHeight: '20px', flexShrink: 0 }}>🕒</span>
-                  <span>Mon–Sat: 10:00 AM – 7:00 PM IST</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className="footer-bottom">
-            <p>© 2026 Digisharks Communications. All Rights Reserved. Made with 💙 in India.</p>
-            <ul className="footer-bottom-links">
-              <li><a href={content.privacyPolicyUrl}>Privacy Policy</a></li>
-              <li><a href={content.termsUrl}>Terms and Conditions</a></li>
-              <li><a href={content.refundPolicyUrl}>Refund Policy</a></li>
-            </ul>
-          </div>
-        </footer>
+        {/* ===== FOOTER (dynamic from CMS) ===== */}
+        <Footer />
 
       </div>
       <QuickEditButton slug="home" />

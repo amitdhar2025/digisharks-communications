@@ -31,6 +31,10 @@ export interface AdminUser {
 export interface SubAdminPermissions {
   blog: { view: boolean; create: boolean; edit: boolean; delete: boolean }
   store: { view: boolean; create: boolean; edit: boolean; delete: boolean }
+  orders: { view: boolean; edit: boolean; delete: boolean; export: boolean }
+  products: { view: boolean; create: boolean; edit: boolean; delete: boolean }
+  coupons: { view: boolean; create: boolean; edit: boolean; delete: boolean }
+  reports: { view: boolean; export: boolean }
   career: { view: boolean; create: boolean; edit: boolean; delete: boolean }
   chatbot: { view: boolean; manage: boolean; settings: boolean }
   seoAudit: { view: boolean; delete: boolean }

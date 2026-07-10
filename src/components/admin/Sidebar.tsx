@@ -8,6 +8,10 @@ import { adminFetch } from '@/lib/admin-fetch'
 interface SubAdminPermissions {
   blog: { view: boolean; create: boolean; edit: boolean; delete: boolean }
   store: { view: boolean; create: boolean; edit: boolean; delete: boolean }
+  orders: { view: boolean; edit: boolean; delete: boolean; export: boolean }
+  products: { view: boolean; create: boolean; edit: boolean; delete: boolean }
+  coupons: { view: boolean; create: boolean; edit: boolean; delete: boolean }
+  reports: { view: boolean; export: boolean }
   career: { view: boolean; create: boolean; edit: boolean; delete: boolean }
   chatbot: { view: boolean; manage: boolean; settings: boolean }
   seoAudit: { view: boolean; delete: boolean }
@@ -29,6 +33,7 @@ export default function AdminSidebar({ onNavClick, isOpen }: AdminSidebarProps) 
   const [role, setRole] = useState<'admin' | 'sub-admin'>('admin')
   const [permissions, setPermissions] = useState<SubAdminPermissions | null>(null)
   const [trashCount, setTrashCount] = useState(0)
+  const [errorCount, setErrorCount] = useState(0)
 
   // Lock body / html scroll when mobile sidebar is open
   useEffect(() => {
@@ -73,6 +78,25 @@ export default function AdminSidebar({ onNavClick, isOpen }: AdminSidebarProps) 
     }
     fetchCount()
     const interval = setInterval(fetchCount, 30000) // refresh every 30s
+    return () => clearInterval(interval)
+  }, [])
+
+  // Fetch error log count for debug badge
+  useEffect(() => {
+    const fetchErrorCount = () => {
+      adminFetch<{ stats: { file: string; lines: number }[] }>('/api/admin/debug?type=errors&count=1')
+        .then(({ data }) => {
+          if (data?.stats) {
+            const errorLog = data.stats.find(s => s.file === 'error.log')
+            if (errorLog) setErrorCount(errorLog.lines)
+          }
+        })
+        .catch(() => {
+          // Silently ignore
+        })
+    }
+    fetchErrorCount()
+    const interval = setInterval(fetchErrorCount, 30000)
     return () => clearInterval(interval)
   }, [])
 
@@ -122,7 +146,11 @@ export default function AdminSidebar({ onNavClick, isOpen }: AdminSidebarProps) 
       <div className="nav-section">Main</div>
       {role === 'admin' && navItem('/admin/dashboard', '📊 Dashboard')}
       {hasSectionAccess('queries') && navItem('/admin/queries', '📋 Queries')}
-      {hasSectionAccess('store') && navItem('/admin/store', '🛒 Digital Products Sales')}
+      {hasSectionAccess('orders') && navItem('/admin/store', '📦 Orders & Sales')}
+      {hasSectionAccess('products') && navItem('/admin/store/products', '🏷️ Manage Products')}
+      {(role === 'admin' || permissions?.products?.create) && navItem('/admin/store/products/add', '＋ Add Product')}
+      {hasSectionAccess('reports') && navItem('/admin/reports', '📈 Sales Reports')}
+      {hasSectionAccess('coupons') && navItem('/admin/store/coupons', '🎟️ Coupons')}
       {hasSectionAccess('blog') && navItem('/admin/blog', '📝 Blog')}
       {hasSectionAccess('rss') && navItem('/admin/rss', '📡 RSS Feeds')}
       {hasSectionAccess('career') && navItem('/admin/career', '💼 Career')}
@@ -161,8 +189,35 @@ export default function AdminSidebar({ onNavClick, isOpen }: AdminSidebarProps) 
       {role === 'admin' && (
         <>
           <div className="nav-section">⚙ Admin</div>
+          {navItem('/admin/change-password', '🔑 Change Password')}
+          {navItem('/admin/change-username', '✏️ Change Username')}
+          <Link
+            href="/admin/debug"
+            className={`nav-item ${isActive('/admin/debug') ? 'active' : ''}`}
+            onClick={onNavClick}
+            style={{ display: 'flex', alignItems: 'center', gap: 8, position: 'relative' }}
+          >
+            🐛 Debug & Errors
+            {errorCount > 0 && (
+              <span style={{
+                marginLeft: 'auto',
+                background: '#ef4444',
+                color: '#fff',
+                fontSize: 10,
+                fontWeight: 700,
+                padding: '1px 6px',
+                borderRadius: 8,
+                minWidth: 16,
+                textAlign: 'center',
+                lineHeight: '16px',
+              }}>
+                {errorCount > 99 ? '99+' : errorCount}
+              </span>
+            )}
+          </Link>
           {navItem('/admin/trash', `🗑 Trash${trashCount > 0 ? ` (${trashCount})` : ''}`)}
           {navItem('/admin/sub-admins', '👥 Sub-Admins')}
+          {navItem('/admin/settings/payments', '💳 Payment Settings')}
           {navItem('/admin/login-logs', '📋 Log Details')}
         </>
       )}

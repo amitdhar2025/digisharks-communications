@@ -10,7 +10,7 @@
 
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
@@ -19,6 +19,7 @@ import {
   LogOut,
   Menu,
   Settings,
+  Bug,
   type LucideIcon,
 } from 'lucide-react'
 import MaintenanceBanner from '@/components/MaintenanceBanner'
@@ -51,6 +52,7 @@ export default function CMSAdminLayout({ children }: { children: React.ReactNode
   const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [loggingOut, setLoggingOut] = useState(false)
+  const [errorCount, setErrorCount] = useState(0)
   const router = useRouter()
 
   // Detect login page so we render standalone (no sidebar)
@@ -66,6 +68,24 @@ export default function CMSAdminLayout({ children }: { children: React.ReactNode
       setLoggingOut(false)
     }
   }
+
+  // Fetch error log count for debug badge
+  useEffect(() => {
+    const fetchErrorCount = () => {
+      fetch('/api/admin/debug?type=errors&count=1')
+        .then((r) => r.json())
+        .then((data) => {
+          if (data?.stats) {
+            const errorLog = data.stats.find((s: any) => s.file === 'error.log')
+            if (errorLog) setErrorCount(errorLog.lines)
+          }
+        })
+        .catch(() => {})
+    }
+    fetchErrorCount()
+    const interval = setInterval(fetchErrorCount, 30000)
+    return () => clearInterval(interval)
+  }, [])
 
   function closeSidebar() {
     setSidebarOpen(false)
@@ -96,6 +116,37 @@ export default function CMSAdminLayout({ children }: { children: React.ReactNode
           <NavLink href="/content/admin/pages" icon={FileEdit} label="Pages" onClick={closeSidebar} />
           <NavLink href="/content/admin/menus" icon={Menu} label="Menus" onClick={closeSidebar} />
           <NavLink href="/content/admin/settings" icon={Settings} label="Settings" onClick={closeSidebar} />
+        </nav>
+
+        {/* Change Password */}
+        <nav className="cms-sidebar-nav" style={{ marginTop: 'auto' }}>
+          <Link
+            href="/content/admin/debug"
+            onClick={closeSidebar}
+            className={`cms-nav-link ${pathname === '/content/admin/debug' || pathname.startsWith('/content/admin/debug/') ? 'cms-nav-active' : ''}`}
+            style={{ display: 'flex', alignItems: 'center', gap: 8, position: 'relative' }}
+          >
+            <Bug size={18} />
+            <span>Debug & Errors</span>
+            {errorCount > 0 && (
+              <span style={{
+                marginLeft: 'auto',
+                background: '#ef4444',
+                color: '#fff',
+                fontSize: 10,
+                fontWeight: 700,
+                padding: '1px 6px',
+                borderRadius: 8,
+                minWidth: 16,
+                textAlign: 'center',
+                lineHeight: '16px',
+              }}>
+                {errorCount > 99 ? '99+' : errorCount}
+              </span>
+            )}
+          </Link>
+          <NavLink href="/content/admin/change-password" icon={Settings} label="Change Password" onClick={closeSidebar} />
+          <NavLink href="/content/admin/change-username" icon={Settings} label="Change Username" onClick={closeSidebar} />
         </nav>
 
         {/* Logout */}

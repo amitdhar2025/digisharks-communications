@@ -16,7 +16,11 @@ import { verifyCMSToken, COOKIE_NAME } from './src/lib/auth-cms'
 // ── Public paths (no auth required) ────────────────────────────────────
 const PUBLIC_PATHS = [
   '/content/admin/login',
+  '/content/admin/forgot-password',
+  '/content/admin/forgot-username',
   '/api/content/admin/login',
+  '/api/content/admin/forgot-password',
+  '/api/content/admin/forgot-username',
   '/api/content/admin/logout',
 ]
 

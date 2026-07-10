@@ -2,11 +2,12 @@ import bcrypt from 'bcryptjs'
 import { getAdminsCollection, AdminUser } from './db'
 
 /**
- * Ensures that at least one admin account exists in the database and
- * that its password hash matches the current `ADMIN_PASSWORD` env
- * var. This way the user can always log in with the credentials
- * configured in `.env.local` even if the DB was seeded earlier
- * with a different password.
+ * Ensures that at least one admin account exists in the database,
+ * seeded from `ADMIN_USERNAME` / `ADMIN_PASSWORD` env vars.
+ *
+ * **Does NOT re-hash existing admins** — once seeded, the DB password
+ * is authoritative. This allows the forgot-password flow to set a new
+ * password that won't be overwritten on the next login.
  */
 export async function ensureAdminExists(): Promise<AdminUser | null> {
   const username = process.env.ADMIN_USERNAME
@@ -17,21 +18,16 @@ export async function ensureAdminExists(): Promise<AdminUser | null> {
   }
 
   const admins = await getAdminsCollection()
-  const existing = await admins.findOne({ username })
 
-  // Always (re)hash to match the current env password so the user
-  // can always log in with the credentials they have in .env.local.
-  const passwordHash = await bcrypt.hash(password, 10)
-
-  if (existing) {
-    // Keep the existing createdAt, refresh the hash so the
-    // configured password always works.
-    await admins.updateOne(
-      { _id: existing._id },
-      { $set: { passwordHash } }
-    )
-    return { ...existing, passwordHash }
+  // Only seed if NO admin user exists in the database at all.
+  // If an admin already exists, respect its password (which may
+  // have been set by the forgot-password flow).
+  const count = await admins.countDocuments()
+  if (count > 0) {
+    return null
   }
+
+  const passwordHash = await bcrypt.hash(password, 10)
 
   const newAdmin: AdminUser = {
     username,

@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
   // Check delete permission for sub-admins
   if (!isSuperAdmin(admin)) {
     const subPerms = admin.subAdminId ? await getSubAdminPermissions(admin.subAdminId) : null
-    const denied = await requirePermission(admin, 'store', 'delete', subPerms)
+    const denied = await requirePermission(admin, 'orders', 'delete', subPerms)
     if (denied) return denied
   }
 

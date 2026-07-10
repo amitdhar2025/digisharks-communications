@@ -10,7 +10,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Save, Check, ArrowLeft, X } from 'lucide-react'
+import { Save, Check, ArrowLeft, Plus, X, Upload } from 'lucide-react'
 import Link from 'next/link'
 import {
   INPUT_CLASS,
@@ -28,10 +28,18 @@ import {
 
 // ── Types ────────────────────────────────────────────────────────────
 
+interface SocialLink {
+  platform: string
+  label: string
+  url: string
+  iconSvg: string
+  iconEmoji: string
+}
+
 interface SettingsField {
   key: string
   label: string
-  type: 'text' | 'textarea' | 'richtext' | 'image' | 'toggle'
+  type: 'text' | 'textarea' | 'richtext' | 'image' | 'toggle' | 'footerColumns' | 'socialLinks'
   placeholder?: string
   description?: string
   recommended?: string
@@ -98,6 +106,17 @@ function SettingsRichtextField({ value, onChange, label }: {
   )
 }
 
+const KNOWN_PLATFORMS_LIST = [
+  { platform: 'facebook', label: 'Facebook', iconEmoji: '📘' },
+  { platform: 'twitter', label: 'X / Twitter', iconEmoji: '🐦' },
+  { platform: 'instagram', label: 'Instagram', iconEmoji: '📸' },
+  { platform: 'linkedin', label: 'LinkedIn', iconEmoji: '💼' },
+  { platform: 'youtube', label: 'YouTube', iconEmoji: '▶️' },
+  { platform: 'pinterest', label: 'Pinterest', iconEmoji: '📌' },
+  { platform: 'tiktok', label: 'TikTok', iconEmoji: '🎵' },
+  { platform: 'whatsapp', label: 'WhatsApp', iconEmoji: '💬' },
+]
+
 const FIELD_SECTIONS: SettingsSection[] = [
   {
     label: 'Contact Information',
@@ -113,11 +132,7 @@ const FIELD_SECTIONS: SettingsSection[] = [
     label: 'Social Media Links',
     icon: '🌐',
     fields: [
-      { key: 'socialFacebook', label: 'Facebook URL', type: 'text', placeholder: 'https://www.facebook.com/digisharks' },
-      { key: 'socialTwitter', label: 'Twitter / X URL', type: 'text', placeholder: 'https://twitter.com/digisharks' },
-      { key: 'socialInstagram', label: 'Instagram URL', type: 'text', placeholder: 'https://www.instagram.com/digisharks' },
-      { key: 'socialLinkedin', label: 'LinkedIn URL', type: 'text', placeholder: 'https://www.linkedin.com/company/digisharks' },
-      { key: 'socialYoutube', label: 'YouTube URL', type: 'text', placeholder: 'https://www.youtube.com/@digisharks' },
+      { key: 'socialLinks', label: 'Social Media Links', type: 'socialLinks' },
     ],
   },
   {
@@ -125,11 +140,17 @@ const FIELD_SECTIONS: SettingsSection[] = [
     icon: '🏷️',
     fields: [
       { key: 'siteName', label: 'Site Name', type: 'text', placeholder: 'Digisharks Communications' },
-      { key: 'footerTagline', label: 'Footer Tagline', type: 'richtext', placeholder: 'Top AI-Powered Digital PR...' },
-      { key: 'copyrightText', label: 'Copyright Text', type: 'text', placeholder: '© {year} Digisharks Communications...' },
-    ],
-  },
-  {
+      { key: 'footerTagline', label: 'Footer Tagline', type: 'richtext', placeholder: 'Top AI-Powered Digital PR...' },        { key: 'copyrightText', label: 'Copyright Text', type: 'text', placeholder: '© {year} Digisharks Communications...' },
+      ],
+    },
+    {
+      label: 'Footer Link Columns',
+      icon: '🔗',
+      fields: [
+        { key: 'footerLinkColumns', label: 'Footer Link Columns', type: 'footerColumns' },
+      ],
+    },
+    {
     label: 'Legal Links',
     icon: '⚖️',
     fields: [
@@ -165,6 +186,25 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [toast, setToast] = useState<{kind: string; text: string} | null>(null)
+  const [uploading, setUploading] = useState<string | null>(null) // key being uploaded
+
+  async function uploadImage(key: string, file: File) {
+    setUploading(key)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      const res = await fetch('/api/content/admin/upload', { method: 'POST', body: formData })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Upload failed')
+      if (data.url) {
+        handleChange(key, data.url)
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Upload failed')
+    } finally {
+      setUploading(null)
+    }
+  }
 
   useEffect(() => { loadSettings() }, [])
 
@@ -255,46 +295,78 @@ export default function SettingsPage() {
     }
 
     if (field.type === 'image') {
+      const isUploading = uploading === field.key
+      const hasValue = !!settings[field.key]
       return (
         <div key={field.key} className={fieldClass}>
           <label className={LABEL_CLASS}>{field.label}</label>
-          {settings[field.key] ? (
-            <div>
+
+          {/* Image preview */}
+          {hasValue && (
+            <div className="relative mb-2 inline-block">
               <img
                 src={settings[field.key]}
                 alt=""
-                className="max-w-[200px] max-h-[60px] rounded-lg border border-slate-700 mb-2"
-              />
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={settings[field.key] || ''}
-                  onChange={(e) => handleChange(field.key, e.target.value)}
-                  className={`${INPUT_CLASS} flex-1`}
-                  placeholder={field.placeholder}
-                />
-                <button
-                  type="button"
-                  className="flex-shrink-0 px-2.5 py-2 rounded-lg bg-red-600/15 text-red-400 hover:bg-red-600/25 transition-colors text-xs font-medium"
-                  onClick={() => handleChange(field.key, '')}
-                >
-                  <X size={14} />
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={settings[field.key] || ''}
-                onChange={(e) => handleChange(field.key, e.target.value)}
-                className={`${INPUT_CLASS} flex-1`}
-                placeholder={field.placeholder}
+                className="max-w-[200px] max-h-[60px] rounded-lg border border-slate-700"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none'
+                }}
               />
             </div>
           )}
+
+          {/* Input row: URL field + upload button + clear button */}
+          <div className="flex gap-2 items-stretch">
+            <input
+              type="text"
+              value={settings[field.key] || ''}
+              onChange={(e) => handleChange(field.key, e.target.value)}
+              className={`${INPUT_CLASS} flex-1 min-w-0`}
+              placeholder={field.placeholder || 'Paste image URL or upload…'}
+            />
+
+            {/* Upload button */}
+            <label
+              className={`flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium cursor-pointer transition-colors ${
+                isUploading
+                  ? 'bg-sky-500/20 text-sky-300 animate-pulse'
+                  : 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/25 hover:bg-indigo-600/30'
+              }`}
+            >
+              {isUploading ? (
+                <><span className="inline-block w-3 h-3 border-2 border-sky-300 border-t-transparent rounded-full animate-spin" /> Uploading…</>
+              ) : (
+                <><Upload size={14} /> Upload</>
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                hidden
+                disabled={isUploading}
+                onChange={async (e) => {
+                  const file = e.target.files?.[0]
+                  if (!file) return
+                  await uploadImage(field.key, file)
+                  e.target.value = ''
+                }}
+              />
+            </label>
+
+            {/* Clear button (only when there's a value) */}
+            {hasValue && (
+              <button
+                type="button"
+                className="flex-shrink-0 px-2.5 py-2 rounded-lg bg-red-600/15 text-red-400 hover:bg-red-600/25 transition-colors text-xs font-medium"
+                onClick={() => handleChange(field.key, '')}
+                title="Clear image"
+              >
+                <X size={14} />
+              </button>
+            )}
+          </div>
+
           {field.recommended && (
-            <p className="text-xs text-slate-500 mt-1">Recommended: {field.recommended}</p>
+            <p className="text-xs text-slate-500 mt-1.5">{field.recommended}</p>
           )}
           {field.defaultReset !== undefined && settings[field.key] !== field.defaultReset && (
             <button
@@ -333,6 +405,326 @@ export default function SettingsPage() {
             placeholder={field.placeholder}
             rows={field.rows || 2}
           />
+        </div>
+      )
+    }
+
+    if (field.type === 'socialLinks') {
+      const links: SocialLink[] = settings.socialLinks || []
+      return (
+        <div key={field.key} className={fieldClass}>
+          <label className={LABEL_CLASS}>{field.label}</label>
+          <p className="text-xs text-slate-500 mb-3">
+            Manage social media links. Add platforms, update URLs, and reorder. These appear in the header (SVG icons) and footer (emoji icons).
+          </p>
+          {links.map((link, li) => (
+            <div key={li} className="bg-slate-900/50 border border-slate-700 rounded-lg p-3.5 mb-3">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    className="p-0.5 rounded text-slate-500 hover:text-slate-200 hover:bg-slate-700 transition-colors disabled:opacity-30"
+                    onClick={() => {
+                      if (li > 0) {
+                        const n = [...links]
+                        const temp = n[li]
+                        n[li] = n[li - 1]
+                        n[li - 1] = temp
+                        handleChange('socialLinks', n)
+                      }
+                    }}
+                    disabled={li === 0}
+                  >
+                    ↑
+                  </button>
+                  <button
+                    type="button"
+                    className="p-0.5 rounded text-slate-500 hover:text-slate-200 hover:bg-slate-700 transition-colors disabled:opacity-30"
+                    onClick={() => {
+                      if (li < links.length - 1) {
+                        const n = [...links]
+                        const temp = n[li]
+                        n[li] = n[li + 1]
+                        n[li + 1] = temp
+                        handleChange('socialLinks', n)
+                      }
+                    }}
+                    disabled={li === links.length - 1}
+                  >
+                    ↓
+                  </button>
+                  <span className="text-xs">{link.iconEmoji || '🔗'}</span>
+                  <span className="text-xs font-bold text-slate-400 bg-slate-800 px-2 py-0.5 rounded">{link.platform}</span>
+                </div>
+                <button
+                  type="button"
+                  className="p-1 rounded-lg text-red-400 hover:bg-red-600/15 transition-colors"
+                  onClick={() => {
+                    const n = [...links]
+                    n.splice(li, 1)
+                    handleChange('socialLinks', n)
+                  }}
+                >
+                  <X size={13} />
+                </button>
+              </div>
+              <div className="flex gap-2 items-center mb-2">
+                <select
+                  value={link.platform}
+                  onChange={(e) => {
+                    const selected = KNOWN_PLATFORMS_LIST.find(p => p.platform === e.target.value)
+                    const n = [...links]
+                    n[li] = { ...n[li], platform: e.target.value, label: selected?.label || e.target.value, iconEmoji: selected?.iconEmoji || '🔗' }
+                    handleChange('socialLinks', n)
+                  }}
+                  className="flex-1 bg-slate-900/70 border border-slate-600/60 rounded px-2 py-1.5 text-xs text-slate-200 placeholder-slate-500 outline-none focus:border-sky-500"
+                >
+                  <option value="">Select platform…</option>
+                  {KNOWN_PLATFORMS_LIST.map((p) => (
+                    <option key={p.platform} value={p.platform}>{p.iconEmoji} {p.label}</option>
+                  ))}
+                  <option value="__custom__">── Custom (type label below) ──</option>
+                </select>
+              </div>
+              <div className="flex gap-2 items-center">
+                <input
+                  type="text"
+                  placeholder="Display label"
+                  value={link.label || ''}
+                  onChange={(e) => {
+                    const n = [...links]
+                    n[li] = { ...n[li], label: e.target.value }
+                    handleChange('socialLinks', n)
+                  }}
+                  className="flex-1 bg-slate-900/70 border border-slate-600/60 rounded px-2 py-1.5 text-xs text-slate-200 placeholder-slate-500 outline-none focus:border-sky-500"
+                />
+                <input
+                  type="url"
+                  placeholder="https://…"
+                  value={link.url || ''}
+                  onChange={(e) => {
+                    const n = [...links]
+                    n[li] = { ...n[li], url: e.target.value }
+                    handleChange('socialLinks', n)
+                  }}
+                  className="flex-[2] bg-slate-900/70 border border-slate-600/60 rounded px-2 py-1.5 text-xs text-slate-200 placeholder-slate-500 outline-none focus:border-sky-500"
+                />
+              </div>
+              {/* Custom icon fields (hidden for known platforms) */}
+              {!KNOWN_PLATFORMS_LIST.find(p => p.platform === link.platform) && (
+                <div className="flex gap-2 items-center mt-2">
+                  <input
+                    type="text"
+                    placeholder="SVG path data (for header icon)"
+                    value={link.iconSvg || ''}
+                    onChange={(e) => {
+                      const n = [...links]
+                      n[li] = { ...n[li], iconSvg: e.target.value }
+                      handleChange('socialLinks', n)
+                    }}
+                    className="flex-1 bg-slate-900/70 border border-slate-600/60 rounded px-2 py-1.5 text-xs text-slate-200 placeholder-slate-500 outline-none focus:border-sky-500"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Emoji (for footer)"
+                    value={link.iconEmoji || ''}
+                    onChange={(e) => {
+                      const n = [...links]
+                      n[li] = { ...n[li], iconEmoji: e.target.value }
+                      handleChange('socialLinks', n)
+                    }}
+                    className="w-16 bg-slate-900/70 border border-slate-600/60 rounded px-2 py-1.5 text-xs text-slate-200 placeholder-slate-500 outline-none focus:border-sky-500"
+                  />
+                </div>
+              )}
+            </div>
+          ))}
+          <button
+            type="button"
+            className="text-xs text-sky-400 hover:text-sky-300 transition-colors flex items-center gap-1"
+            onClick={() => {
+              const n = [...links, { platform: '', label: '', url: '', iconSvg: '', iconEmoji: '🔗' }]
+              handleChange('socialLinks', n)
+            }}
+          >
+            <Plus size={11} /> Add Social Link
+          </button>
+        </div>
+      )
+    }
+
+    if (field.type === 'footerColumns') {
+      const columns = settings.footerLinkColumns || []
+      return (
+        <div key={field.key} className={fieldClass}>
+          <label className={LABEL_CLASS}>{field.label}</label>
+          <p className="text-xs text-slate-500 mb-3">Each column has a heading and a list of links. Add, remove, or reorder columns and links below.</p>
+          {columns.map((col: any, ci: number) => (
+            <div key={ci} className="bg-slate-900/50 border border-slate-700 rounded-lg p-3.5 mb-3">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    className="p-0.5 rounded text-slate-500 hover:text-slate-200 hover:bg-slate-700 transition-colors disabled:opacity-30"
+                    onClick={() => {
+                      if (ci > 0) {
+                        const n = [...columns]
+                        const temp = n[ci]
+                        n[ci] = n[ci - 1]
+                        n[ci - 1] = temp
+                        handleChange('footerLinkColumns', n)
+                      }
+                    }}
+                    disabled={ci === 0}
+                  >
+                    ↑
+                  </button>
+                  <button
+                    type="button"
+                    className="p-0.5 rounded text-slate-500 hover:text-slate-200 hover:bg-slate-700 transition-colors disabled:opacity-30"
+                    onClick={() => {
+                      if (ci < columns.length - 1) {
+                        const n = [...columns]
+                        const temp = n[ci]
+                        n[ci] = n[ci + 1]
+                        n[ci + 1] = temp
+                        handleChange('footerLinkColumns', n)
+                      }
+                    }}
+                    disabled={ci === columns.length - 1}
+                  >
+                    ↓
+                  </button>
+                  <span className="text-xs font-bold text-slate-500 bg-slate-800 px-2 py-0.5 rounded">Column {ci + 1}</span>
+                </div>
+                <button
+                  type="button"
+                  className="p-1 rounded-lg text-red-400 hover:bg-red-600/15 transition-colors"
+                  onClick={() => {
+                    const n = [...columns]
+                    n.splice(ci, 1)
+                    handleChange('footerLinkColumns', n)
+                  }}
+                >
+                  <X size={13} />
+                </button>
+              </div>
+              <input
+                type="text"
+                placeholder="Column heading (e.g. Quick Links)"
+                value={col.heading || ''}
+                onChange={(e) => {
+                  const n = [...columns]
+                  n[ci] = { ...n[ci], heading: e.target.value }
+                  handleChange('footerLinkColumns', n)
+                }}
+                className={INPUT_CLASS + ' mb-2'}
+              />
+              <div className="space-y-1.5">
+                {(col.links || []).map((link: any, li: number) => (
+                  <div key={li} className="flex gap-2 items-center">
+                    <input
+                      type="text"
+                      placeholder="Link text"
+                      value={link.text || ''}
+                      onChange={(e) => {
+                        const n = [...columns]
+                        const links = [...(n[ci].links || [])]
+                        links[li] = { ...links[li], text: e.target.value }
+                        n[ci] = { ...n[ci], links }
+                        handleChange('footerLinkColumns', n)
+                      }}
+                      className="flex-1 bg-slate-900/70 border border-slate-600/60 rounded px-2 py-1.5 text-xs text-slate-200 placeholder-slate-500 outline-none focus:border-sky-500"
+                    />
+                    <input
+                      type="text"
+                      placeholder="/url"
+                      value={link.href || ''}
+                      onChange={(e) => {
+                        const n = [...columns]
+                        const links = [...(n[ci].links || [])]
+                        links[li] = { ...links[li], href: e.target.value }
+                        n[ci] = { ...n[ci], links }
+                        handleChange('footerLinkColumns', n)
+                      }}
+                      className="flex-1 bg-slate-900/70 border border-slate-600/60 rounded px-2 py-1.5 text-xs text-slate-200 placeholder-slate-500 outline-none focus:border-sky-500"
+                    />
+                    <button
+                      type="button"
+                      className="p-1 rounded text-red-400 hover:bg-red-600/15 transition-colors flex-shrink-0"
+                      onClick={() => {
+                        const n = [...columns]
+                        const links = [...(n[ci].links || [])]
+                        links.splice(li, 1)
+                        n[ci] = { ...n[ci], links }
+                        handleChange('footerLinkColumns', n)
+                      }}
+                    >
+                      <X size={11} />
+                    </button>
+                    <button
+                      type="button"
+                      className="p-1 rounded text-slate-500 hover:text-slate-200 transition-colors flex-shrink-0"
+                      onClick={() => {
+                        const n = [...columns]
+                        const links = [...(n[ci].links || [])]
+                        if (li > 0) {
+                          const temp = links[li]
+                          links[li] = links[li - 1]
+                          links[li - 1] = temp
+                          n[ci] = { ...n[ci], links }
+                          handleChange('footerLinkColumns', n)
+                        }
+                      }}
+                      disabled={li === 0}
+                    >
+                      ↑
+                    </button>
+                    <button
+                      type="button"
+                      className="p-1 rounded text-slate-500 hover:text-slate-200 transition-colors flex-shrink-0"
+                      onClick={() => {
+                        const n = [...columns]
+                        const links = [...(n[ci].links || [])]
+                        if (li < links.length - 1) {
+                          const temp = links[li]
+                          links[li] = links[li + 1]
+                          links[li + 1] = temp
+                          n[ci] = { ...n[ci], links }
+                          handleChange('footerLinkColumns', n)
+                        }
+                      }}
+                      disabled={li === (col.links || []).length - 1}
+                    >
+                      ↓
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  className="text-xs text-sky-400 hover:text-sky-300 transition-colors flex items-center gap-1 mt-1.5"
+                  onClick={() => {
+                    const n = [...columns]
+                    const links = [...(n[ci].links || []), { text: '', href: '' }]
+                    n[ci] = { ...n[ci], links }
+                    handleChange('footerLinkColumns', n)
+                  }}
+                >
+                  <Plus size={11} /> Add Link
+                </button>
+              </div>
+            </div>
+          ))}
+          <button
+            type="button"
+            className="text-xs text-sky-400 hover:text-sky-300 transition-colors flex items-center gap-1"
+            onClick={() => {
+              const n = [...columns, { heading: 'New Column', links: [{ text: '', href: '' }] }]
+              handleChange('footerLinkColumns', n)
+            }}
+          >
+            <Plus size={11} /> Add Column
+          </button>
         </div>
       )
     }

@@ -2,1116 +2,1043 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useParams } from 'next/navigation'
 import { useCart } from '@/lib/cart-context'
+import { useWishlist } from '@/lib/wishlist-context'
+import { getProductContent } from '@/lib/product-content'
 
-/**
- * PanIndiaProductPage
- * ------------------------------------------------------------------
- * Full Next.js recreation of the WordPress / WooCommerce product page
- * "PAN INDIA UPDATED DATABASE 2020-2025".
- *
- * STYLING NOTE:
- * Styles use `<style jsx global>` with every selector namespaced under
- * the root `.pi-product-page` class. This is deliberate:
- *   - global rules reach <Link>'s rendered <a> (plain styled-jsx
- *     scoping does NOT, which is why button backgrounds disappeared);
- *   - descendant selectors (.pi-product-page .faq) have enough
- *     specificity to override a global/dark app theme leaking in;
- *   - the namespace keeps these styles from polluting the rest of
- *     your app.
- *
- * Replace the placeholder image URLs in `product.images` with your
- * real assets.
- *
- * MOBILE FIX NOTES:
- *   - .desc-grid now forces flex-direction: column on <=900px with
- *     !important to beat any higher-specificity / later-loaded
- *     global app styles.
- *   - .desc-main and .faq get flex: 1 1 100% / width: 100% /
- *     max-width: 100% on mobile so they don't retain their desktop
- *     64% / 36% basis and overflow.
- *   - .faq position switches from sticky to static on mobile.
- *   - Make sure your app/layout.tsx has the viewport meta export
- *     (width: 'device-width', initialScale: 1) or these media
- *     queries will never fire on real devices.
- */
-
-type Testimonial = { name: string; avatar: string; stars: number; text: string }
-type FaqItem = { q: string; a: string }
-
-const product = {
-  slug: 'pan-india-updated-database-2020-2025',
-  title: 'PAN INDIA UPDATED DATABASE 2020-2025',
-  price: 299,
-  compareAtPrice: 3999,
-  rating: 5,
-
-  // Real product images.
-  images: [
-    'https://www.digisharkscommunications.com/wp-content/uploads/2025/07/DB2.jpeg',
-    'https://www.digisharkscommunications.com/wp-content/uploads/2025/07/DB1.jpeg',
-    'https://www.digisharkscommunications.com/wp-content/uploads/2025/07/DB.jpeg',
-  ],
-  videoUrl:
-    'https://www.digisharkscommunications.com/wp-content/uploads/2025/07/database_demo-video-audio-1080p.mp4',
-
-  whyChoose: [
-    { label: 'Verified Information', text: 'Delivers dependable and accurate data across all categories.' },
-    { label: 'Flexible Use', text: 'Customize the database to match your specific business goals.' },
-    { label: 'Cost-Effective & All-Inclusive', text: 'Achieve higher ROI with an affordable, all-round solution.' },
-  ],
-  deliveryFormat:
-    'Provided in CSV or Excel format for seamless integration with your CRM or marketing systems. Securely delivered via email or cloud download link.',
-
-  // ---- Long description (Description tab) ----
-  intro:
-    'Boost your marketing success with our powerful and extensively curated PAN INDIA UPDATED DATABASE. Ideal for B2B, B2C, and niche targeting, this resource empowers your sales and outreach campaigns with unmatched accuracy and coverage.',
-  contactsIncluded: [
-    'Entrepreneurs & Business Owners',
-    'CEOs, CMOs, CFOs, Directors',
-    'Government Officials',
-    'Students, Job Seekers, and Working Professionals',
-  ],
-  features: [
-    'Coverage of 40+ Industries',
-    'Nationwide Reach Across PAN India',
-    'Highly Accurate & Regularly Updated',
-    'Available in CSV, Excel, and PDF formats',
-    'Suitable for Email, SMS, WhatsApp, and Direct Marketing Campaigns',
-  ],
-  categoriesCovered:
-    'Startups, SMEs, MSMEs, Retailers, Importers, Exporters, Event Planners, Marketing Firms, CA/CS, Doctors, Architects, Builders, Real Estate Agents, Educators, Pharma Companies, Freelancers, Consultants, E-commerce Sellers, and more.',
-  dataFormat: 'CSV, PDF, XLS – Easily compatible with your CRM or email tools',
-  useCase:
-    'Ideal for Email Marketing, SMS/WhatsApp Campaigns, Lead Generation, Cold Outreach, B2B Sales, Freelancing, and Direct Business Engagements',
-  whyChooseUs: [
-    'Reliable Data: Verified and up-to-date contacts',
-    'Instant Delivery: Download immediately after purchase',
-    'Cost-Effective',
-    '24×7 Customer Support',
-  ],
-  whoBenefits:
-    'Perfect for Startups, Entrepreneurs, Freelancers, Sales Professionals, Marketing Agencies, and Business Development Teams',
-  whatsIncluded: [
-    { head: 'Business Contacts', tail: 'Name, Company, Role, Industry, Email, Phone, City' },
-    { head: 'Consumer Data', tail: 'Name, Age, Gender, Email, Phone, City' },
-    { head: 'Professional Segments', tail: 'CA, Doctors, Architects, Builders, etc.' },
-    { head: 'Student Leads', tail: 'Exam Aspirants, Course Enquiries' },
-    { head: 'Geographic Details', tail: 'Region-wise segmentation' },
-  ],
-
-  cartUrl: '/shopping-cart', // both CTAs navigate here (resolves to localhost:3000/shopping-cart in dev)
-  supportEmail: 'marketing@digisharkscommunications.com',
-
-  testimonials: [
-    {
-      name: 'Amit Khurana',
-      avatar: 'https://www.digisharkscommunications.com/wp-content/uploads/2025/07/69.jpg',
-      stars: 5,
-      text: 'Incredible results! I received over 100 quality B2B leads in just 48 hours. Truly worth the investment.',
-    },
-    {
-      name: 'Neha Verma',
-      avatar: 'https://www.digisharkscommunications.com/wp-content/uploads/2025/07/15.jpg',
-      stars: 5,
-      text: 'The data is super clean and 100% verified. It helped me triple my ROI on Instagram ad campaigns.',
-    },
-    {
-      name: 'Sachin Mehta',
-      avatar: 'https://randomuser.me/api/portraits/men/65.jpg',
-      stars: 5,
-      text: 'Kudos to the team! They delivered exactly what they promised. Having 145+ categories is a huge advantage.',
-    },
-    {
-      name: 'Kavita Iyer',
-      avatar: 'https://randomuser.me/api/portraits/women/12.jpg',
-      stars: 5,
-      text: 'Perfect tool for nationwide outreach. Got access to both student and business data, neatly organized and easy to use.',
-    },
-  ] as Testimonial[],
-
-  faq: [
-    { q: 'When will I receive my product?', a: "You'll get instant access to download the database right after your payment. A copy will also be sent to your email." },
-    { q: 'What if I need help or have questions?', a: 'Our support team is always available via email to assist you.' },
-    { q: 'How long do I have access to the database?', a: 'Lifetime access, including free future updates.' },
-    { q: 'Are there any hidden charges or subscriptions?', a: 'No. You pay once and get full access—no recurring fees.' },
-  ] as FaqItem[],
-
-  securePaymentImg:
-    'https://www.digisharkscommunications.com/wp-content/uploads/2025/07/Fortix_Secure_Payment.png.webp',
+interface TrustCard {
+  icon: string
+  title: string
+  description: string
 }
 
-function formatINR(n: number) {
+interface SpecItem {
+  icon: string
+  label: string
+  value: string
+}
+
+interface IncludedItem {
+  icon: string
+  title: string
+  description: string
+}
+
+interface CoverageStat {
+  number: string
+  label: string
+}
+
+interface Product {
+  _id: string
+  slug: string
+  title: string
+  category: string
+  price: number
+  compareAtPrice: number
+  currency: string
+  shortPitch: string
+  description?: string
+  seoTitle?: string
+  seoDescription?: string
+  images: string[]
+  featuredImage?: string
+  demoVideo?: string
+  demoVideoLabel?: string
+  titleFontSize?: string
+  howToUseVideo?: string
+  rating: number
+  isActive: boolean
+  downloadUrl?: string
+  buttonText?: string
+  buyButtonText?: string
+  buttonColor?: string
+  cartButtonBg?: string
+  cartButtonTextColor?: string
+  cartButtonBorderColor?: string
+  cartButtonHoverBg?: string
+  cartButtonHoverTextColor?: string
+  buyButtonBg?: string
+  buyButtonTextColor?: string
+  buyButtonBorderColor?: string
+  buyButtonHoverBg?: string
+  buyButtonHoverTextColor?: string
+  tabs?: { label: string; content: string; order: number; helpBanner?: { text: string; textColor: string; bgColor: string } }[]
+  testimonials?: { name: string; stars: number; text: string }[]
+  faq?: { q: string; a: string; order: number }[]
+  trustCards?: TrustCard[]
+  specs?: SpecItem[]
+  whatsIncluded?: IncludedItem[]
+  coverageStats?: CoverageStat[]
+  variations?: { name: string; price: number; compareAtPrice?: number; isActive: boolean }[]
+  createdAt: string | null
+}
+
+function formatINR(amount: number): string {
   return new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency: 'INR',
     maximumFractionDigits: 2,
     minimumFractionDigits: 2,
-  }).format(n)
+  }).format(amount)
 }
 
-// Shown if an image URL fails to load (so the gallery never goes blank).
-const FALLBACK_IMG =
-  'data:image/svg+xml;utf8,' +
-  encodeURIComponent(
-    '<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600"><rect width="100%" height="100%" fill="#f0f0f0"/><text x="50%" y="50%" font-family="Arial" font-size="24" fill="#999" text-anchor="middle" dominant-baseline="middle">Add product image</text></svg>'
-  )
-
-function handleImgError(e: React.SyntheticEvent<HTMLImageElement>) {
-  const img = e.currentTarget
-  if (img.src !== FALLBACK_IMG) img.src = FALLBACK_IMG
+/** Convert any YouTube URL (watch, youtu.be, embed) to embed format */
+function getYouTubeEmbedUrl(url: string): string | null {
+  try {
+    // youtu.be/XXXXX
+    const shortMatch = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/)
+    if (shortMatch) return `https://www.youtube.com/embed/${shortMatch[1]}`
+    // youtube.com/watch?v=XXXXX or youtube.com/embed/XXXXX
+    const watchMatch = url.match(/youtube\.com\/(?:watch\?v=|embed\/)([a-zA-Z0-9_-]+)/)
+    if (watchMatch) return `https://www.youtube.com/embed/${watchMatch[1]}`
+  } catch { /* ignore invalid URLs */ }
+  return null
 }
 
-export default function PanIndiaProductPage() {
-  const { add } = useCart()
+function isYouTubeUrl(url: string): boolean {
+  return /youtube\.com|youtu\.be/.test(url)
+}
+
+export default function DynamicProductDetailPage() {
+  const params = useParams()
+  const slug = params?.slug as string
+
+  const [product, setProduct] = useState<Product | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
   const [activeImg, setActiveImg] = useState(0)
   const [qty, setQty] = useState(1)
-  const [zoomOpen, setZoomOpen] = useState(false)
-  const [zoomedIn, setZoomedIn] = useState(false)
-  const [origin, setOrigin] = useState({ x: 50, y: 50 })
+  const [selectedVariation, setSelectedVariation] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState(0)
+  const [faqOpenIdx, setFaqOpenIdx] = useState<number | null>(null)
+  const { add } = useCart()
+  const { isWishlisted, toggle } = useWishlist()
+
+  // Dynamic button config from product data
+  const btnColor = product?.buttonColor || ''
+  const cartBtnText = product?.buttonText || 'Add to cart'
+  const buyBtnText = product?.buyButtonText || 'Buy Now'
+  const trustCards = (product?.trustCards && product.trustCards.length > 0)
+    ? product.trustCards
+    : [
+        { icon: '⚡', title: 'Instant Download', description: 'Access immediately after payment' },
+        { icon: '📧', title: 'Email Delivery', description: 'Copy sent to your inbox' },
+        { icon: '🔄', title: 'Lifetime Updates', description: 'Free future updates included' },
+      ]
+
+  const specs = (product?.specs && product.specs.length > 0)
+    ? product.specs
+    : [
+        { icon: '📊', label: 'Records:', value: '500K+' },
+        { icon: '📅', label: 'Updated:', value: '2025' },
+        { icon: '📁', label: 'Format:', value: 'Excel / CSV / PDF' },
+        { icon: '📍', label: 'Coverage:', value: 'Pan India' },
+        { icon: '⚡', label: 'Delivery:', value: 'Instant Download' },
+        { icon: '🛡️', label: 'License:', value: 'Commercial Use' },
+      ]
+
+  const includedItems = (product?.whatsIncluded && product.whatsIncluded.length > 0)
+    ? product.whatsIncluded
+    : [
+        { icon: '📋', title: 'Excel (.xls)', description: 'Full database in spreadsheet format' },
+        { icon: '📄', title: 'CSV (.csv)', description: 'Universal format for any CRM or tool' },
+        { icon: '📕', title: 'PDF Report', description: 'Category-wise summary & insights' },
+        { icon: '📝', title: 'Sample Template', description: 'Quick-start guide for campaigns' },
+        { icon: '🔄', title: 'Update Log', description: 'Track changes & revision history' },
+        { icon: '📧', title: 'Email Delivery', description: 'Copy sent to your inbox' },
+      ]
+
+  const coverageStats = (product?.coverageStats && product.coverageStats.length > 0)
+    ? product.coverageStats
+    : [
+        { number: '28', label: 'States' },
+        { number: '8', label: 'UTs' },
+        { number: '500K+', label: 'Records' },
+        { number: '40+', label: 'Industries' },
+        { number: '99.9%', label: 'Verified' },
+      ]
+
+  useEffect(() => {
+    if (!slug) return
+    let cancelled = false
+    setLoading(true)
+    setError(null)
+
+    fetch(`/api/products/${slug}`, { cache: 'no-store' })
+      .then(async (r) => {
+        if (!r.ok) {
+          if (r.status === 404) throw new Error('Product not found')
+          throw new Error('Failed to load product')
+        }
+        return r.json()
+      })
+      .then((data: Product) => {
+        if (cancelled) return
+        setProduct(data)
+        document.title = data.seoTitle || `${data.title} · Digisharks Communications`
+      })
+      .catch((e) => {
+        if (cancelled) return
+        setError(e?.message ?? 'Failed to load product')
+      })
+      .finally(() => {
+        if (cancelled) return
+        setLoading(false)
+      })
+
+    return () => { cancelled = true }
+  }, [slug])
+
+  const effectivePrice = selectedVariation && product?.variations
+    ? (product.variations.find((v) => v.name === selectedVariation)?.price ?? product.price)
+    : (product?.price ?? 0)
+
+  const effectiveComparePrice = selectedVariation && product?.variations
+    ? (product.variations.find((v) => v.name === selectedVariation)?.compareAtPrice ?? product.compareAtPrice)
+    : (product?.compareAtPrice ?? 0)
+
+  const discount = effectiveComparePrice > effectivePrice
+    ? Math.round(((effectiveComparePrice - effectivePrice) / effectiveComparePrice) * 100)
+    : 0
+
+  const images = product?.images?.filter(Boolean) ?? []
+  const coverImage = images[0]
+
+  const [zoomOrigin, setZoomOrigin] = useState({ x: 50, y: 50 })
+  const [isZooming, setIsZooming] = useState(false)
 
   const handleAddToCart = () => {
+    if (!product) return
     add(
       {
         slug: product.slug,
-        title: product.title,
-        price: product.price,
-        image: product.images[0],
+        title: selectedVariation ? `${product.title} - ${selectedVariation}` : product.title,
+        price: effectivePrice,
+        compareAtPrice: effectiveComparePrice,
+        image: coverImage,
       },
       qty
     )
-    // Redirect the user to the shopping cart page after adding the product.
-    // Use a full-page navigation so the URL updates to
-    // http://localhost:3000/shopping-cart in dev (and the production
-    // origin in prod), regardless of any cached client-side history state.
     if (typeof window !== 'undefined') {
-      window.location.href = product.cartUrl
+      window.location.href = '/shopping-cart'
     }
   }
 
-  const openZoom = () => {
-    setZoomedIn(false)
-    setZoomOpen(true)
+  const handleBuyNow = () => {
+    if (!product) return
+    add(
+      {
+        slug: product.slug,
+        title: selectedVariation ? `${product.title} - ${selectedVariation}` : product.title,
+        price: effectivePrice,
+        compareAtPrice: effectiveComparePrice,
+        image: coverImage,
+      },
+      qty
+    )
+    if (typeof window !== 'undefined') {
+      window.location.href = '/checkout'
+    }
   }
 
-  // Close on Escape and lock body scroll while the lightbox is open.
-  useEffect(() => {
-    if (!zoomOpen) return
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setZoomOpen(false)
+  const handleShare = async () => {
+    const url = window.location.href
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: product?.title, url })
+      } else {
+        await navigator.clipboard.writeText(url)
+      }
+    } catch {
+      // User cancelled share or clipboard unavailable — silently ignore
     }
-    window.addEventListener('keydown', onKey)
-    const prevOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => {
-      window.removeEventListener('keydown', onKey)
-      document.body.style.overflow = prevOverflow
-    }
-  }, [zoomOpen])
+  }
 
-  const hasImages = product.images.length > 0
-  const discount =
-    product.compareAtPrice > product.price
-      ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
-      : 0
+  const savedAmount = effectiveComparePrice - effectivePrice
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const r = e.currentTarget.getBoundingClientRect()
+    setZoomOrigin({
+      x: ((e.clientX - r.left) / r.width) * 100,
+      y: ((e.clientY - r.top) / r.height) * 100,
+    })
+  }
+
+  if (loading) {
+    return (
+      <div className="content">
+        <div className="orb orb-1"></div>
+        <div className="orb orb-2"></div>
+        <div className="mesh-grid"></div>
+        <main className="dp-product-detail">
+          <div style={{ textAlign: 'center', padding: '4rem 1rem', color: '#94a3b8' }}>
+            <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>⏳</div>
+            Loading product...
+          </div>
+        </main>
+      </div>
+    )
+  }
+
+  if (error || !product) {
+    const isNotFound = error === 'Product not found'
+    return (
+      <div className="content">
+        <div className="orb orb-1"></div>
+        <div className="orb orb-2"></div>
+        <div className="mesh-grid"></div>
+        <main className="dp-product-detail">
+          <div style={{ textAlign: 'center', padding: '4rem 1rem' }}>
+            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📦</div>
+            <h1 style={{ color: '#1e293b', marginBottom: '0.5rem' }}>
+              {isNotFound ? 'Product Not Found' : 'Oops!'}
+            </h1>
+            <p style={{ color: '#64748b', marginBottom: '1.5rem' }}>
+              {isNotFound
+                ? "The product you're looking for doesn't exist or has been removed."
+                : error || 'Something went wrong while loading this product.'}
+            </p>
+            <Link
+              href="/digital-products"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                padding: '0.75rem 1.5rem',
+                background: '#FF5B2E',
+                color: '#fff',
+                borderRadius: '8px',
+                fontWeight: 600,
+                textDecoration: 'none',
+              }}
+            >
+              ← Back to Digital Products
+            </Link>
+          </div>
+        </main>
+      </div>
+    )
+  }
 
   return (
-    <div className="pi-product-page">
-      {/* ===================== TOP: GALLERY + SUMMARY ===================== */}
-      <div className="top">
-        {/* ---- Gallery ---- */}
-        <div className="gallery">
-          {discount > 0 && <span className="sale-badge">Sale!</span>}
-          <button
-            type="button"
-            className="search-icon"
-            onClick={openZoom}
-            aria-label="Zoom image"
-          >
-            🔍
-          </button>
+    <div className="content">
+      <div className="orb orb-1"></div>
+      <div className="orb orb-2"></div>
+      <div className="mesh-grid"></div>
+      <main className="dp-product-detail">
+        <nav className="dp-breadcrumb" aria-label="Breadcrumb">
+          <Link href="/">Home</Link>
+          <span className="sep">›</span>
+          <Link href="/digital-products">Digital Products</Link>
+          <span className="sep">›</span>
+          <span className="current">{product.title}</span>
+        </nav>
 
-          <div className="gallery-main">
-            {hasImages ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={product.images[activeImg]}
-                alt={product.title}
-                loading="lazy"
-                onError={handleImgError}
-                onClick={openZoom}
-              />
-            ) : (
-              <div className="img-placeholder">📦</div>
-            )}
-          </div>
+        {error && <div className="alert alert-error">{error}</div>}
 
-          {hasImages && product.images.length > 1 && (
-            <div className="thumbs">
-              {product.images.map((src, i) => (
-                <button
-                  key={src + i}
-                  type="button"
-                  className={i === activeImg ? 'active' : ''}
-                  onClick={() => setActiveImg(i)}
-                  aria-label={`View image ${i + 1}`}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={src} alt="" loading="lazy" onError={handleImgError} />
-                </button>
-              ))}
-            </div>
-          )}
-
-        </div>
-
-        {/* ---- Summary ---- */}
-        <div className="summary">
+        {/* Mobile product title — shown before gallery on small screens */}
+        <div className="dp-mobile-title">
           <h1>{product.title}</h1>
-
-          <div className="price-row">
-            {product.compareAtPrice > product.price && (
-              <span className="old-price">{formatINR(product.compareAtPrice)}</span>
-            )}
-            <span className="price">{formatINR(product.price)}</span>
-          </div>
-
-          {product.videoUrl && (
-            <>
-              <p className="video-label">Watch the video for complete insights</p>
-              <div className="video-wrap">
-                <video src={product.videoUrl} controls preload="metadata" />
-              </div>
-            </>
+          {product.category && (
+            <span className="dp-product-category-badge">{product.category}</span>
           )}
-
-          <div className="stars" aria-label={`${product.rating} stars`}>
-            {'★'.repeat(product.rating)}
-          </div>
-
-          <p className="why-heading">Why Choose Our Database?</p>
-          <ul className="why-list">
-            {product.whyChoose.map((w) => (
-              <li key={w.label}>
-                ✅ <strong>{w.label}:</strong> {w.text}
-              </li>
-            ))}
-          </ul>
-
-          <p className="delivery-heading">Delivery Format:</p>
-          <p className="delivery-text">{product.deliveryFormat}</p>
-
-          <div className="add-row">
-            <div className="qty">
-              <button type="button" onClick={() => setQty((q) => Math.max(1, q - 1))} aria-label="Decrease quantity">
-                −
-              </button>
-              <input
-                type="number"
-                min={1}
-                value={qty}
-                onChange={(e) => setQty(Math.max(1, parseInt(e.target.value || '1', 10)))}
-                aria-label="Quantity"
-              />
-              <button type="button" onClick={() => setQty((q) => q + 1)} aria-label="Increase quantity">
-                +
-              </button>
-            </div>
-            <button type="button" className="add-to-cart" onClick={handleAddToCart}>
-              Add to cart
-            </button>
-          </div>
         </div>
-      </div>
 
-      {/* ===================== DESCRIPTION TAB ===================== */}
-      <div className="tabs">
-        <button type="button" className="tab active">
-          Description
-        </button>
-      </div>
-
-      <h2 className="section-title">Description</h2>
-
-      <div className="desc-panel">
-        <div className="desc-grid">
-          {/* ---- Left: long description ---- */}
-          <div className="desc-main">
-            <h2 className="desc-title">PAN INDIA UPDATED DATABASE 2.0</h2>
-
-            <h3>Product Description</h3>
-            <p>{product.intro}</p>
-
-            <h3>Key Features:</h3>
-            <ul>
-              <li>
-                Access to thousands of verified, active contacts, including:
-                <ul>
-                  {product.contactsIncluded.map((c) => (
-                    <li key={c}>{c}</li>
-                  ))}
-                </ul>
-              </li>
-              {product.features.map((f) => (
-                <li key={f}>{f}</li>
-              ))}
-            </ul>
-
-            <h3>Categories Covered:</h3>
-            <p>{product.categoriesCovered}</p>
-
-            <h3>Data Format:</h3>
-            <p>{product.dataFormat}</p>
-
-            <h3>Use Case:</h3>
-            <p>{product.useCase}</p>
-
-            <h3>Why Choose Us?</h3>
-            <ul>
-              {product.whyChooseUs.map((w) => (
-                <li key={w}>{w}</li>
-              ))}
-            </ul>
-
-            <h3>Who Can Benefit?</h3>
-            <p>{product.whoBenefits}</p>
-
-            <h3>What&apos;s Included:</h3>
-            <ul>
-              {product.whatsIncluded.map((item) => (
-                <li key={item.head}>
-                  <strong>{item.head}:</strong> {item.tail}
-                </li>
-              ))}
-            </ul>
-
-            <div className="sale-banner">LIMITED TIME OFFER – SALE ENDS TODAY ⏳</div>
-
-            <div className="cta-wrap">
-              <button
-                type="button"
-                className="download-btn"
-                onClick={() => {
-                  handleAddToCart()
-                  window.location.href = product.cartUrl
-                }}
+        {/* ── Hero: 55/45 split ── */}
+        <div className="dp-detail-top">
+          {/* Left — Media Gallery */}
+          <div className="dp-gallery-wrap">
+            <div className="dp-gallery">
+              <div
+                className="dp-gallery-main"
+                onMouseMove={handleMouseMove}
+                onMouseEnter={() => setIsZooming(true)}
+                onMouseLeave={() => setIsZooming(false)}
               >
-                ⬇️ Get Instant Access To Database at {formatINR(product.price).replace('.00', '')}
-              </button>
-            </div>
+                {images.length > 0 ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={images[activeImg] || images[0]}
+                    alt={product.title}
+                    loading="lazy"
+                    className={isZooming ? 'dp-zoom' : ''}
+                    style={{
+                      transform: isZooming ? 'scale(1.8)' : 'scale(1)',
+                      transformOrigin: `${zoomOrigin.x}% ${zoomOrigin.y}%`,
+                      transition: 'transform 0.08s ease-out',
+                    }}
+                  />
+                ) : (
+                  <div className="dp-gallery-placeholder">📦</div>
+                )}
+                {discount > 0 && (
+                  <span className="dp-sale-badge">-{discount}% OFF</span>
+                )}
 
-            <div className="query-box">
-              If you have any query regarding our product, please mail us at{' '}
-              <a href={`mailto:${product.supportEmail}`}>{product.supportEmail}</a>
-            </div>
+                {/* Gallery action buttons — wishlist + share */}
+                <div className="dp-gallery-actions">
+                  <button
+                    type="button"
+                    className={`dp-gallery-action-btn${isWishlisted(product.slug) ? ' wishlisted' : ''}`}
+                    onClick={() => toggle({
+                      slug: product.slug,
+                      title: product.title,
+                      price: product.price,
+                      compareAtPrice: product.compareAtPrice,
+                      image: coverImage,
+                    })}
+                    aria-label={isWishlisted(product.slug) ? 'Remove from wishlist' : 'Add to wishlist'}
+                    title={isWishlisted(product.slug) ? 'Remove from wishlist' : 'Add to wishlist'}
+                  >
+                    {isWishlisted(product.slug) ? '❤️' : '🤍'}
+                  </button>
+                  <button
+                    type="button"
+                    className="dp-gallery-action-btn"
+                    onClick={handleShare}
+                    aria-label="Share product"
+                    title="Share"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
 
-            <div className="testimonials">
-              <h3 className="testimonials-heading">Testimonials</h3>
-              {product.testimonials.map((t) => (
-                <div className="testimonial-card" key={t.name}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={t.avatar} alt={t.name} loading="lazy" className="testimonial-avatar" />
-                  <div>
-                    <div className="testimonial-stars" aria-label={`${t.stars} stars`}>
-                      {'★'.repeat(t.stars)}
+              {images.length > 1 && (
+                <div className="dp-gallery-thumbs">
+                  {images.map((src, i) => (
+                    <div key={i} className="dp-gallery-thumb-item">
+                      <button
+                        type="button"
+                        className={i === activeImg ? 'active' : ''}
+                        onClick={() => setActiveImg(i)}
+                        aria-label={`View image ${i + 1}`}
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={src} alt="" loading="lazy" />
+                      </button>
+                      <span>{
+                        i === 0 ? 'Sample Data' :
+                        i === 1 ? 'Coverage Map' :
+                        i === 2 ? 'Excel Format' :
+                        i === 3 ? 'File Preview' :
+                        `View ${i + 1}`
+                      }</span>
                     </div>
-                    <p className="testimonial-text">{t.text}</p>
-                    <strong>{t.name}</strong>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Delivery / Trust badges — micro-trust below gallery */}
+            {trustCards.length > 0 && (
+              <div className="dp-delivery-grid">
+                {trustCards.map((card, i) => (
+                  <div key={i} className="dp-delivery-card">
+                    <div className="dp-delivery-row">
+                      <span className="dp-del-icon">{card.icon}</span>
+                      <strong>{card.title}</strong>
+                      <p>{card.description}</p>
+                    </div>
                   </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Right — Purchase Panel */}
+          <div className="dp-info">
+            {/* Category pill */}
+            {product.category && (
+              <span className="dp-product-category-badge">{product.category}</span>
+            )}
+
+            {/* Title */}
+            <h1 style={product.titleFontSize ? { fontSize: product.titleFontSize } : undefined}>{product.title}</h1>
+
+            {/* Rating + review count */}
+            <div className="dp-info-meta">
+              {product.rating > 0 && (
+                <>
+                  <div className="dp-stars">
+                    {'★'.repeat(Math.round(product.rating))}
+                    {'☆'.repeat(5 - Math.round(product.rating))}
+                    <span className="dp-rating-text">{product.rating} / 5</span>
+                  </div>
+                  <a href="#reviews" className="dp-rating-link" onClick={(e) => { e.preventDefault(); document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' }); }}>
+                    Read reviews
+                  </a>
+                </>
+              )}
+            </div>
+
+            {/* Price block */}
+            <div className="dp-price-card">
+              <div className="dp-price-block">
+                {effectiveComparePrice > effectivePrice && (
+                  <span className="original">{formatINR(effectiveComparePrice)}</span>
+                )}
+                <span className="price">{formatINR(effectivePrice)}</span>
+                {discount > 0 && (
+                  <span className="dp-discount-badge">-{discount}%</span>
+                )}
+              </div>
+              {savedAmount > 0 && (
+                <div className="dp-save-badge">💰 You save {formatINR(savedAmount)}!</div>
+              )}
+              <div className="dp-tax-info">inclusive of all taxes</div>
+            </div>
+
+            {/* Value-prop description */}
+            {product.shortPitch && (
+              <p className="dp-short-desc">{product.shortPitch}</p>
+            )}
+
+            {/* ══ Key specs grid (dynamic) ══ */}
+            <div className="dp-specs-list">
+              {specs.map((spec, i) => (
+                <div key={i} className="dp-spec-item">
+                  <span className="dp-spec-icon">{spec.icon}</span>
+                  <span><span className="dp-spec-label">{spec.label}</span> {spec.value}</span>
                 </div>
               ))}
             </div>
-          </div>
 
-          {/* ---- Right: FAQ ---- */}
-          <aside className="faq">
-            <h3>Frequent Asked Questions:</h3>
-            {product.faq.map((item) => (
-              <p key={item.q} className="faq-item">
-                <strong>{item.q}</strong>
-                <br />
-                {item.a}
-              </p>
-            ))}
-            <p className="related">
-              <em>Related Products:</em>
-              <br />
-              Video Courses | Marketing Tools
-            </p>
-          </aside>
-        </div>
-      </div>
+            {/* Variation / License tiers */}
+            {product.variations && product.variations.length > 0 && (
+              <div className="dp-section">
+                <h2>Choose Your License</h2>
+                <div className="dp-license-tiers">
+                  {product.variations.filter((v) => v.isActive !== false).map((v) => {
+                    const isSelected = selectedVariation === v.name
+                    return (
+                      <button
+                        key={v.name}
+                        type="button"
+                        onClick={() => setSelectedVariation(v.name)}
+                        className={`dp-license-chip ${isSelected ? 'selected' : ''}`}
+                      >
+                        <span className="license-name">{v.name}</span>
+                        <span className="license-price">₹{v.price.toLocaleString('en-IN')}</span>
+                        {v.compareAtPrice && v.compareAtPrice > v.price && (
+                          <span style={{ display: 'block', fontSize: '11px', color: '#999', textDecoration: 'line-through', marginTop: 2 }}>₹{v.compareAtPrice.toLocaleString('en-IN')}</span>
+                        )}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
 
-      {/* ===================== SECURE PAYMENT ===================== */}
-      <div className="footer-image">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={product.securePaymentImg} alt="100% Secure Payment by Razorpay" loading="lazy" />
-      </div>
+            {/* Demo video (if any) */}
+            {product.demoVideo && (
+              <>
+                <p className="dp-watch-video">{product?.demoVideoLabel || '▶ Watch Demo'}</p>
+                <div className="dp-video-wrap">
+                  {isYouTubeUrl(product.demoVideo) ? (
+                    <iframe
+                      src={getYouTubeEmbedUrl(product.demoVideo) || product.demoVideo}
+                      title="Demo video"
+                      allowFullScreen
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    />
+                  ) : (
+                    <video src={product.demoVideo} controls preload="metadata" />
+                  )}
+                </div>
+              </>
+            )}
 
-      {/* ===================== ZOOM LIGHTBOX ===================== */}
-      {zoomOpen && hasImages && (
-        <div
-          className="pi-lightbox"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Product image zoom"
-          onClick={() => setZoomOpen(false)}
-        >
-          <button
-            type="button"
-            className="pi-lightbox-close"
-            onClick={() => setZoomOpen(false)}
-            aria-label="Close zoom"
-          >
-            ×
-          </button>
-
-          <div className="pi-lightbox-stage" onClick={(e) => e.stopPropagation()}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}              <img
-              src={product.images[activeImg]}
-              alt={product.title}
-              loading="lazy"
-              onError={handleImgError}
-              className={zoomedIn ? 'zoomed' : ''}
-              style={zoomedIn ? { transformOrigin: `${origin.x}% ${origin.y}%` } : undefined}
-              onClick={() => setZoomedIn((z) => !z)}
-              onMouseMove={(e) => {
-                if (!zoomedIn) return
-                const r = e.currentTarget.getBoundingClientRect()
-                setOrigin({
-                  x: ((e.clientX - r.left) / r.width) * 100,
-                  y: ((e.clientY - r.top) / r.height) * 100,
-                })
-              }}
-            />
-          </div>
-
-          {product.images.length > 1 && (
-            <div className="pi-lightbox-thumbs" onClick={(e) => e.stopPropagation()}>
-              {product.images.map((src, i) => (
+            {/* ══ Primary CTAs ══ */}
+            <div className="dp-actions-card">
+              <div className="dp-btn-row">
                 <button
-                  key={src + i}
                   type="button"
-                  className={i === activeImg ? 'active' : ''}
-                  onClick={() => {
-                    setActiveImg(i)
-                    setZoomedIn(false)
+                  className="dp-add-cart-btn"
+                  onClick={handleAddToCart}
+                  onMouseEnter={(e) => {
+                    const el = e.currentTarget
+                    if (product?.cartButtonHoverBg) el.style.background = product.cartButtonHoverBg
+                    if (product?.cartButtonHoverTextColor) el.style.color = product.cartButtonHoverTextColor
                   }}
-                  aria-label={`View image ${i + 1}`}
+                  onMouseLeave={(e) => {
+                    const el = e.currentTarget
+                    if (product?.cartButtonHoverBg || product?.cartButtonHoverTextColor) {
+                      el.style.background = product?.cartButtonBg || (btnColor ? '#fff' : '')
+                      el.style.color = product?.cartButtonTextColor || (btnColor ? btnColor : '')
+                    }
+                  }}
+                  style={{
+                    ...(product?.cartButtonBg ? { background: product.cartButtonBg } : btnColor ? { background: btnColor === product?.buttonColor ? '#fff' : btnColor } : {}),
+                    ...(product?.cartButtonTextColor ? { color: product.cartButtonTextColor } : btnColor ? { color: btnColor } : {}),
+                    ...(product?.cartButtonBorderColor ? { borderColor: product.cartButtonBorderColor } : btnColor ? { borderColor: btnColor } : {}),
+                  } as React.CSSProperties}
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={src} alt="" loading="lazy" onError={handleImgError} />
+                  🛒 {cartBtnText}
                 </button>
+                <button
+                  type="button"
+                  className="dp-buy-now-btn"
+                  onClick={handleBuyNow}
+                  onMouseEnter={(e) => {
+                    const el = e.currentTarget
+                    if (product?.buyButtonHoverBg) el.style.background = product.buyButtonHoverBg
+                    if (product?.buyButtonHoverTextColor) el.style.color = product.buyButtonHoverTextColor
+                  }}
+                  onMouseLeave={(e) => {
+                    const el = e.currentTarget
+                    if (product?.buyButtonHoverBg || product?.buyButtonHoverTextColor) {
+                      el.style.background = product?.buyButtonBg || (btnColor ? btnColor : '')
+                      el.style.color = product?.buyButtonTextColor || '#fff'
+                    }
+                  }}
+                  style={{
+                    ...(product?.buyButtonBg ? { background: product.buyButtonBg } : btnColor ? { background: btnColor } : {}),
+                    ...(product?.buyButtonTextColor ? { color: product.buyButtonTextColor } : {}),
+                    ...(product?.buyButtonBorderColor ? { borderColor: product.buyButtonBorderColor } : {}),
+                  } as React.CSSProperties}
+                >
+                  ⚡ {buyBtnText}
+                </button>
+              </div>
+            </div>
+
+            {/* ══ Trust row — payment icons ══ */}
+            <div className="dp-payment-badges">
+              <span className="dp-pay-badge">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                Card
+              </span>
+              <span className="dp-pay-badge">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 2a10 10 0 1 0 10 10h-4A6 6 0 1 1 12 6V2z"/><path d="M12 2v8l4-4-4-4z"/></svg>
+                UPI
+              </span>
+              <span className="dp-pay-badge">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="6" y1="7" x2="10" y2="7"/><line x1="6" y1="11" x2="14" y2="11"/><line x1="6" y1="15" x2="18" y2="15"/></svg>
+                Net Banking
+              </span>
+              <span className="dp-pay-badge">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4h-4z"/></svg>
+                Wallet
+              </span>
+            </div>
+
+            {/* ══ Micro-trust badges (2x2 grid) ══ */}
+            <div className="dp-micro-trust">
+              <div className="dp-micro-badge">
+                <span className="badge-icon">⚡</span>
+                Instant Download
+              </div>
+              <div className="dp-micro-badge">
+                <span className="badge-icon">🔄</span>
+                Free Future Updates
+              </div>
+              <div className="dp-micro-badge">
+                <span className="badge-icon">🔒</span>
+                Secure Checkout
+              </div>
+              <div className="dp-micro-badge">
+                <span className="badge-icon">✅</span>
+                GDPR Compliant
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ══ Content Tabs ══ */}
+        {(() => {
+          // Build dynamic tab entries
+          const tabEntries: { label: string; content: string; isHtml?: boolean; isVideo?: boolean }[] = []
+
+          // 1. Description (default active)
+          if (product.description) {
+            tabEntries.push({ label: 'Description', content: product.description, isHtml: true })
+          } else {
+            // Fallback description for data products
+            tabEntries.push({
+              label: 'Description',
+              content: `
+<p>This comprehensive database gives you access to <strong>500,000+ verified B2B and B2C contacts</strong> across every industry and region in India. Perfect for email marketing, SMS campaigns, WhatsApp outreach, lead generation, and direct sales.</p>
+
+<h3>Sample Fields Included</h3>
+<ul>
+  <li><strong>Name</strong> — First & Last</li>
+  <li><strong>Phone</strong> — Mobile & Landline</li>
+  <li><strong>Email</strong> — Verified working emails</li>
+  <li><strong>City & State</strong> — Geographic segmentation</li>
+  <li><strong>Pincode</strong> — Precise location targeting</li>
+  <li><strong>Industry</strong> — 40+ industry categories</li>
+  <li><strong>Designation</strong> — Decision-maker roles</li>
+</ul>
+
+<h3>Use Cases</h3>
+<ul>
+  <li>📧 Email Marketing Campaigns</li>
+  <li>📱 SMS & WhatsApp Outreach</li>
+  <li>🎯 Lead Generation & Cold Outreach</li>
+  <li>💼 B2B Sales & Business Development</li>
+  <li>📊 Market Research & Analysis</li>
+</ul>
+`,
+              isHtml: true,
+            })
+          }
+
+          // 2. How to Use
+          if (product.howToUseVideo) {
+            tabEntries.push({ label: 'How to Use', content: product.howToUseVideo, isVideo: true })
+          } else {
+            tabEntries.push({
+              label: 'How to Use',
+              content: `
+<div style="display:flex;flex-direction:column;gap:1.25rem;">
+  <div style="display:flex;align-items:flex-start;gap:14px;padding:14px;background:#f8f9fa;border-radius:10px;border:1px solid #eef0f4;">
+    <div style="width:36px;height:36px;background:rgba(255,91,46,0.1);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">1️⃣</div>
+    <div><strong style="color:#1a1a1a;">Complete Purchase</strong><br><span style="color:#666;font-size:13px;">Add the database to your cart and complete secure checkout via Card, UPI, or Net Banking.</span></div>
+  </div>
+  <div style="display:flex;align-items:flex-start;gap:14px;padding:14px;background:#f8f9fa;border-radius:10px;border:1px solid #eef0f4;">
+    <div style="width:36px;height:36px;background:rgba(255,91,46,0.1);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">2️⃣</div>
+    <div><strong style="color:#1a1a1a;">Instant Access</strong><br><span style="color:#666;font-size:13px;">You\'ll be redirected to the download page immediately. A copy is also sent to your email.</span></div>
+  </div>
+  <div style="display:flex;align-items:flex-start;gap:14px;padding:14px;background:#f8f9fa;border-radius:10px;border:1px solid #eef0f4;">
+    <div style="width:36px;height:36px;background:rgba(255,91,46,0.1);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">3️⃣</div>
+    <div><strong style="color:#1a1a1a;">Download & Extract</strong><br><span style="color:#666;font-size:13px;">Download the ZIP file and extract. Files are in CSV and Excel formats — no special software needed.</span></div>
+  </div>
+  <div style="display:flex;align-items:flex-start;gap:14px;padding:14px;background:#f8f9fa;border-radius:10px;border:1px solid #eef0f4;">
+    <div style="width:36px;height:36px;background:rgba(255,91,46,0.1);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">4️⃣</div>
+    <div><strong style="color:#1a1a1a;">Start Campaigning</strong><br><span style="color:#666;font-size:13px;">Import into your CRM, email tool, or marketing platform and launch your campaign immediately.</span></div>
+  </div>
+</div>`,
+              isHtml: true,
+            })
+          }
+
+          // 3. Sample Preview
+          tabEntries.push({
+            label: 'Sample Preview',
+            content: `
+<div class="dp-sample-preview">
+  <p style="color:#666;font-size:14px;margin-bottom:1rem;">Below is a blurred preview of the data structure. Actual data is fully readable after purchase.</p>
+  <div style="overflow-x:auto;border:1px solid #e6e6e6;border-radius:8px;filter:blur(3px);user-select:none;pointer-events:none;">
+    <table style="width:100%;border-collapse:collapse;font-size:12px;background:#fff;">
+      <thead>
+        <tr style="background:#f5f5f5;">
+          <th style="padding:8px 10px;border-bottom:1px solid #ddd;text-align:left;">Name</th>
+          <th style="padding:8px 10px;border-bottom:1px solid #ddd;text-align:left;">Phone</th>
+          <th style="padding:8px 10px;border-bottom:1px solid #ddd;text-align:left;">Email</th>
+          <th style="padding:8px 10px;border-bottom:1px solid #ddd;text-align:left;">City</th>
+          <th style="padding:8px 10px;border-bottom:1px solid #ddd;text-align:left;">Industry</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td style="padding:8px 10px;border-bottom:1px solid #f0f0f0;">Rajesh Kumar</td><td style="padding:8px 10px;border-bottom:1px solid #f0f0f0;">98765*****</td><td style="padding:8px 10px;border-bottom:1px solid #f0f0f0;">rajesh***@email.com</td><td style="padding:8px 10px;border-bottom:1px solid #f0f0f0;">Mumbai</td><td style="padding:8px 10px;border-bottom:1px solid #f0f0f0;">IT Services</td></tr>
+        <tr><td style="padding:8px 10px;border-bottom:1px solid #f0f0f0;">Priya Sharma</td><td style="padding:8px 10px;border-bottom:1px solid #f0f0f0;">99887*****</td><td style="padding:8px 10px;border-bottom:1px solid #f0f0f0;">priya***@email.com</td><td style="padding:8px 10px;border-bottom:1px solid #f0f0f0;">Delhi</td><td style="padding:8px 10px;border-bottom:1px solid #f0f0f0;">Healthcare</td></tr>
+        <tr><td style="padding:8px 10px;border-bottom:1px solid #f0f0f0;">Amit Singh</td><td style="padding:8px 10px;border-bottom:1px solid #f0f0f0;">88776*****</td><td style="padding:8px 10px;border-bottom:1px solid #f0f0f0;">amit***@email.com</td><td style="padding:8px 10px;border-bottom:1px solid #f0f0f0;">Bangalore</td><td style="padding:8px 10px;border-bottom:1px solid #f0f0f0;">E-commerce</td></tr>
+        <tr><td style="padding:8px 10px;border-bottom:1px solid #f0f0f0;">Sneha Patel</td><td style="padding:8px 10px;border-bottom:1px solid #f0f0f0;">77665*****</td><td style="padding:8px 10px;border-bottom:1px solid #f0f0f0;">sneha***@email.com</td><td style="padding:8px 10px;border-bottom:1px solid #f0f0f0;">Ahmedabad</td><td style="padding:8px 10px;border-bottom:1px solid #f0f0f0;">Real Estate</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="color:#888;font-size:12px;margin-top:0.75rem;text-align:center;">🔒 Data is blurred for preview. Full access after purchase.</p>
+</div>`,
+            isHtml: true,
+          })
+
+          // 4. Disclaimer
+          tabEntries.push({
+            label: 'Disclaimer',
+            content: `
+<div style="display:flex;flex-direction:column;gap:1rem;">
+  <div style="padding:14px;background:#fef7f5;border:1px solid rgba(255,91,46,0.12);border-radius:8px;border-left:4px solid #FF5B2E;">
+    <h3 style="margin:0 0 6px;font-size:15px;color:#1a1a1a;">📋 Data Compliance</h3>
+    <p style="margin:0;font-size:13px;color:#555;line-height:1.6;">This database is compiled from publicly available sources, business directories, and verified listings. It is intended for legitimate business communication purposes only. Users are responsible for complying with applicable data protection and privacy laws including IT Act 2000 and GDPR where applicable.</p>
+  </div>
+  <div style="padding:14px;background:#f0fdf4;border:1px solid rgba(34,197,94,0.15);border-radius:8px;border-left:4px solid #22c55e;">
+    <h3 style="margin:0 0 6px;font-size:15px;color:#1a1a1a;">🔄 Refund & Updates</h3>
+    <p style="margin:0;font-size:13px;color:#555;line-height:1.6;">We offer a 7-day replacement guarantee if the database is defective or doesn\'t match the description. Since this is a digital product, all sales are final after 7 days. Free lifetime updates are included — we\'ll notify you when refreshed data is available.</p>
+  </div>
+  <div style="padding:14px;background:#fafafa;border:1px solid #eef0f4;border-radius:8px;">
+    <h3 style="margin:0 0 6px;font-size:15px;color:#1a1a1a;">⚖️ Usage Rights</h3>
+    <p style="margin:0;font-size:13px;color:#555;line-height:1.6;">This product is licensed for <strong>commercial use</strong>. You may use the contacts for your own marketing campaigns, client projects, and business development. Reselling or redistributing the raw database as-is is strictly prohibited.</p>
+  </div>
+  <p style="margin-top:0.5rem;font-size:12px;color:#888;text-align:center;">For questions, contact <a href="mailto:marketing@digisharkscommunications.com" style="color:#FF5B2E;">marketing@digisharkscommunications.com</a></p>
+</div>`,
+            isHtml: true,
+          })
+
+          // 5. Reviews (placeholder link — actual reviews section is below)
+          tabEntries.push({
+            label: 'Reviews',
+            content: `<p style="color:#666;font-size:14px;">⭐ <strong>Scroll down</strong> to read genuine customer reviews and ratings for this product. <a href="#reviews" style="color:#FF5B2E;font-weight:600;">Jump to reviews ↓</a></p>`,
+            isHtml: true,
+          })
+
+          if (tabEntries.length === 0) return null
+
+          // Clamp activeTab to valid range
+          const safeIdx = activeTab >= tabEntries.length ? 0 : activeTab
+
+          return (
+            <div className="dp-tabs">
+              <div className="dp-tabs-inner">
+              <div className="dp-tabs-nav" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', flexWrap: 'nowrap' }}>
+                {tabEntries.map((tab, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    className={`dp-tab ${safeIdx === i ? 'active' : ''}`}
+                    onClick={() => setActiveTab(i)}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+              <div className="dp-content">
+                {tabEntries.map((tab, i) => (
+                  <div key={i} style={{ display: safeIdx === i ? 'block' : 'none' }}>
+                    {tab.isVideo ? (
+                      <div className="dp-video-wrap" style={{ maxWidth: 700, marginTop: 0 }}>
+                        {isYouTubeUrl(tab.content) ? (
+                          <iframe
+                            src={getYouTubeEmbedUrl(tab.content) || tab.content}
+                            title={tab.label}
+                            allowFullScreen
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          />
+                        ) : (
+                          <video src={tab.content} controls preload="metadata" />
+                        )}
+                      </div>
+                    ) : tab.isHtml ? (
+                      <div dangerouslySetInnerHTML={{ __html: tab.content }} />
+                    ) : (
+                      <div>{tab.content}</div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              </div>{/* end dp-tabs-inner */}
+            </div>
+          )
+        })()}
+
+        {/* ══ What's Included (dynamic) ══ */}
+        {includedItems.length > 0 && (
+          <>
+          <hr className="dp-section-divider" />
+          <section className="dp-whats-included">
+            <h2>📦 What's Included</h2>
+            <div className="dp-included-grid">
+              {includedItems.map((item, i) => (
+                <div key={i} className="dp-included-item">
+                  <span className="dp-included-icon">{item.icon}</span>
+                  <span className="dp-included-text"><strong>{item.title}</strong>{item.description ? ` — ${item.description}` : ''}</span>
+                </div>
               ))}
             </div>
-          )}
+          </section>
+          </>
+        )}
+
+        {/* ══ Coverage / Trust (dynamic) ══ */}
+        {coverageStats.length > 0 && (
+          <>
+          <hr className="dp-section-divider" />
+          <section className="dp-coverage-section">
+            <h2>🌍 Coverage & Trust</h2>
+            <div className="dp-coverage-card">
+              {coverageStats.map((stat, i) => (
+                <div key={i} className="dp-coverage-stat">
+                  <span className="stat-number">{stat.number}</span>
+                  <span className="stat-label">{stat.label}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+          </>
+        )}
+
+        {/* ── FAQ Accordion ── */}
+        {(() => {
+          // Use product.faq from DB, fall back to static content, then default FAQs
+          const fallbackContent = getProductContent(product.slug)
+          const dbFaq = product.faq
+          const staticFaq = fallbackContent?.faq
+          let faqItems: { q: string; a: string }[]
+          if (dbFaq && dbFaq.length > 0) {
+            faqItems = [...dbFaq].sort((a, b) => a.order - b.order)
+          } else if (staticFaq && staticFaq.length > 0) {
+            faqItems = staticFaq
+          } else {
+            faqItems = [
+              { q: 'When will I receive my product?', a: 'You\'ll get instant access to download your product right after your payment. A confirmation email with download instructions is also sent to your registered email within minutes.' },
+              { q: 'How long do I have access to the product?', a: 'Lifetime access — including all future updates and revisions at no extra cost. The download link remains active for 30 days.' },
+              { q: 'What if I need help using the product?', a: 'Our support team is available via email at marketing@digisharkscommunications.com. We typically respond within 24 hours on business days.' },
+              { q: 'Are there any hidden charges or subscriptions?', a: 'No. You pay once and get full access — no recurring fees, no hidden charges. All taxes are included in the displayed price.' },
+              { q: 'Can I get a refund if I\'m not satisfied?', a: 'Yes! We offer a 7-day refund guarantee if the product is defective or doesn\'t match the description. See our Refund Policy for full details.' },
+            ]
+          }
+
+          return (
+            <section className="dp-faq-section" aria-label="Frequently asked questions">
+              <div className="dp-faq-section-inner">
+              <h2>Frequently Asked Questions</h2>
+              <div className="dp-faq-list">
+                {faqItems.map((item, i) => {
+                  const isOpen = faqOpenIdx === i
+                  const panelId = `faq-panel-${i}`
+                  return (
+                    <div key={i} className={`dp-faq-item ${isOpen ? 'open' : ''}`}>
+                      <button
+                        type="button"
+                        id={`faq-btn-${i}`}
+                        className="dp-faq-q"
+                        onClick={() => setFaqOpenIdx(isOpen ? null : i)}
+                        aria-expanded={isOpen}
+                        aria-controls={panelId}
+                      >
+                        <span>{item.q}</span>
+                        <span className={`dp-faq-arrow ${isOpen ? 'open' : ''}`}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="9 18 15 12 9 6" />
+                          </svg>
+                        </span>
+                      </button>
+                      <div
+                        id={panelId}
+                        className={`dp-faq-a-wrap ${isOpen ? 'open' : ''}`}
+                        role="region"
+                        aria-labelledby={`faq-btn-${i}`}
+                      >
+                        <div className="dp-faq-a">
+                          <p>{item.a}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+              </div>{/* end dp-faq-section-inner */}
+            </section>
+          )
+        })()}
+
+        {/* ── Customer Reviews / Testimonials ── */}
+        {(() => {
+          // Use product.testimonials from DB, fall back to static content
+          const fallbackContent = getProductContent(product.slug)
+          const reviews = (product.testimonials && product.testimonials.length > 0)
+            ? product.testimonials
+            : fallbackContent?.testimonials
+          if (!reviews || reviews.length === 0) {
+          return (
+            <section className="dp-reviews" id="reviews" aria-label="Customer reviews">
+              <div className="dp-reviews-inner">
+              <div className="dp-reviews-header">
+                <h2>⭐ Customer Reviews</h2>
+              </div>
+              <div className="dp-reviews-empty">
+                  <span className="dp-reviews-empty-icon">💬</span>
+                  <p>No reviews yet. Be the first to review this product!</p>
+                </div>
+                </div>{/* end dp-reviews-inner */}
+              </section>
+            )
+          }
+
+          const totalRating = reviews.reduce((s, r) => s + r.stars, 0)
+          const avgRating = (totalRating / reviews.length).toFixed(1)
+
+          return (
+            <section className="dp-reviews" id="reviews" aria-label="Customer reviews">
+              <div className="dp-reviews-inner">
+              <div className="dp-reviews-header">
+                <h2>⭐ Customer Reviews</h2>
+                <div className="dp-reviews-summary">
+                  <span className="dp-reviews-avg">{avgRating}</span>
+                  <div className="dp-reviews-stars-row">
+                    {'★'.repeat(Math.round(Number(avgRating)))}{'☆'.repeat(5 - Math.round(Number(avgRating)))}
+                  </div>
+                  <span className="dp-reviews-count">Based on {reviews.length} review{reviews.length !== 1 ? 's' : ''}</span>
+                </div>
+              </div>
+
+              <div className="dp-reviews-grid">
+                {reviews.map((r, i) => {
+                  const initials = r.name.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase()
+                  const colors = ['#FF5B2E', '#0ea5e9', '#22c55e', '#a855f7', '#f59e0b', '#ec4899']
+                  const avatarColor = colors[i % colors.length]
+
+                  return (
+                    <div key={i} className="dp-review-card" style={{ animationDelay: `${i * 80}ms` }}>
+                      <div className="dp-review-avatar" style={{ background: avatarColor }}>
+                        {initials}
+                      </div>
+                      <div className="dp-review-body">
+                        <div className="dp-review-stars">
+                          {'★'.repeat(r.stars)}{'☆'.repeat(5 - r.stars)}
+                        </div>
+                        <p className="dp-review-text">{r.text}</p>
+                        <span className="dp-review-name">- {r.name}</span>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+              </div>{/* end dp-reviews-inner */}
+            </section>
+          )
+        })()}
+
+        {product.downloadUrl && (
+          <div className="dp-download-row">
+            <a
+              href={product.downloadUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="dp-cta-btn"
+              style={{ display: 'inline-flex', width: 'auto', padding: '14px 32px' }}
+            >
+              ⬇️ Download Now
+            </a>
+          </div>
+        )}
+
+        {/* Sticky mobile bottom bar */}
+        <div className="dp-mobile-bar">
+          <div>
+            <span className="dp-mob-price">{formatINR(effectivePrice)}</span>
+            {effectiveComparePrice > effectivePrice && (
+              <span className="dp-mob-original">{formatINR(effectiveComparePrice)}</span>
+            )}
+          </div>
+          <div className="dp-mob-actions">
+            <button
+              type="button"
+              className="dp-mob-cart"
+              onClick={handleAddToCart}
+              style={(product?.cartButtonBg || product?.cartButtonTextColor) ? {
+                ...(product?.cartButtonBg ? { background: product.cartButtonBg } : {}),
+                ...(product?.cartButtonTextColor ? { color: product.cartButtonTextColor, border: `1px solid ${product.cartButtonTextColor}` } : {}),
+              } as React.CSSProperties : {}}
+            >{cartBtnText}</button>
+            <button
+              type="button"
+              className="dp-mob-buy"
+              onClick={handleBuyNow}
+              style={(product?.buyButtonBg || product?.buyButtonTextColor) ? {
+                ...(product?.buyButtonBg ? { background: product.buyButtonBg } : {}),
+                ...(product?.buyButtonTextColor ? { color: product.buyButtonTextColor } : {}),
+              } as React.CSSProperties : {}}
+            >{buyBtnText}</button>
+          </div>
         </div>
-      )}
-
-      {/* ===================== STYLES (namespaced global) ===================== */}
-      <style jsx global>{`
-        .pi-product-page {
-          max-width: 1180px;
-          margin: 0 auto;
-          margin-top:80px;
-          padding: 1.5rem;
-          font-family: Arial, 'Hind Madurai', sans-serif;
-          color: #2b2b2b;
-          line-height: 1.6;
-          background: #ffffff;
-        }
-        .pi-product-page * {
-          box-sizing: border-box;
-        }
-
-        /* ---------- TOP ---------- */
-        .pi-product-page .top {
-          display: flex;
-          gap: 2.5rem;
-          align-items: flex-start;
-        }
-        .pi-product-page .gallery {
-          flex: 1 1 45%;
-          min-width: 0;
-          position: relative;
-        }
-        .pi-product-page .sale-badge {
-          position: absolute;
-          top: 12px;
-          left: 12px;
-          z-index: 2;
-          background: #4F46E5;
-          color: #fff;
-          font-size: 0.85rem;
-          font-weight: 600;
-          padding: 6px 14px;
-          border-radius: 999px;
-        }
-        .pi-product-page .search-icon {
-          position: absolute;
-          top: 12px;
-          right: 12px;
-          z-index: 2;
-          width: 30px;
-          height: 30px;
-          border-radius: 50%;
-          background: #fff;
-          border: 1px solid #e3e3e3;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 0.85rem;
-          padding: 0;
-          cursor: pointer;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-        .pi-product-page .search-icon:hover {
-          background: #f3f3f3;
-        }
-        .pi-product-page .gallery-main {
-          border: 1px solid #eee;
-          border-radius: 6px;
-          overflow: hidden;
-          aspect-ratio: 1 / 1;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: #f7f7f7;
-        }
-        .pi-product-page .gallery-main img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          cursor: zoom-in;
-        }
-        .pi-product-page .img-placeholder {
-          font-size: 3rem;
-          color: #ccc;
-        }
-        .pi-product-page .thumbs {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 0.6rem;
-          margin-top: 0.75rem;
-        }
-        .pi-product-page .thumbs button {
-          flex: 0 0 70px;
-          width: 70px;
-          height: 70px;
-          padding: 0;
-          border: 1px solid #ddd;
-          border-radius: 4px;
-          background: #fff;
-          cursor: pointer;
-          overflow: hidden;
-        }
-        .pi-product-page .thumbs button.active {
-          border-color: #4F46E5;
-        }
-        .pi-product-page .thumbs img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-        /* ---------- SUMMARY ---------- */
-        .pi-product-page .summary {
-          flex: 1 1 55%;
-          min-width: 0;
-        }
-        .pi-product-page .summary h1 {
-          font-size: 1.7rem;
-          font-weight: 700;
-          margin: 0 0 0.6rem;
-          color: #3a3a3a;
-        }
-        .pi-product-page .price-row {
-          display: flex;
-          align-items: baseline;
-          gap: 0.6rem;
-          margin-bottom: 0.75rem;
-        }
-        .pi-product-page .old-price {
-          color: #c8a24a;
-          text-decoration: line-through;
-          font-size: 1rem;
-        }
-        .pi-product-page .price {
-          color: #2b2b2b;
-          font-size: 1.35rem;
-          font-weight: 700;
-        }
-        .pi-product-page .video-label {
-          font-size: 0.9rem;
-          color: #555;
-          margin: 0.4rem 0;
-        }
-        .pi-product-page .video-wrap {
-          border-radius: 6px;
-          overflow: hidden;
-          background: #000;
-        }
-        .pi-product-page .video-wrap video {
-          width: 100%;
-          display: block;
-        }
-        .pi-product-page .stars {
-          color: #fbc02d;
-          font-size: 1.15rem;
-          margin: 0.75rem 0;
-          letter-spacing: 2px;
-        }
-        .pi-product-page .why-heading,
-        .pi-product-page .delivery-heading {
-          font-weight: 600;
-          margin: 0.75rem 0 0.4rem;
-          color: #2b2b2b;
-        }
-        .pi-product-page .why-list {
-          list-style: none;
-          margin: 0;
-          padding: 0;
-        }
-        .pi-product-page .why-list li {
-          margin: 0.35rem 0;
-          font-size: 0.95rem;
-          color: #333;
-        }
-        .pi-product-page .delivery-text {
-          font-size: 0.95rem;
-          color: #444;
-          margin: 0 0 1rem;
-        }
-
-        /* ---------- QUANTITY + ADD TO CART ---------- */
-        .pi-product-page .add-row {
-          display: flex;
-          flex-wrap: wrap;
-          align-items: stretch;
-          gap: 0.75rem;
-          margin-top: 0.5rem;
-        }
-        .pi-product-page .qty {
-          display: flex;
-          align-items: center;
-          border: 1px solid #ccc;
-          border-radius: 4px;
-          overflow: hidden;
-        }
-        .pi-product-page .qty button {
-          width: 38px;
-          height: 44px;
-          border: none;
-          background: #4F46E5;
-          font-size: 1.2rem;
-          cursor: pointer;
-          color: #fff;
-        }
-        .pi-product-page .qty button:hover {
-          background: #312E81;
-        }
-        .pi-product-page .qty input {
-          width: 48px;
-          height: 44px;
-          border: none;
-          border-left: 1px solid #ddd;
-          border-right: 1px solid #ddd;
-          text-align: center;
-          font-size: 1rem;
-          color: #2b2b2b;
-          background: #fff;
-          -moz-appearance: textfield;
-        }
-        .pi-product-page .qty input::-webkit-outer-spin-button,
-        .pi-product-page .qty input::-webkit-inner-spin-button {
-          -webkit-appearance: none;
-          margin: 0;
-        }
-        .pi-product-page .add-to-cart {
-          flex: 0 0 auto;
-          background: #4F46E5;
-          color: #fff;
-          font-weight: 600;
-          font-size: 0.95rem;
-          padding: 0 1.6rem;
-          border-radius: 4px;
-          display: inline-flex;
-          align-items: center;
-          text-decoration: none;
-          border: none;
-          cursor: pointer;
-          font-family: inherit;
-          transition: background 0.15s ease;
-        }
-        .pi-product-page .add-to-cart:hover {
-          background: #312E81;
-          color: #fff;
-        }
-
-        /* ---------- TABS ---------- */
-        .pi-product-page .tabs {
-          margin-top: 2.5rem;
-          border-bottom: 1px solid #e3e3e3;
-        }
-        .pi-product-page .tab {
-          background: none;
-          border: none;
-          border-bottom: 2px solid transparent;
-          padding: 0.75rem 1rem;
-          font-size: 0.95rem;
-          cursor: pointer;
-          color: #555;
-        }
-        .pi-product-page .tab.active {
-          color: #1a1a1a;
-          border-bottom-color: #1a1a1a;
-          font-weight: 600;
-        }
-        .pi-product-page .section-title {
-          font-size: 1.8rem;
-          font-weight: 400;
-          margin: 1.5rem 0 1rem;
-          color: #2b2b2b;
-        }
-
-        /* ---------- DESCRIPTION PANEL ---------- */
-        .pi-product-page .desc-panel {
-          background: #fafafa;
-          border: 1px solid #eee;
-          border-radius: 8px;
-          padding: 2rem;
-          overflow: hidden;
-        }
-        .pi-product-page .desc-grid {
-          display: flex;
-          gap: 2rem;
-          align-items: flex-start;
-          width: 100%;
-        }
-        .pi-product-page .desc-main {
-          flex: 1 1 64%;
-          min-width: 0;
-          background: #fff;
-          border: 1px solid #eee;
-          border-radius: 8px;
-          padding: 1.75rem;
-          color: #2b2b2b;
-        }
-        .pi-product-page .desc-title {
-          color: #d32f2f;
-          margin: 0 0 1rem;
-          font-size: 1.45rem;
-        }
-        .pi-product-page .desc-main h3 {
-          margin: 1.4rem 0 0.5rem;
-          font-size: 1.05rem;
-          color: #2b2b2b;
-        }
-        .pi-product-page .desc-main p {
-          color: #2b2b2b;
-        }
-        .pi-product-page .desc-main ul {
-          margin: 0.4rem 0 0.4rem 1.2rem;
-          padding: 0;
-          color: #2b2b2b;
-        }
-        .pi-product-page .desc-main ul ul {
-          margin-top: 0.3rem;
-        }
-        .pi-product-page .desc-main li {
-          margin: 0.25rem 0;
-        }
-
-        .pi-product-page .sale-banner {
-          background: rgba(79,70,229, 0.1);
-          color: #312E81;
-          padding: 10px;
-          text-align: center;
-          font-size: 20px;
-          font-weight: bold;
-          border-radius: 4px;
-          margin-top: 1.5rem;
-        }
-        .pi-product-page .cta-wrap {
-          text-align: center;
-          margin-top: 20px;
-        }
-        .pi-product-page .download-btn {
-          background: #4F46E5;
-          color: #fff;
-          font-size: 20px;
-          font-weight: bold;
-          text-decoration: none;
-          padding: 14px 28px;
-          border-radius: 6px;
-          border: none;
-          cursor: pointer;
-          font-family: inherit;
-          display: inline-block;
-          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-          transition: background 0.15s ease, transform 0.15s ease;
-        }
-        .pi-product-page .download-btn:hover {
-          background: #312E81;
-          color: #fff;
-          transform: translateY(-1px);
-        }
-        .pi-product-page .query-box {
-          text-align: center;
-          margin-top: 10px;
-          font-size: 16px;
-          background: #ffeb3b;
-          color: #000;
-          padding: 10px;
-          border-radius: 4px;
-        }
-        .pi-product-page .query-box a {
-          color: #000;
-          font-weight: bold;
-          text-decoration: underline;
-        }
-
-        /* ---------- TESTIMONIALS ---------- */
-        .pi-product-page .testimonials {
-          max-width: 600px;
-          margin: 2rem auto 0;
-        }
-        .pi-product-page .testimonials-heading {
-          font-weight: 600;
-          margin-bottom: 8px;
-          padding-top: 15px;
-          color: #2b2b2b;
-        }
-        .pi-product-page .testimonial-card {
-          display: flex;
-          gap: 15px;
-          border: 1px solid #eee;
-          border-radius: 10px;
-          padding: 15px;
-          margin-bottom: 20px;
-          align-items: center;
-          background: #fff;
-          color: #2b2b2b;
-        }
-        .pi-product-page .testimonial-avatar {
-          width: 60px;
-          height: 60px;
-          border-radius: 50%;
-          object-fit: cover;
-          flex-shrink: 0;
-        }
-        .pi-product-page .testimonial-stars {
-          color: #fbc02d;
-          font-size: 20px;
-          line-height: 1;
-        }
-        .pi-product-page .testimonial-text {
-          margin: 5px 0;
-          color: #2b2b2b;
-        }
-
-        /* ---------- FAQ (forced light to beat a dark global theme) ---------- */
-        .pi-product-page .faq {
-          flex: 1 1 36%;
-          min-width: 0;
-          background: #ffffff !important;
-          border: 1px solid #eee !important;
-          border-radius: 8px;
-          padding: 1.5rem;
-          position: sticky;
-          top: 1rem;
-          color: #2b2b2b !important;
-          box-shadow: none !important;
-        }
-        .pi-product-page .faq h3 {
-          color: #1a1a1a !important;
-          background: transparent !important;
-          margin-top: 0;
-        }
-        .pi-product-page .faq-item {
-          margin: 0 0 0.9rem !important;
-          padding: 0 !important;
-          background: transparent !important;
-          border: none !important;
-          border-radius: 0 !important;
-          box-shadow: none !important;
-          color: #444 !important;
-        }
-        .pi-product-page .faq-item strong {
-          color: #1a1a1a !important;
-          background: transparent !important;
-        }
-        .pi-product-page .related {
-          margin-top: 1.25rem;
-          background: transparent !important;
-          color: #444 !important;
-        }
-
-        /* ---------- ZOOM LIGHTBOX ---------- */
-        .pi-product-page .pi-lightbox {
-          position: fixed;
-          inset: 0;
-          z-index: 9999;
-          background: rgba(0, 0, 0, 0.88);
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          gap: 1rem;
-          padding: 2rem;
-        }
-        .pi-product-page .pi-lightbox-stage {
-          max-width: 92vw;
-          max-height: 80vh;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          overflow: hidden;
-        }
-        .pi-product-page .pi-lightbox-stage img {
-          max-width: 92vw;
-          max-height: 80vh;
-          object-fit: contain;
-          cursor: zoom-in;
-          transition: transform 0.2s ease;
-          user-select: none;
-          -webkit-user-drag: none;
-        }
-        .pi-product-page .pi-lightbox-stage img.zoomed {
-          transform: scale(2.2);
-          cursor: zoom-out;
-        }
-        .pi-product-page .pi-lightbox-close {
-          position: absolute;
-          top: 1rem;
-          right: 1.25rem;
-          width: 42px;
-          height: 42px;
-          border-radius: 50%;
-          border: none;
-          background: rgba(255, 255, 255, 0.92);
-          color: #222;
-          font-size: 1.7rem;
-          line-height: 1;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        .pi-product-page .pi-lightbox-close:hover {
-          background: #fff;
-        }
-        .pi-product-page .pi-lightbox-thumbs {
-          display: flex;
-          gap: 0.5rem;
-          flex-wrap: wrap;
-          justify-content: center;
-        }
-        .pi-product-page .pi-lightbox-thumbs button {
-          width: 58px;
-          height: 58px;
-          padding: 0;
-          border: 2px solid transparent;
-          border-radius: 4px;
-          background: #fff;
-          cursor: pointer;
-          overflow: hidden;
-          opacity: 0.7;
-        }
-        .pi-product-page .pi-lightbox-thumbs button.active {
-          border-color: #fff;
-          opacity: 1;
-        }
-        .pi-product-page .pi-lightbox-thumbs img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-
-        /* ---------- FOOTER ---------- */
-        .pi-product-page .footer-image {
-          text-align: center;
-          margin-top: 2.5rem;
-        }
-        .pi-product-page .footer-image img {
-          max-width: 100%;
-          height: auto;
-        }
-
-        /* ---------- RESPONSIVE ---------- */
-        @media (max-width: 900px) {
-          .pi-product-page .top {
-            flex-direction: column;
-            gap: 1.75rem;
-          }
-          .pi-product-page .desc-grid {
-            flex-direction: column !important;
-          }
-          .pi-product-page .desc-main,
-          .pi-product-page .faq {
-            flex: 1 1 100% !important;
-            width: 100% !important;
-            max-width: 100% !important;
-          }
-          .pi-product-page .faq {
-            position: static !important;
-            top: auto;
-          }
-        }
-        @media (max-width: 768px) {
-          .pi-product-page {
-            padding: 1rem;
-          }
-          .pi-product-page .desc-panel {
-            padding: 1rem;
-          }
-          .pi-product-page .desc-main {
-            padding: 1.1rem;
-          }
-          .pi-product-page .summary h1 {
-            font-size: 1.4rem;
-          }
-          .pi-product-page .add-to-cart {
-            flex: 1 1 auto;
-            justify-content: center;
-            padding: 0.75rem 1.2rem;
-          }
-          .pi-product-page .sale-banner,
-          .pi-product-page .download-btn {
-            font-size: 17px;
-          }
-          .pi-product-page .download-btn {
-            display: block;
-            padding: 14px 16px;
-          }
-          .pi-product-page .testimonial-card {
-            flex-direction: column;
-            text-align: center;
-          }
-        }
-        @media (max-width: 480px) {
-          .pi-product-page {
-            padding: 0.75rem;
-          }
-          .pi-product-page .thumbs button {
-            flex: 0 0 56px;
-            width: 56px;
-            height: 56px;
-          }
-          .pi-product-page .summary h1 {
-            font-size: 1.25rem;
-          }
-          .pi-product-page .price {
-            font-size: 1.2rem;
-          }
-          .pi-product-page .sale-banner,
-          .pi-product-page .download-btn {
-            font-size: 15px;
-          }
-          .pi-product-page .section-title {
-            font-size: 1.4rem;
-          }
-        }
-      `}</style>
+      </main>
     </div>
   )
 }

@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
+import { useCart } from "@/lib/cart-context";
 
 export type NavKey =
   | "home"
@@ -52,89 +53,94 @@ const DEFAULT_SERVICES_SUB: MenuItem[] = [
   { _id: "sub-bp", label: "Brand Promotion", href: "/brand-promotion/", order: 4 },
 ];
 
-// Social icon SVG paths (design assets — kept hardcoded)
-const SOCIAL_ICONS: Record<string, string> = {
-  facebook: "M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z",
-  twitter: "M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z",
-  instagram: "M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z",
-  linkedin: "M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.063 2.063 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z",
-  youtube: "M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z",
-}
+import { KNOWN_PLATFORMS, getSvgPath } from '@/lib/social-icons'
 
-const SOCIAL_LABELS: Record<string, string> = {
-  facebook: 'Facebook',
-  twitter: 'X / Twitter',
-  instagram: 'Instagram',
-  linkedin: 'LinkedIn',
-  youtube: 'YouTube',
-}
-
-const SOCIAL_KEYS = ['facebook', 'twitter', 'instagram', 'linkedin', 'youtube'] as const
-type SocialPlatform = (typeof SOCIAL_KEYS)[number]
-
-const DEFAULT_SOCIAL_URLS: Record<SocialPlatform, string> = {
-  facebook: 'https://www.facebook.com/digisharks',
-  twitter: 'https://twitter.com/digisharks',
-  instagram: 'https://www.instagram.com/digisharks',
-  linkedin: 'https://www.linkedin.com/company/digisharks',
-  youtube: 'https://www.youtube.com/@digisharks',
+interface SocialLink {
+  platform: string
+  label: string
+  url: string
+  iconSvg: string
+  iconEmoji: string
 }
 
 export default function Navigation({ active = "none" }: NavigationProps) {
   const [navItems, setNavItems] = useState<MenuItem[]>([]);
   const [servicesSub, setServicesSub] = useState<MenuItem[]>([]);
-  const [socialUrls, setSocialUrls] = useState<Record<SocialPlatform, string>>(DEFAULT_SOCIAL_URLS);
+  const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
   const [headerLogo, setHeaderLogo] = useState('');
   const [headerLogoAlt, setHeaderLogoAlt] = useState('DigiSharks Logo');
   const [socialOpen, setSocialOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
   const dropdownRef = useRef<HTMLLIElement>(null);
+  const cartRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname() || "/";
 
-  // ── Fetch nav items & social links from CMS ───────────────────────────
-  useEffect(() => {
-    async function loadMenus() {
-      try {
-        const [navRes, subRes, settingsRes] = await Promise.all([
-          fetch("/api/public/menus?type=main-nav"),
-          fetch("/api/public/menus?type=services-sub"),
-          fetch("/api/public/settings"),
-        ]);
-        const navData = await navRes.json();
-        const subData = await subRes.json();
-        const settingsData = await settingsRes.json();
+  const { items: cartItems, itemCount, subtotal, remove } = useCart();
 
-        if (settingsData.settings) {
-          setSocialUrls({
-            facebook: settingsData.settings.socialFacebook || DEFAULT_SOCIAL_URLS.facebook,
-            twitter: settingsData.settings.socialTwitter || DEFAULT_SOCIAL_URLS.twitter,
-            instagram: settingsData.settings.socialInstagram || DEFAULT_SOCIAL_URLS.instagram,
-            linkedin: settingsData.settings.socialLinkedin || DEFAULT_SOCIAL_URLS.linkedin,
-            youtube: settingsData.settings.socialYoutube || DEFAULT_SOCIAL_URLS.youtube,
-          });
-          if (settingsData.settings.headerLogo) setHeaderLogo(settingsData.settings.headerLogo);
-          if (settingsData.settings.headerLogoAlt) setHeaderLogoAlt(settingsData.settings.headerLogoAlt);
+  function formatINR(amount: number): string {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0,
+    }).format(amount)
+  }
+
+  // ── Fetch nav items & social links from CMS (combined init endpoint) ───
+  useEffect(() => {
+    fetch("/api/public/init")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.settings) {
+          // Use dynamic socialLinks if available, otherwise fall back to legacy fields
+          if (data.settings.socialLinks && data.settings.socialLinks.length > 0) {
+            setSocialLinks(data.settings.socialLinks);
+          } else {
+            // Build from legacy individual fields
+            const legacy: SocialLink[] = [];
+            const legacyFields: [string, string][] = [
+              ['facebook', data.settings.socialFacebook],
+              ['twitter', data.settings.socialTwitter],
+              ['instagram', data.settings.socialInstagram],
+              ['linkedin', data.settings.socialLinkedin],
+              ['youtube', data.settings.socialYoutube],
+            ];
+            for (const [platform, url] of legacyFields) {
+              if (url) {
+                const known = KNOWN_PLATFORMS.find((p) => p.platform === platform);
+                legacy.push({
+                  platform,
+                  label: known?.label || platform,
+                  url,
+                  iconSvg: known?.iconSvg || '',
+                  iconEmoji: known?.iconEmoji || '🔗',
+                });
+              }
+            }
+            setSocialLinks(legacy.length > 0 ? legacy : []);
+          }
+          if (data.settings.headerLogo) setHeaderLogo(data.settings.headerLogo);
+          if (data.settings.headerLogoAlt) setHeaderLogoAlt(data.settings.headerLogoAlt);
         }
 
-        if (navData.items && navData.items.length > 0) {
-          setNavItems(navData.items);
+        if (data.mainNav && data.mainNav.length > 0) {
+          setNavItems(data.mainNav);
         } else {
           setNavItems(DEFAULT_NAV_ITEMS);
         }
 
-        if (subData.items && subData.items.length > 0) {
-          setServicesSub(subData.items);
+        if (data.servicesSub && data.servicesSub.length > 0) {
+          setServicesSub(data.servicesSub);
         } else {
           setServicesSub(DEFAULT_SERVICES_SUB);
         }
-      } catch {
+      })
+      .catch(() => {
         setNavItems(DEFAULT_NAV_ITEMS);
         setServicesSub(DEFAULT_SERVICES_SUB);
-      }
-    }
-    loadMenus();
+      })
   }, []);
 
   // Derive active state automatically from the current URL
@@ -179,13 +185,17 @@ export default function Navigation({ active = "none" }: NavigationProps) {
     setMobileOpen(false);
     setServicesOpen(false);
     setSocialOpen(false);
+    setCartOpen(false);
   }, [pathname]);
 
-  // Close dropdown when clicking outside
+  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setShowDropdown(false);
+      }
+      if (cartRef.current && !cartRef.current.contains(e.target as Node)) {
+        setCartOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClick);
@@ -294,21 +304,96 @@ export default function Navigation({ active = "none" }: NavigationProps) {
         </ul>
 
         <div className="nav-social-icons" aria-label="Social media links">
-          {SOCIAL_KEYS.map((key) => (
+          {socialLinks.map((link) => (
             <a
-              key={key}
-              href={socialUrls[key]}
+              key={link.platform}
+              href={link.url}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label={SOCIAL_LABELS[key]}
-              title={SOCIAL_LABELS[key]}
+              aria-label={link.label}
+              title={link.label}
               className="nav-social-icon"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path d={SOCIAL_ICONS[key]} />
+                <path d={link.iconSvg || getSvgPath(link.platform)} />
               </svg>
             </a>
           ))}
+        </div>
+
+        {/* ── Cart icon with badge ── */}
+        <div className="nav-cart-wrap" ref={cartRef}>
+          <button
+            type="button"
+            className="nav-cart-btn"
+            aria-label={`Shopping cart with ${itemCount} item${itemCount !== 1 ? 's' : ''}`}
+            onClick={() => setCartOpen((v) => !v)}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <circle cx="9" cy="21" r="1" />
+              <circle cx="20" cy="21" r="1" />
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+            </svg>
+            {itemCount > 0 && <span className="nav-cart-badge">{itemCount > 99 ? '99+' : itemCount}</span>}
+          </button>
+
+          {/* ── Mini-cart dropdown ── */}
+          {cartOpen && (
+            <div className="nav-minicart">
+              <div className="nav-minicart-header">
+                <span className="nav-minicart-title">Shopping Cart</span>
+                <span className="nav-minicart-count">{itemCount} item{itemCount !== 1 ? 's' : ''}</span>
+              </div>
+
+              {cartItems.length === 0 ? (
+                <div className="nav-minicart-empty">
+                  <span className="nav-minicart-empty-icon">🛒</span>
+                  <p>Your cart is empty</p>
+                </div>
+              ) : (
+                <>
+                  <ul className="nav-minicart-items">
+                    {cartItems.map((ci) => (
+                      <li key={ci.slug} className="nav-minicart-item">
+                        {ci.image && (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={ci.image} alt="" className="nav-minicart-item-img" />
+                        )}
+                        <div className="nav-minicart-item-info">
+                          <div className="nav-minicart-item-title">{ci.title}</div>
+                          <div className="nav-minicart-item-meta">
+                            <span>{ci.qty} × {formatINR(ci.price)}</span>
+                            <button
+                              type="button"
+                              className="nav-minicart-item-remove"
+                              onClick={() => remove(ci.slug)}
+                              aria-label={`Remove ${ci.title} from cart`}
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <div className="nav-minicart-subtotal">
+                    <span>Subtotal</span>
+                    <span className="nav-minicart-subtotal-amount">{formatINR(subtotal)}</span>
+                  </div>
+
+                  <div className="nav-minicart-actions">
+                    <Link href="/shopping-cart" className="nav-minicart-btn" onClick={() => setCartOpen(false)}>
+                      View Cart
+                    </Link>
+                    <Link href="/checkout" className="nav-minicart-btn nav-minicart-btn-primary" onClick={() => setCartOpen(false)}>
+                      Checkout
+                    </Link>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
         </div>
 
         <button
@@ -427,20 +512,20 @@ export default function Navigation({ active = "none" }: NavigationProps) {
             <span className="mobile-social-caret" aria-hidden="true">▾</span>
           </button>
           <div className={"mobile-social-panel" + (socialOpen ? " open" : "")} id="mobileSocialPanel">
-            {SOCIAL_KEYS.map((key) => (
+            {socialLinks.map((link) => (
               <a
-                key={key}
-                href={socialUrls[key]}
+                key={link.platform}
+                href={link.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label={SOCIAL_LABELS[key]}
+                aria-label={link.label}
                 className="mobile-social-icon"
                 onClick={() => setSocialOpen(false)}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                  <path d={SOCIAL_ICONS[key]} />
+                  <path d={link.iconSvg || getSvgPath(link.platform)} />
                 </svg>
-                <span>{SOCIAL_LABELS[key]}</span>
+                <span>{link.label}</span>
               </a>
             ))}
           </div>

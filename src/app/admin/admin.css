@@ -150,6 +150,7 @@
   padding: 32px;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
   backdrop-filter: blur(8px);
+  margin-top: 50px;
 }
 
 .admin-login-logo {
@@ -774,12 +775,16 @@
 .admin-shell .modal.lg {
   max-width: 820px;
 }
-
+.admin-shell .modal.lg h2{
+  color:white !important;
+}
 .admin-shell .modal h2 {
   margin: 0 0 6px;
   font-size: 18px;
 }
-
+.admin-layout h3,h3{
+  color:white !important;
+}
 .admin-shell .modal .modal-sub {
   color: #94a3b8;
   font-size: 13px;

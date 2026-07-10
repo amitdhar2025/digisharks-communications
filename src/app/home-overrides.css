@@ -1103,10 +1103,10 @@ h1, h2, h3, h4 {
   color:white !important;
 }
 .career-job-title{
-  color:white !important;
+  color:#262C3D !important;
 }
 .career-modal-title{
-    color:white !important;
+    color:#262C3D !important;
 }
 .career-values-title{
   color:#0F1628 !important;
@@ -2467,6 +2467,228 @@ body::after,
 /* ====================================================================
    REMOVE ALL ANIMATIONS ON PREFERS-REDUCED-MOTION
    ==================================================================== */
+/* ====================================================================
+   MINI-CART DROPDOWN
+   ==================================================================== */
+.nav-cart-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  margin-left: 0.5rem;
+}
+.nav-cart-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  border: 1.5px solid #e5e7eb;
+  background: #f3f4f6;
+  color: #0F1628;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+  margin-right: 10px;
+}
+.nav-cart-btn:hover {
+  color: #ffffff;
+  background: #FF5B2E;
+  border-color: #FF5B2E;
+}
+.nav-cart-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: #FF5B2E;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+  padding: 0 4px;
+  box-shadow: 0 2px 6px rgba(255,91,46,0.4);
+  pointer-events: none;
+}
+.nav-minicart {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 200;
+  width: 340px;
+  max-width: calc(100vw - 40px);
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 18px 50px rgba(0,0,0,0.15);
+  overflow: hidden;
+  animation: nav-minicart-in 0.18s ease;
+}
+@keyframes nav-minicart-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.nav-minicart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+.nav-minicart-title {
+  font-weight: 700;
+  font-size: 14px;
+  color: #0F1628;
+}
+.nav-minicart-count {
+  font-size: 12px;
+  color: #6B7280;
+  font-weight: 500;
+}
+.nav-minicart-empty {
+  padding: 32px 16px;
+  text-align: center;
+  color: #9CA3AF;
+}
+.nav-minicart-empty-icon {
+  font-size: 28px;
+  display: block;
+  margin-bottom: 6px;
+}
+.nav-minicart-empty p {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+}
+.nav-minicart-items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 280px;
+  overflow-y: auto;
+}
+.nav-minicart-item {
+  display: flex;
+  gap: 10px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f3f4f6;
+  align-items: center;
+}
+.nav-minicart-item:last-child {
+  border-bottom: none;
+}
+.nav-minicart-item-img {
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: #f7f7f7;
+  border: 1px solid #e5e7eb;
+  flex-shrink: 0;
+}
+.nav-minicart-item-info {
+  flex: 1;
+  min-width: 0;
+}
+.nav-minicart-item-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0F1628;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+.nav-minicart-item-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #6B7280;
+}
+.nav-minicart-item-remove {
+  background: none;
+  border: none;
+  color: #9CA3AF;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+}
+.nav-minicart-item-remove:hover {
+  color: #EF4444;
+  background: rgba(239,68,68,0.08);
+}
+.nav-minicart-subtotal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-top: 1px solid #e5e7eb;
+  font-size: 13px;
+  color: #6B7280;
+  font-weight: 600;
+}
+.nav-minicart-subtotal-amount {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0F1628;
+}
+.nav-minicart-actions {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid #e5e7eb;
+}
+.nav-minicart-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.15s;
+  border: 1.5px solid #e5e7eb;
+  background: #ffffff;
+  color: #0F1628;
+}
+.nav-minicart-btn:hover {
+  border-color: #FF5B2E;
+  color: #FF5B2E;
+  background: rgba(255,91,46,0.04);
+}
+.nav-minicart-btn-primary {
+  background: #FF5B2E;
+  border-color: #FF5B2E;
+  color: #ffffff;
+}
+.nav-minicart-btn-primary:hover {
+  background: #E04A1F;
+  border-color: #E04A1F;
+  color: #ffffff;
+}
+
+/* Keep cart visible on mobile when social icons are hidden */
+@media (max-width: 1100px) {
+  .nav-cart-wrap {
+    margin-left: 0.3rem;
+  }
+}
+@media (max-width: 900px) {
+  .nav-cart-wrap {
+    margin-left: auto;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .fade-up, .fade-left, .fade-right, .scale-in {
     transition: none !important;

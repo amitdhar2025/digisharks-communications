@@ -38,6 +38,8 @@ interface Settings {
   pillPaddingX: number
   pillPaddingY: number
 
+  mobileBottomOffset: number
+
   isEnabled: boolean
 }
 
@@ -64,6 +66,7 @@ const DEFAULTS: Settings = {
   pillFontSize: 15,
   pillPaddingX: 22,
   pillPaddingY: 10,
+  mobileBottomOffset: 110,
   isEnabled: true,
 }
 
@@ -491,6 +494,21 @@ export default function ChatbotSettingsPage() {
                 max={28}
                 step={1}
                 hint="Top & bottom padding of the pill (4–28 px)"
+              />
+
+              {/* ===== Mobile Positioning ===== */}
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#7dd3fc', textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: 24, marginBottom: 12 }}>
+                📱 Mobile Positioning
+              </div>
+
+              <SizeField
+                label="Mobile Bottom Offset"
+                value={settings.mobileBottomOffset}
+                onChange={(v) => setSettings({ ...settings, mobileBottomOffset: v })}
+                min={20}
+                max={300}
+                step={5}
+                hint="Distance from bottom on mobile product pages (20–300 px). Increase if chatbot overlaps the mobile bottom bar."
               />
 
               {/* ===== Advanced (chat-window internals) ===== */}

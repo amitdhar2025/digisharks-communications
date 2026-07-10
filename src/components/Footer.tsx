@@ -33,11 +33,20 @@ const rowStyle: React.CSSProperties = {
   whiteSpace: 'nowrap',
 }
 
+interface SocialLink {
+  platform: string
+  label: string
+  url: string
+  iconSvg: string
+  iconEmoji: string
+}
+
 interface FooterSettings {
   phone: string;
   email: string;
   address: string;
   businessHours: string;
+  socialLinks?: SocialLink[];
   socialFacebook: string;
   socialTwitter: string;
   socialInstagram: string;
@@ -51,6 +60,7 @@ interface FooterSettings {
   refundPolicyUrl: string;
   footerLogo: string;
   footerLogoAlt: string;
+  footerLinkColumns?: { heading: string; links: { text: string; href: string }[] }[];
 }
 
 const DEFAULT_SETTINGS: FooterSettings = {
@@ -58,6 +68,13 @@ const DEFAULT_SETTINGS: FooterSettings = {
   email: 'marketing@digisharkscommunications.com',
   address: 'B-2, C-87, C Block, Sector 63<br />Noida, Uttar Pradesh 201301',
   businessHours: 'Mon–Sat: 10:00 AM – 7:00 PM IST',
+  socialLinks: [
+    { platform: 'facebook', label: 'Facebook', url: 'https://www.facebook.com/digisharks', iconSvg: '', iconEmoji: '📘' },
+    { platform: 'instagram', label: 'Instagram', url: 'https://www.instagram.com/digisharks', iconSvg: '', iconEmoji: '📸' },
+    { platform: 'linkedin', label: 'LinkedIn', url: 'https://www.linkedin.com/company/digisharks', iconSvg: '', iconEmoji: '💼' },
+    { platform: 'twitter', label: 'X / Twitter', url: 'https://twitter.com/digisharks', iconSvg: '', iconEmoji: '🐦' },
+    { platform: 'youtube', label: 'YouTube', url: 'https://www.youtube.com/@digisharks', iconSvg: '', iconEmoji: '▶️' },
+  ],
   socialFacebook: 'https://www.facebook.com/digisharks',
   socialTwitter: 'https://twitter.com/digisharks',
   socialInstagram: 'https://www.instagram.com/digisharks',
@@ -71,6 +88,26 @@ const DEFAULT_SETTINGS: FooterSettings = {
   refundPolicyUrl: '#',
   footerLogo: '',
   footerLogoAlt: 'DigiSharks Logo',
+  footerLinkColumns: [
+    { heading: 'Quick Links', links: [
+      { text: 'Home', href: '/' },
+      { text: 'About Us', href: '/about-us' },
+      { text: 'Services', href: '/services-top-pr-digital-marketing/' },
+      { text: 'Press Release', href: '/press-release/' },
+      { text: 'Digital Marketing', href: '/digital-marketing-agency/' },
+      { text: 'Digital Products', href: '/digital-products/' },
+      { text: 'Wishlist ♡', href: '/wishlist' },
+      { text: 'Contact', href: '/contact-us' },
+    ]},
+    { heading: 'Services', links: [
+      { text: 'Digital PR', href: '/press-release/' },
+      { text: 'SEO and PPC', href: '/digital-marketing-agency/' },
+      { text: 'Social Media', href: '/social-media/' },
+      { text: 'Web Development', href: '/web-development/' },
+      { text: 'Brand Promotion', href: '/brand-promotion/' },
+      { text: 'Political Campaigns', href: '/services-top-pr-digital-marketing/' },
+    ]},
+  ],
 }
 
 export default function Footer() {
@@ -110,35 +147,39 @@ export default function Footer() {
           </Link>
           <p className="footer-tagline">{s.footerTagline}</p>
           <div className="social-icons">
-            <a href={s.socialFacebook} target="_blank" rel="noopener noreferrer" className="social-icon" aria-label="Facebook">📘</a>
-            <a href={s.socialInstagram} target="_blank" rel="noopener noreferrer" className="social-icon" aria-label="Instagram">📸</a>
-            <a href={s.socialLinkedin} target="_blank" rel="noopener noreferrer" className="social-icon" aria-label="LinkedIn">💼</a>
-            <a href={s.socialTwitter} target="_blank" rel="noopener noreferrer" className="social-icon" aria-label="Twitter">🐦</a>
-            <a href={s.socialYoutube} target="_blank" rel="noopener noreferrer" className="social-icon" aria-label="YouTube">▶️</a>
+            {(s.socialLinks && s.socialLinks.length > 0 ? s.socialLinks : [
+              { platform: 'facebook', label: 'Facebook', url: s.socialFacebook, iconEmoji: '📘' },
+              { platform: 'instagram', label: 'Instagram', url: s.socialInstagram, iconEmoji: '📸' },
+              { platform: 'linkedin', label: 'LinkedIn', url: s.socialLinkedin, iconEmoji: '💼' },
+              { platform: 'twitter', label: 'X / Twitter', url: s.socialTwitter, iconEmoji: '🐦' },
+              { platform: 'youtube', label: 'YouTube', url: s.socialYoutube, iconEmoji: '▶️' },
+            ] as SocialLink[]).filter((l) => l.url).map((link) => (
+              <a
+                key={link.platform}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="social-icon"
+                aria-label={link.label}
+                title={link.label}
+              >
+                {link.iconEmoji || '🔗'}
+              </a>
+            ))}
           </div>
         </div>
-        <div className="footer-col">
-          <h4>Quick Links</h4>
-          <ul>
-            <li><Link href="/">Home</Link></li>
-            <li><Link href="/about-us">About Us</Link></li>
-            <li><Link href="/services-top-pr-digital-marketing/">Services</Link></li>
-            <li><Link href="/press-release/">Press Release</Link></li>
-            <li><Link href="/digital-marketing-agency/">Digital Marketing</Link></li>
-            <li><Link href="/contact-us">Contact</Link></li>
-          </ul>
-        </div>
-        <div className="footer-col">
-          <h4>Services</h4>
-          <ul>
-            <li><Link href="/press-release/">Digital PR</Link></li>
-            <li><Link href="/digital-marketing-agency/">SEO and PPC</Link></li>
-            <li><Link href="/social-media/">Social Media</Link></li>
-            <li><Link href="/web-development/">Web Development</Link></li>
-            <li><Link href="/brand-promotion/">Brand Promotion</Link></li>
-            <li><Link href="/services-top-pr-digital-marketing/">Political Campaigns</Link></li>
-          </ul>
-        </div>
+        {(s.footerLinkColumns || []).map((col, ci) => (
+          <div key={ci} className="footer-col">
+            <h4>{col.heading}</h4>
+            <ul>
+              {(col.links || []).map((link, li) => (
+                <li key={li}>
+                  <Link href={link.href}>{link.text}</Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
         <div className="footer-col footer-contact">
           <h4>Contact Info</h4>
           <ul className="footer-contact-list" style={{ listStyle: 'none', padding: 0, margin: 0 }}>

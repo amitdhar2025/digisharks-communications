@@ -121,7 +121,24 @@ export default function SeoAuditSettingsPage() {
         {error && <div className="alert alert-error">{error}</div>}
         {success && <div className="alert alert-success">{success}</div>}
 
-        <form onSubmit={handleSave}>
+        <form onSubmit={handleSave} autoComplete="off">
+          {/* Hidden dummy fields for password manager suppression */}
+          <input
+            type="text"
+            style={{ position: 'absolute', top: -9999, left: -9999, width: 0, height: 0, opacity: 0, pointerEvents: 'none' }}
+            tabIndex={-1}
+            aria-hidden="true"
+            data-form-type="other"
+            data-lpignore="true"
+          />
+          <input
+            type="password"
+            style={{ position: 'absolute', top: -9999, left: -9999, width: 0, height: 0, opacity: 0, pointerEvents: 'none' }}
+            tabIndex={-1}
+            aria-hidden="true"
+            data-form-type="other"
+            data-lpignore="true"
+          />
           {/* API Keys Section */}
           <div style={{
             background: 'linear-gradient(180deg, #0f172a, #0b1220)',

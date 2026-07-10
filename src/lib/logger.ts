@@ -2,6 +2,53 @@ import winston from 'winston'
 import path from 'path'
 import fs from 'fs'
 
+// ── Sensitive field patterns (for masking in logs) ────────────────────────
+const SENSITIVE_KEYS = [
+  /password/i,
+  /secret/i,
+  /token/i,
+  /auth/i,
+  /jwt/i,
+  /key/i,
+  /api[-_]?key/i,
+  /authorization/i,
+  /cookie/i,
+  /credential/i,
+  /access[-_]?token/i,
+  /refresh[-_]?token/i,
+  /bearer/i,
+  /otp/i,
+  /pin/i,
+  /ssn/i,
+  /aadhaar/i,
+  /pan[-_]?card/i,
+]
+
+/**
+ * Recursively mask sensitive fields in an object before logging.
+ * Replaces the value with '[REDACTED]' for matching keys.
+ */
+export function maskSensitiveData(data: Record<string, unknown>): Record<string, unknown> {
+  const masked: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(data)) {
+    const isSensitive = SENSITIVE_KEYS.some((pattern) => pattern.test(key))
+    if (isSensitive) {
+      masked[key] = '[REDACTED]'
+    } else if (value && typeof value === 'object' && !Array.isArray(value)) {
+      masked[key] = maskSensitiveData(value as Record<string, unknown>)
+    } else if (Array.isArray(value)) {
+      masked[key] = value.map((item) =>
+        typeof item === 'object' && item !== null
+          ? maskSensitiveData(item as Record<string, unknown>)
+          : item,
+      )
+    } else {
+      masked[key] = value
+    }
+  }
+  return masked
+}
+
 // ── Detect serverless / Vercel environment ──────────────────────────────
 const isServerless = !!process.env.VERCEL
 
@@ -83,13 +130,14 @@ export function logApiRequest(
   durationMs: number,
   extra: Record<string, unknown> = {},
 ): void {
+  const safeExtra = maskSensitiveData(extra)
   logger.info('API request', {
     ip,
     method,
     path,
     statusCode,
     durationMs,
-    ...extra,
+    ...safeExtra,
   })
 }
 
@@ -97,13 +145,14 @@ export function logApiRequest(
  * Log an authentication event (login, logout, failed attempt).
  */
 export function logAuthEvent(
-  event: 'login' | 'logout' | 'login_failed',
+  event: 'login' | 'logout' | 'login_failed' | 'access',
   username: string,
   ip: string,
   extra: Record<string, unknown> = {},
 ): void {
   const level = event === 'login_failed' ? 'warn' : 'info'
-  logger.log(level, `Auth: ${event}`, { event, username, ip, ...extra })
+  const safeExtra = maskSensitiveData(extra)
+  logger.log(level, `Auth: ${event}`, { event, username, ip, ...safeExtra })
 }
 
 // ── Helpers ─────────────────────────────────────────────────────────────

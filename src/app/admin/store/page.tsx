@@ -12,6 +12,23 @@ interface OrderItem {
   qty: number
 }
 
+const DELIVERY_STATUSES = ['pending', 'processing', 'shipped', 'delivered'] as const
+type DeliveryStatus = typeof DELIVERY_STATUSES[number]
+
+const STATUS_LABELS: Record<string, string> = {
+  pending: '📋 Pending',
+  processing: '⚙ Processing',
+  shipped: '🚚 Shipped',
+  delivered: '✅ Delivered',
+}
+
+const STATUS_COLORS: Record<string, string> = {
+  pending: '#f59e0b',
+  processing: '#3b82f6',
+  shipped: '#8b5cf6',
+  delivered: '#22c55e',
+}
+
 interface AdminOrder {
   _id: string
   orderNumber: string
@@ -27,7 +44,9 @@ interface AdminOrder {
     razorpayPaymentId?: string
     status: 'created' | 'paid' | 'failed'
   }
-  deliveryStatus: 'not_yet' | 'received'
+  deliveryStatus: DeliveryStatus
+  deliveryDate?: string | null
+  trackingNotes?: string | null
   emailSent: boolean
   emailSentAt?: string | null
   emailError?: string | null
@@ -94,7 +113,7 @@ export default function AdminStorePage() {
   const [stats, setStats] = useState<OrderStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [deliveryFilter, setDeliveryFilter] = useState<'all' | 'not_yet' | 'received'>('all')
+  const [deliveryFilter, setDeliveryFilter] = useState<string>('all')
   const [searchInput, setSearchInput] = useState('')
   const [search, setSearch] = useState('')
   const [sort, setSort] = useState<'date_desc' | 'date_asc' | 'amount_desc' | 'amount_asc'>('date_desc')
@@ -188,15 +207,14 @@ export default function AdminStorePage() {
     }
   }
 
-  async function toggleDeliveryStatus(o: AdminOrder) {
-    const next = o.deliveryStatus === 'received' ? 'not_yet' : 'received'
-    setBusyId(o._id)
+  async function updateOrderStatus(id: string, updates: { deliveryStatus?: string; deliveryDate?: string; trackingNotes?: string }) {
+    setBusyId(id)
     try {
-      const res = await fetch(`/api/admin/orders/${o._id}/status`, {
+      const res = await fetch(`/api/admin/orders/${id}/status`, {
         method: 'PATCH',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ deliveryStatus: next }),
+        body: JSON.stringify(updates),
       })
       if (!res.ok) {
         const d = await res.json().catch(() => ({}))
@@ -210,6 +228,11 @@ export default function AdminStorePage() {
       setBusyId(null)
     }
   }
+
+  // Track which order has the tracking panel open
+  const [trackingPanelId, setTrackingPanelId] = useState<string | null>(null)
+  const [editDeliveryDate, setEditDeliveryDate] = useState('')
+  const [editTrackingNotes, setEditTrackingNotes] = useState('')
 
   /* ----------- Selection helpers ----------- */
 
@@ -444,12 +467,13 @@ export default function AdminStorePage() {
         </form>
         <select
           value={deliveryFilter}
-          onChange={(e) => setDeliveryFilter(e.target.value as any)}
+          onChange={(e) => setDeliveryFilter(e.target.value)}
           aria-label="Filter by delivery status"
         >
           <option value="all">All delivery</option>
-          <option value="received">Delivered (received)</option>
-          <option value="not_yet">Not yet delivered</option>
+          {DELIVERY_STATUSES.map((s) => (
+            <option key={s} value={s}>{STATUS_LABELS[s]}</option>
+          ))}
         </select>
         <select
           value={sort}
@@ -640,21 +664,131 @@ export default function AdminStorePage() {
                       </span>
                     </td>
                     <td>
-                      <button
-                        type="button"
-                        className={
-                          o.deliveryStatus === 'received'
-                            ? 'status-pill status-completed'
-                            : 'status-pill status-pending'
-                        }
-                        onClick={() => toggleDeliveryStatus(o)}
-                        disabled={busyId === o._id}
-                        title="Click to toggle"
-                        style={{ cursor: 'pointer' }}
-                      >
-                        <span className="dot" />{' '}
-                        {o.deliveryStatus === 'received' ? 'received' : 'not yet'}
-                      </button>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                        <select
+                          value={o.deliveryStatus}
+                          onChange={(e) => updateOrderStatus(o._id, { deliveryStatus: e.target.value })}
+                          disabled={busyId === o._id}
+                          style={{
+                            fontSize: 11,
+                            padding: '2px 4px',
+                            borderRadius: 4,
+                            border: '1px solid #334155',
+                            background: '#1e293b',
+                            color: STATUS_COLORS[o.deliveryStatus] || '#94a3b8',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          {DELIVERY_STATUSES.map((s) => (
+                            <option key={s} value={s} style={{ color: '#e2e8f0' }}>
+                              {STATUS_LABELS[s]}
+                            </option>
+                          ))}
+                        </select>
+                        {o.deliveryDate && (
+                          <div style={{ fontSize: 10, color: '#64748b' }}>
+                            📅 {new Date(o.deliveryDate).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: '2-digit' })}
+                          </div>
+                        )}
+                        <button
+                          type="button"
+                          className="icon-btn"
+                          style={{ fontSize: 10, padding: '1px 6px' }}
+                          onClick={() => {
+                            if (trackingPanelId === o._id) {
+                              setTrackingPanelId(null)
+                            } else {
+                              setTrackingPanelId(o._id)
+                              setEditDeliveryDate(o.deliveryDate || '')
+                              setEditTrackingNotes(o.trackingNotes || '')
+                            }
+                          }}
+                        >
+                          {trackingPanelId === o._id ? '▲' : '📋'} Details
+                        </button>
+                        {trackingPanelId === o._id && (
+                          <div
+                            style={{
+                              marginTop: 4,
+                              padding: 8,
+                              background: '#0f172a',
+                              borderRadius: 6,
+                              border: '1px solid #334155',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: 6,
+                              minWidth: 220,
+                            }}
+                          >
+                            <label style={{ fontSize: 10, color: '#94a3b8', fontWeight: 600 }}>
+                              Delivery Date
+                              <input
+                                type="date"
+                                value={editDeliveryDate}
+                                onChange={(e) => setEditDeliveryDate(e.target.value)}
+                                style={{
+                                  display: 'block',
+                                  width: '100%',
+                                  marginTop: 2,
+                                  fontSize: 11,
+                                  padding: '3px 6px',
+                                  borderRadius: 4,
+                                  border: '1px solid #334155',
+                                  background: '#1e293b',
+                                  color: '#e2e8f0',
+                                }}
+                              />
+                            </label>
+                            <label style={{ fontSize: 10, color: '#94a3b8', fontWeight: 600 }}>
+                              Tracking Notes
+                              <textarea
+                                value={editTrackingNotes}
+                                onChange={(e) => setEditTrackingNotes(e.target.value)}
+                                rows={2}
+                                placeholder="Courier name, tracking ID, special instructions…"
+                                style={{
+                                  display: 'block',
+                                  width: '100%',
+                                  marginTop: 2,
+                                  fontSize: 11,
+                                  padding: '3px 6px',
+                                  borderRadius: 4,
+                                  border: '1px solid #334155',
+                                  background: '#1e293b',
+                                  color: '#e2e8f0',
+                                  resize: 'vertical',
+                                }}
+                              />
+                            </label>
+                            <div style={{ display: 'flex', gap: 4, justifyContent: 'flex-end' }}>
+                              <button
+                                type="button"
+                                className="icon-btn"
+                                style={{ fontSize: 10 }}
+                                onClick={() => setTrackingPanelId(null)}
+                              >
+                                Cancel
+                              </button>
+                              <button
+                                type="button"
+                                className="icon-btn"
+                                style={{ fontSize: 10, fontWeight: 600, color: '#7dd3fc' }}
+                                disabled={busyId === o._id}
+                                onClick={async () => {
+                                  await updateOrderStatus(o._id, {
+                                    deliveryDate: editDeliveryDate || undefined,
+                                    trackingNotes: editTrackingNotes || undefined,
+                                  })
+                                  setTrackingPanelId(null)
+                                }}
+                              >
+                                {busyId === o._id ? <span className="spinner" /> : '💾 Save'}
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </td>
                     <td>
                       {o.emailSent ? (

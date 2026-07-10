@@ -93,7 +93,7 @@ export async function GET(req: NextRequest) {
   // Check view permission for sub-admins
   if (!isSuperAdmin(admin) && admin.subAdminId) {
     const subPerms = await getSubAdminPermissions(admin.subAdminId)
-    const denied = await requirePermission(admin, 'store', 'view', subPerms)
+    const denied = await requirePermission(admin, 'orders', 'view', subPerms)
     if (denied) return denied
   }
 
@@ -112,7 +112,8 @@ export async function GET(req: NextRequest) {
   if (status === 'paid' || status === 'failed' || status === 'created') {
     filter['payment.status'] = status
   }
-  if (delivery === 'not_yet' || delivery === 'received') {
+  const validStatuses = ['pending', 'processing', 'shipped', 'delivered']
+  if (validStatuses.includes(delivery)) {
     filter.deliveryStatus = delivery
   }
   if (q) {
@@ -214,7 +215,7 @@ export async function GET(req: NextRequest) {
     .reduce((sum, o) => sum + (o.items || []).reduce((s, it) => s + (it.qty || 0), 0), 0)
   const paidCount = items.filter((o) => o.payment?.status === 'paid').length
   const deliveredCount = items.filter(
-    (o) => o.payment?.status === 'paid' && o.deliveryStatus === 'received'
+    (o) => o.payment?.status === 'paid' && o.deliveryStatus === 'delivered'
   ).length
 
   const summary = workbook.addWorksheet('Summary')

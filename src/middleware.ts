@@ -2,8 +2,12 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 const ADMIN_LOGIN = '/admin/login'
+const ADMIN_FORGOT = '/admin/forgot-password'
+const ADMIN_FORGOT_USERNAME = '/admin/forgot-username'
 const ADMIN_ROOT = '/admin'
 const CMS_ADMIN_LOGIN = '/content/admin/login'
+const CMS_ADMIN_FORGOT = '/content/admin/forgot-password'
+const CMS_ADMIN_FORGOT_USERNAME = '/content/admin/forgot-username'
 const CMS_ADMIN_ROOT = '/content/admin'
 
 /**
@@ -16,10 +20,14 @@ export function middleware(req: NextRequest) {
 
   // ── /admin/* protection ─────────────────────────────────────────────
   if (pathname.startsWith(ADMIN_ROOT)) {
-    // Allow login page and API auth routes
+    // Allow login page, forgot-password, forgot-username, and API auth routes
     if (
       pathname === ADMIN_LOGIN ||
+      pathname === ADMIN_FORGOT ||
+      pathname === ADMIN_FORGOT_USERNAME ||
       pathname.startsWith('/api/admin/login') ||
+      pathname.startsWith('/api/admin/forgot-password') ||
+      pathname.startsWith('/api/admin/forgot-username') ||
       pathname.startsWith('/api/admin/logout') ||
       pathname === '/admin'
     ) {
@@ -46,10 +54,14 @@ export function middleware(req: NextRequest) {
 
   // ── /content/admin/* protection ────────────────────────────────────
   if (pathname.startsWith(CMS_ADMIN_ROOT)) {
-    // Allow login page and API auth routes
+    // Allow login page, forgot-password, forgot-username, and API auth routes
     if (
       pathname === CMS_ADMIN_LOGIN ||
+      pathname === CMS_ADMIN_FORGOT ||
+      pathname === CMS_ADMIN_FORGOT_USERNAME ||
       pathname.startsWith('/api/content/admin/login') ||
+      pathname.startsWith('/api/content/admin/forgot-password') ||
+      pathname.startsWith('/api/content/admin/forgot-username') ||
       pathname.startsWith('/api/content/admin/logout')
     ) {
       return NextResponse.next()

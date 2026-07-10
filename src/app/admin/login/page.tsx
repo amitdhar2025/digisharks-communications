@@ -72,7 +72,25 @@ function AdminLoginForm() {
         </div>
       ) : null}
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} autoComplete="off">
+        {/* Hidden dummy fields to confuse browser password manager */}
+        <input
+          type="text"
+          style={{ position: 'absolute', top: -9999, left: -9999, width: 0, height: 0, opacity: 0, pointerEvents: 'none' }}
+          tabIndex={-1}
+          aria-hidden="true"
+          data-form-type="other"
+          data-lpignore="true"
+        />
+        <input
+          type="password"
+          style={{ position: 'absolute', top: -9999, left: -9999, width: 0, height: 0, opacity: 0, pointerEvents: 'none' }}
+          tabIndex={-1}
+          aria-hidden="true"
+          data-form-type="other"
+          data-lpignore="true"
+        />
+
         <div className="field">
           <label htmlFor="username">Username</label>
           <input
@@ -80,9 +98,13 @@ function AdminLoginForm() {
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            onFocus={(e) => (e.target.readOnly = false)}
             placeholder="admin"
-            autoComplete="username"
+            autoComplete="off"
+            readOnly
             required
+            data-form-type="other"
+            data-lpignore="true"
           />
         </div>
 
@@ -93,9 +115,13 @@ function AdminLoginForm() {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            onFocus={(e) => (e.target.readOnly = false)}
             placeholder="••••••••"
-            autoComplete="current-password"
+            autoComplete="new-password"
+            readOnly
             required
+            data-form-type="other"
+            data-lpignore="true"
           />
         </div>
 
@@ -108,6 +134,36 @@ function AdminLoginForm() {
           {loading ? <span className="spinner" /> : null}
           {loading ? 'Signing in…' : 'Sign in'}
         </button>
+
+        <div style={{ marginTop: 10, textAlign: 'center' }}>
+          <a
+            href="/admin/forgot-password"
+            style={{
+              color: '#94a3b8',
+              textDecoration: 'none',
+              fontSize: 12,
+              transition: 'color 0.2s',
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = '#7dd3fc')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = '#94a3b8')}
+          >
+            Forgot Password?
+          </a>
+          <span style={{ color: '#475569', margin: '0 6px', fontSize: 12 }}>·</span>
+          <a
+            href="/admin/forgot-username"
+            style={{
+              color: '#94a3b8',
+              textDecoration: 'none',
+              fontSize: 12,
+              transition: 'color 0.2s',
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = '#7dd3fc')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = '#94a3b8')}
+          >
+            Forgot Username?
+          </a>
+        </div>
       </form>
     </>
   )

@@ -469,7 +469,7 @@ export default function CareerPage() {
                     </div>
                   )}
 
-                  <form onSubmit={handleSubmit}>
+                  <form onSubmit={handleSubmit} autoComplete="off">
                     <div className="career-form-group">
                       <label className="career-label">Full Name *</label>
                       <input

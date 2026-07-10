@@ -32,6 +32,9 @@ export interface IChatbotSettings extends Document {
   pillPaddingX: number         // Pill horizontal padding in px (8–48)
   pillPaddingY: number         // Pill vertical padding in px (4–28)
 
+  // Mobile positioning
+  mobileBottomOffset: number   // Extra bottom offset on mobile product pages (px)
+
   isEnabled: boolean
   updatedAt: Date
 }
@@ -69,6 +72,9 @@ const ChatbotSettingsSchema = new Schema<IChatbotSettings>(
     pillPaddingX: { type: Number, default: 22 },
     pillPaddingY: { type: Number, default: 10 },
 
+    // Mobile positioning defaults
+    mobileBottomOffset: { type: Number, default: 110 },
+
     isEnabled: { type: Boolean, default: true },
   },
   { timestamps: true }
@@ -104,6 +110,7 @@ export async function getSettings(): Promise<IChatbotSettings> {
       pillFontSize: 15,
       pillPaddingX: 22,
       pillPaddingY: 10,
+      mobileBottomOffset: 110,
       isEnabled: true,
     } as unknown as IChatbotSettings
   }

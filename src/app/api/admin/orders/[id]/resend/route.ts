@@ -22,7 +22,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     // Check edit permission for sub-admins
     if (!isSuperAdmin(admin)) {
       const subPerms = admin.subAdminId ? await getSubAdminPermissions(admin.subAdminId) : null
-      const denied = await requirePermission(admin, 'store', 'edit', subPerms)
+      const denied = await requirePermission(admin, 'orders', 'edit', subPerms)
       if (denied) return denied
     }
     const { id } = await params
@@ -48,22 +48,34 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       supportEmail: 'marketing@digisharkscommunications.com',
     })
 
+    if (result.ok) {
+      await orders.updateOne(
+        { _id: order._id },
+        {
+          $set: {
+            emailSent: true,
+            emailSentAt: new Date(),
+            emailError: undefined,
+            deliveryStatus: 'delivered',
+            updatedAt: new Date(),
+          },
+        }
+      )
+      return NextResponse.json({ success: true, emailSent: true })
+    }
+
+    // On failure: update email status but do NOT overwrite deliveryStatus
     await orders.updateOne(
       { _id: order._id },
       {
         $set: {
-          emailSent: result.ok,
-          emailSentAt: result.ok ? new Date() : order.emailSentAt,
-          emailError: result.ok ? undefined : (result.error || 'unknown'),
-          deliveryStatus: result.ok ? 'received' : 'not_yet',
+          emailSent: false,
+          emailError: result.error || 'unknown',
           updatedAt: new Date(),
         },
       }
     )
-
-    if (!result.ok) {
-      return NextResponse.json({ success: false, error: result.error || 'Send failed' }, { status: 500 })
-    }
+    return NextResponse.json({ success: false, error: result.error || 'Send failed' }, { status: 500 })
 
     return NextResponse.json({ success: true, emailSent: true })
   } catch (err: any) {

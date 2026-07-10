@@ -23,6 +23,10 @@ interface SubAdminItem {
 interface SubAdminPermissions {
   blog: { view: boolean; create: boolean; edit: boolean; delete: boolean }
   store: { view: boolean; create: boolean; edit: boolean; delete: boolean }
+  orders: { view: boolean; edit: boolean; delete: boolean; export: boolean }
+  products: { view: boolean; create: boolean; edit: boolean; delete: boolean }
+  coupons: { view: boolean; create: boolean; edit: boolean; delete: boolean }
+  reports: { view: boolean; export: boolean }
   career: { view: boolean; create: boolean; edit: boolean; delete: boolean }
   chatbot: { view: boolean; manage: boolean; settings: boolean }
   seoAudit: { view: boolean; delete: boolean }
@@ -33,6 +37,10 @@ interface SubAdminPermissions {
 const EMPTY_PERMS: SubAdminPermissions = {
   blog: { view: false, create: false, edit: false, delete: false },
   store: { view: false, create: false, edit: false, delete: false },
+  orders: { view: false, edit: false, delete: false, export: false },
+  products: { view: false, create: false, edit: false, delete: false },
+  coupons: { view: false, create: false, edit: false, delete: false },
+  reports: { view: false, export: false },
   career: { view: false, create: false, edit: false, delete: false },
   chatbot: { view: false, manage: false, settings: false },
   seoAudit: { view: false, delete: false },
@@ -50,8 +58,12 @@ interface SectionConfig {
 }
 
 const SECTIONS: SectionConfig[] = [
-  { key: 'blog', label: 'Blog', icon: '📝', actions: ['view', 'create', 'edit', 'delete'].map(a => ({ key: a, label: a.charAt(0).toUpperCase() + a.slice(1) })) },
   { key: 'store', label: 'Digital Products', icon: '🛒', actions: ['view', 'create', 'edit', 'delete'].map(a => ({ key: a, label: a.charAt(0).toUpperCase() + a.slice(1) })) },
+  { key: 'orders', label: 'Orders & Sales', icon: '📦', actions: [{ key: 'view', label: 'View' }, { key: 'edit', label: 'Edit' }, { key: 'delete', label: 'Delete' }, { key: 'export', label: 'Export' }] },
+  { key: 'products', label: 'Manage Products', icon: '🏷️', actions: ['view', 'create', 'edit', 'delete'].map(a => ({ key: a, label: a.charAt(0).toUpperCase() + a.slice(1) })) },
+  { key: 'coupons', label: 'Coupons', icon: '🎟️', actions: ['view', 'create', 'edit', 'delete'].map(a => ({ key: a, label: a.charAt(0).toUpperCase() + a.slice(1) })) },
+  { key: 'reports', label: 'Sales Reports', icon: '📈', actions: [{ key: 'view', label: 'View' }, { key: 'export', label: 'Export' }] },
+  { key: 'blog', label: 'Blog', icon: '📝', actions: ['view', 'create', 'edit', 'delete'].map(a => ({ key: a, label: a.charAt(0).toUpperCase() + a.slice(1) })) },
   { key: 'career', label: 'Career', icon: '💼', actions: ['view', 'create', 'edit', 'delete'].map(a => ({ key: a, label: a.charAt(0).toUpperCase() + a.slice(1) })) },
   { key: 'chatbot', label: 'Chatbot', icon: '🤖', actions: [{ key: 'view', label: 'View' }, { key: 'manage', label: 'Manage Q&A' }, { key: 'settings', label: 'Settings' }] },
   { key: 'seoAudit', label: 'SEO Audit', icon: '🔍', actions: [{ key: 'view', label: 'View' }, { key: 'delete', label: 'Delete' }] },
@@ -175,7 +187,7 @@ export default function SubAdminsPage() {
     setFormUsername(item.username)
     setFormPassword('')
     setFormActive(item.isActive)
-    setFormPerms({ ...item.permissions })
+    setFormPerms({ ...EMPTY_PERMS, ...item.permissions })
     setBulkAccess('none')
     setFormCategories(Array.isArray(item.queryCategories) ? [...item.queryCategories] : [])
     setNewCategoryInput('')
@@ -441,7 +453,7 @@ export default function SubAdminsPage() {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
         {SECTIONS.map((section) => {
-          const sectionPerms = perms[section.key]
+          const sectionPerms = perms[section.key] ?? ({} as SubAdminPermissions[keyof SubAdminPermissions])
           return (
             <div
               key={section.key}
@@ -607,7 +619,24 @@ export default function SubAdminsPage() {
           <div className="modal lg" onClick={(e) => e.stopPropagation()}>
             <h2>＋ Create Sub-Admin</h2>
             <div className="modal-sub">Set up a new sub-admin account with custom permissions</div>
-            <form onSubmit={handleCreate}>
+            <form onSubmit={handleCreate} autoComplete="off">
+              {/* Hidden dummy fields to confuse browser password manager */}
+              <input
+                type="text"
+                style={{ position: 'absolute', top: -9999, left: -9999, width: 0, height: 0, opacity: 0, pointerEvents: 'none' }}
+                tabIndex={-1}
+                aria-hidden="true"
+                data-form-type="other"
+                data-lpignore="true"
+              />
+              <input
+                type="password"
+                style={{ position: 'absolute', top: -9999, left: -9999, width: 0, height: 0, opacity: 0, pointerEvents: 'none' }}
+                tabIndex={-1}
+                aria-hidden="true"
+                data-form-type="other"
+                data-lpignore="true"
+              />
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
                 <div className="field">
                   <label>Username *</label>
@@ -617,12 +646,18 @@ export default function SubAdminsPage() {
                     onChange={(e) => setFormUsername(e.target.value)}
                     placeholder="e.g. editor1"
                     required
+                    autoComplete="off"
+                    data-form-type="other"
+                    data-lpignore="true"
                   />
                 </div>
                 <div className="field">
                   <label>Password * (min 6 chars)</label>
                   <input
                     type="password"
+                    autoComplete="new-password"
+                    data-form-type="other"
+                    data-lpignore="true"
                     value={formPassword}
                     onChange={(e) => setFormPassword(e.target.value)}
                     placeholder="••••••••"
@@ -686,7 +721,24 @@ export default function SubAdminsPage() {
           <div className="modal lg" onClick={(e) => e.stopPropagation()}>
             <h2>✏ Edit Sub-Admin</h2>
             <div className="modal-sub">Update account details and permissions</div>
-            <form onSubmit={handleEdit}>
+            <form onSubmit={handleEdit} autoComplete="off">
+              {/* Hidden dummy fields to confuse browser password manager */}
+              <input
+                type="text"
+                style={{ position: 'absolute', top: -9999, left: -9999, width: 0, height: 0, opacity: 0, pointerEvents: 'none' }}
+                tabIndex={-1}
+                aria-hidden="true"
+                data-form-type="other"
+                data-lpignore="true"
+              />
+              <input
+                type="password"
+                style={{ position: 'absolute', top: -9999, left: -9999, width: 0, height: 0, opacity: 0, pointerEvents: 'none' }}
+                tabIndex={-1}
+                aria-hidden="true"
+                data-form-type="other"
+                data-lpignore="true"
+              />
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
                 <div className="field">
                   <label>Username *</label>
@@ -695,6 +747,9 @@ export default function SubAdminsPage() {
                     value={formUsername}
                     onChange={(e) => setFormUsername(e.target.value)}
                     required
+                    autoComplete="off"
+                    data-form-type="other"
+                    data-lpignore="true"
                   />
                 </div>
                 <div className="field">
@@ -705,6 +760,9 @@ export default function SubAdminsPage() {
                     onChange={(e) => setFormPassword(e.target.value)}
                     placeholder="Leave blank to keep current"
                     minLength={6}
+                    autoComplete="new-password"
+                    data-form-type="other"
+                    data-lpignore="true"
                   />
                 </div>
               </div>

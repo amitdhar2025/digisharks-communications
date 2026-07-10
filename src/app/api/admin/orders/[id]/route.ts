@@ -18,14 +18,12 @@ export async function DELETE(
   const admin = getAdminFromRequest(req)
   if (!admin) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
-  // Check delete permission for sub-admins
-  if (!isSuperAdmin(admin)) {
-    const subPerms = admin.subAdminId ? await getSubAdminPermissions(admin.subAdminId) : null
-    const denied = await requirePermission(admin, 'store', 'delete', subPerms)
-    if (denied) return denied
-  }
+  }    // Check delete permission for sub-admins
+    if (!isSuperAdmin(admin)) {
+      const subPerms = admin.subAdminId ? await getSubAdminPermissions(admin.subAdminId) : null
+      const denied = await requirePermission(admin, 'orders', 'delete', subPerms)
+      if (denied) return denied
+    }
 
   try {
     const { id } = await params

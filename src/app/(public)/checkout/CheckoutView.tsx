@@ -55,6 +55,14 @@ export default function CheckoutView() {
   const [sandboxMode, setSandboxMode] = useState(false)
   const [scriptReady, setScriptReady] = useState(false)
 
+  // Coupon state
+  const [couponCode, setCouponCode] = useState('')
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number; message: string } | null>(null)
+  const [couponError, setCouponError] = useState<string | null>(null)
+  const [couponLoading, setCouponLoading] = useState(false)
+  const discount = appliedCoupon?.discount || 0
+  const totalAfterDiscount = Math.max(0, subtotal - discount)
+
   useEffect(() => {
     // Load Razorpay checkout script
     if (typeof document === 'undefined') return
@@ -112,6 +120,39 @@ export default function CheckoutView() {
     if (!email.trim()) return 'Email is required — we will email your download link here.'
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())) return 'Please enter a valid email address.'
     return null
+  }
+
+  const applyCoupon = async () => {
+    if (!couponCode.trim()) return
+    setCouponLoading(true)
+    setCouponError(null)
+    try {
+      const res = await fetch('/api/checkout/validate-coupon', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: couponCode.trim(),
+          subtotal,
+          items: items.map((it) => ({ slug: it.slug, title: it.title, price: it.price, qty: it.qty })),
+        }),
+      })
+      const d = await res.json()
+      if (!d.valid) {
+        setCouponError(d.message || 'Invalid coupon')
+        setAppliedCoupon(null)
+      } else {
+        setAppliedCoupon({ code: d.couponCode, discount: d.discount, message: d.message })
+        setCouponError(null)
+      }
+    } catch (e: any) {
+      setCouponError('Failed to validate coupon.')
+    } finally { setCouponLoading(false) }
+  }
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null)
+    setCouponCode('')
+    setCouponError(null)
   }
 
   const handlePay = async (e: FormEvent) => {
@@ -263,7 +304,7 @@ export default function CheckoutView() {
     <div className="co-page">
       <h1 className="co-title">Checkout</h1>
 
-      <form className="co-grid" onSubmit={handlePay} noValidate>
+      <form className="co-grid" onSubmit={handlePay} noValidate autoComplete="off">
         {/* ---------- LEFT: BILLING DETAILS ---------- */}
         <section className="co-card co-billing">
           <h2 className="co-card-title">Billing Details</h2>
@@ -383,26 +424,100 @@ export default function CheckoutView() {
               </div>
             ))}
 
+            {/* ── Coupon ── */}
+            <div className="co-coupon" style={{ margin: '0.5rem 0', padding: '0.5rem 0', borderTop: '1px solid #eee' }}>
+              {!appliedCoupon ? (
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <input
+                    type="text"
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                    placeholder="Coupon code"
+                    style={{
+                      flex: 1, padding: '6px 10px', border: '1px solid #d9d9d9', borderRadius: 4,
+                      fontSize: 13, background: '#fafafa', color: '#2b2b2b', textTransform: 'uppercase',
+                    }}
+                    onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); applyCoupon() } }}
+                  />
+                  <button
+                    type="button"
+                    onClick={applyCoupon}
+                    disabled={couponLoading || !couponCode.trim()}
+                    style={{
+                      padding: '6px 14px', background: '#3b9fd4', color: '#fff', border: 'none',
+                      borderRadius: 4, fontSize: 13, fontWeight: 600, cursor: 'pointer',
+                    }}
+                  >
+                    {couponLoading ? '…' : 'Apply'}
+                  </button>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                  <span style={{ fontSize: 13, color: '#2e7d32', fontWeight: 600 }}>
+                    ✅ {appliedCoupon.code}
+                  </span>
+                  <button type="button" onClick={removeCoupon}
+                    style={{ background: 'none', border: 'none', color: '#d32f2f', cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>
+                    Remove
+                  </button>
+                </div>
+              )}
+              {couponError && <p style={{ color: '#b3261e', fontSize: 12, margin: '4px 0 0' }}>{couponError}</p>}
+              {appliedCoupon && <p style={{ color: '#2e7d32', fontSize: 12, margin: '4px 0 0' }}>{appliedCoupon.message}</p>}
+            </div>
+
             <div className="co-order-row">
               <span>Subtotal</span>
               <span className="co-right-text">{formatINR(subtotal)}</span>
             </div>
+            {discount > 0 && (
+              <div className="co-order-row" style={{ color: '#2e7d32' }}>
+                <span>Discount</span>
+                <span className="co-right-text" style={{ color: '#2e7d32' }}>−{formatINR(discount)}</span>
+              </div>
+            )}
             <div className="co-order-row co-order-total">
               <span>Total</span>
-              <span className="co-right-text">{formatINR(subtotal)}</span>
+              <span className="co-right-text">{formatINR(totalAfterDiscount)}</span>
             </div>
           </section>
 
           <section className="co-card co-payment">
-            <p className="co-pay-method">Credit Card/Debit Card/NetBanking</p>
+            <div className="co-pay-methods-header">
+              <span className="co-pay-method-title">Accepted Payment Methods</span>
+            </div>
+
+            <div className="co-pay-icons">
+              <div className="co-pay-icon">
+                <svg width="22" height="16" viewBox="0 0 24 16" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="1" y="1" width="22" height="14" rx="2"/><line x1="1" y1="6" x2="23" y2="6"/></svg>
+                <span>Cards</span>
+              </div>
+              <div className="co-pay-icon">
+                <svg width="22" height="16" viewBox="0 0 24 20" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 2a10 10 0 1 0 10 10h-4A6 6 0 1 1 12 6V2z"/><path d="M12 2v8l4-4-4-4z"/></svg>
+                <span>UPI</span>
+              </div>
+              <div className="co-pay-icon">
+                <svg width="22" height="16" viewBox="0 0 24 16" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="1" width="20" height="14" rx="2"/><line x1="6" y1="4" x2="10" y2="4"/><line x1="6" y1="8" x2="14" y2="8"/></svg>
+                <span>Net Banking</span>
+              </div>
+              <div className="co-pay-icon">
+                <svg width="22" height="16" viewBox="0 0 24 16" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 8V5H5a2 2 0 0 1 0-4h14v4"/><path d="M3 3v10a2 2 0 0 0 2 2h16v-3"/><path d="M18 8a2 2 0 0 0 0 4h4V8h-4z"/></svg>
+                <span>Wallet</span>
+              </div>
+            </div>
 
             <div className="co-razorpay">
               <span className="co-rzp-mark" aria-hidden="true" />
               <span className="co-rzp-text">Pay by Razorpay</span>
+              {sandboxMode ? (
+                <span className="co-badge co-badge-warn">Sandbox</span>
+              ) : (
+                <span className="co-badge co-badge-live">✓ Live</span>
+              )}
             </div>
 
             <div className="co-pay-desc">
-              Pay securely by Credit or Debit card or Internet Banking through Razorpay.
+              Pay securely by Credit or Debit card, UPI, Net Banking, or Wallet through Razorpay. All transactions are 100% secure and encrypted.
             </div>
 
             <p className="co-privacy">
@@ -412,16 +527,18 @@ export default function CheckoutView() {
             </p>
 
             <button type="submit" className="co-btn co-place-order" disabled={submitting}>
-              {submitting ? 'Processing…' : 'Place order'}
+              {submitting ? 'Processing…' : 'Place order — ' + formatINR(totalAfterDiscount)}
             </button>
 
             {sandboxMode && (
               <div className="co-sandbox-note">
-                ⚙ Sandbox mode: no Razorpay keys configured. Place order will simulate a successful payment so you can test the full flow.
+                ⚙ <strong>Sandbox Mode</strong> — Razorpay API keys not configured. Payments are simulated for testing.
+                <br />
+                <span style={{ fontSize: 12 }}>To enable live payments, add RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET to your .env.local file.</span>
               </div>
             )}
 
-            <p className="co-secure">🔒 Payments are processed securely.</p>
+            <p className="co-secure">🔒 Payments are processed securely via Razorpay.</p>
           </section>
         </aside>
       </form>
@@ -634,11 +751,59 @@ function CoStyles() {
       }
 
       /* ---------- PAYMENT ---------- */
-      .co-pay-method {
+      .co-pay-methods-header {
         font-size: 0.9rem;
         font-weight: 700;
         color: #1a1a1a !important;
         margin: 0 0 0.9rem;
+      }
+      .co-pay-method-title {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #1a1a1a !important;
+      }
+
+      .co-pay-icons {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+      }
+      .co-pay-icon {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 6px 10px;
+        background: #f6f6f6;
+        border: 1px solid #e3e3e3;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 600;
+        color: #555 !important;
+      }
+      .co-pay-icon svg {
+        color: #777 !important;
+        flex-shrink: 0;
+      }
+
+      .co-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-left: 6px;
+      }
+      .co-badge-warn {
+        background: #fff3cd;
+        color: #856404 !important;
+      }
+      .co-badge-live {
+        background: #d4edda;
+        color: #155724 !important;
       }
       .co-razorpay {
         display: flex;

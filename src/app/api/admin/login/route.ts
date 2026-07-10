@@ -132,10 +132,13 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    // Try super admin login
-    await ensureAdminExists()
+    // Try super admin login — only seed if no admin exists in DB
     const admins = await getAdminsCollection()
-    const admin = await admins.findOne({ username: user })
+    let admin = await admins.findOne({ username: user })
+    if (!admin) {
+      await ensureAdminExists()
+      admin = await admins.findOne({ username: user })
+    }
 
     if (admin) {
       const ok = await bcrypt.compare(pwd, admin.passwordHash)

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 import { Plus_Jakarta_Sans, Inter } from "next/font/google";
 // ORDER: theme.css first (source of truth), then globals.css (Tailwind + resets),
 // then page-specific CSS.
@@ -20,6 +19,8 @@ import ClientScripts from "./ClientScripts";
 import ChatWidget from "../components/ChatWidget";
 import MaintenanceGuard from "../components/MaintenanceGuard";
 import FaviconInjector from "../components/FaviconInjector";
+import CartProviderShell from "../components/CartProvider";
+import { WishlistProvider } from "../lib/wishlist-context";
 
 // Body copy -> Inter (400 regular / 600 buttons)
 const inter = Inter({
@@ -70,24 +71,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-      </head>
+      <head />
       <body
         suppressHydrationWarning
         className={`${inter.variable} ${plusJakarta.variable} antialiased`}
       >
-        <Script
-          id="js-ready-check"
-          strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `if (!document.documentElement.classList.contains("js-ready")) document.documentElement.classList.add("js-ready");`,
-          }}
-        />
         <MaintenanceGuard>
-          <AlertBar />
-          <Navigation />
-          {children}
-          <ChatWidget />
+          <WishlistProvider>
+            <CartProviderShell>
+              <AlertBar />
+              <Navigation />
+              {children}
+              <ChatWidget />
+            </CartProviderShell>
+          </WishlistProvider>
         </MaintenanceGuard>
         <ClientScripts />
         <FaviconInjector />

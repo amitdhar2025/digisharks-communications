@@ -61,7 +61,25 @@ function LoginForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} autoComplete="off">
+      {/* Hidden dummy fields to confuse browser password manager */}
+      <input
+        type="text"
+        style={{ position: 'absolute', top: -9999, left: -9999, width: 0, height: 0, opacity: 0, pointerEvents: 'none' }}
+        tabIndex={-1}
+        aria-hidden="true"
+        data-form-type="other"
+        data-lpignore="true"
+      />
+      <input
+        type="password"
+        style={{ position: 'absolute', top: -9999, left: -9999, width: 0, height: 0, opacity: 0, pointerEvents: 'none' }}
+        tabIndex={-1}
+        aria-hidden="true"
+        data-form-type="other"
+        data-lpignore="true"
+      />
+
       {error && (
         <div className="login-error" role="alert">
           {error}
@@ -69,16 +87,20 @@ function LoginForm() {
       )}
 
       <div className="login-field">
-        <label htmlFor="cms-username">Username or Email</label>
+        <label htmlFor="cms-username">Username</label>
         <input
           id="cms-username"
           type="text"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
+          onFocus={(e) => (e.target.readOnly = false)}
           placeholder="admin@digisharks.com"
-          autoComplete="username"
+          autoComplete="off"
+          readOnly
           required
           disabled={loading}
+          data-form-type="other"
+          data-lpignore="true"
         />
       </div>
 
@@ -89,16 +111,50 @@ function LoginForm() {
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          onFocus={(e) => (e.target.readOnly = false)}
           placeholder="Enter your password"
-          autoComplete="current-password"
+          autoComplete="new-password"
+          readOnly
           required
           disabled={loading}
+          data-form-type="other"
+          data-lpignore="true"
         />
       </div>
 
       <button type="submit" className="login-btn" disabled={loading}>
         {loading ? 'Signing in…' : 'Sign In to CMS'}
       </button>
+
+      <div style={{ textAlign: 'center', marginTop: 12 }}>
+        <a
+          href="/content/admin/forgot-password"
+          style={{
+            color: '#64748b',
+            textDecoration: 'none',
+            fontSize: 12,
+            transition: 'color 0.2s',
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = '#7dd3fc')}
+          onMouseLeave={(e) => (e.currentTarget.style.color = '#64748b')}
+        >
+          Forgot Password?
+        </a>
+        <span style={{ color: '#475569', margin: '0 6px', fontSize: 12 }}>·</span>
+        <a
+          href="/content/admin/forgot-username"
+          style={{
+            color: '#64748b',
+            textDecoration: 'none',
+            fontSize: 12,
+            transition: 'color 0.2s',
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = '#7dd3fc')}
+          onMouseLeave={(e) => (e.currentTarget.style.color = '#64748b')}
+        >
+          Forgot Username?
+        </a>
+      </div>
 
       <div className="login-back">
         <a href="/">← Back to main website</a>

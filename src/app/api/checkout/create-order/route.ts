@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
         razorpayOrderId: rpOrder.id,
         status: 'created',
       },
-      deliveryStatus: 'not_yet',
+      deliveryStatus: 'pending',
       emailSent: false,
       createdAt: now,
       updatedAt: now,

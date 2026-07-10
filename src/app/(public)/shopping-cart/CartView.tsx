@@ -18,7 +18,6 @@ export default function CartView() {
   if (!hydrated) {
     return (
       <div className="sc-page">
-        <h1 className="sc-title">Shopping Cart</h1>
         <div className="sc-state">Loading your cart…</div>
         <ScStyles />
       </div>
@@ -28,7 +27,6 @@ export default function CartView() {
   if (items.length === 0) {
     return (
       <div className="sc-page">
-        <h1 className="sc-title">Shopping Cart</h1>
         <div className="sc-state">
           <div className="sc-state-icon" aria-hidden="true">🛒</div>
           <h2>Your cart is empty</h2>
@@ -44,7 +42,6 @@ export default function CartView() {
 
   return (
     <div className="sc-page">
-      <h1 className="sc-title">Shopping Cart</h1>
 
       {/* ---------- CART TABLE ---------- */}
       <section className="sc-card">

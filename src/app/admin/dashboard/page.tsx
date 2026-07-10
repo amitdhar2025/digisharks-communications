@@ -35,6 +35,7 @@ import {
   Trash2,
   RotateCcw,
   Trash,
+  Bug,
 } from 'lucide-react'
 import TrashDashboardSection from '@/components/admin/TrashDashboardSection'
 
@@ -208,7 +209,15 @@ const SECTIONS: { label: string; color: string; cards: CardDef[] }[] = [
     color: '#eab308',
     cards: [
       { title: 'Sub-Admins', description: 'Manage sub admin accounts', href: '/admin/sub-admins', icon: <Users size={22} />, color: '#eab308' },
+      { title: 'Change Username', description: 'Update your admin account username', href: '/admin/change-username', icon: <Settings size={22} />, color: '#eab308' },
       { title: 'Log Details', description: 'View all admin login activity', href: '/admin/login-logs', icon: <LogIn size={22} />, color: '#eab308' },
+    ],
+  },
+  {
+    label: 'DEBUG',
+    color: '#f59e0b',
+    cards: [
+      { title: 'Debug & Errors', description: 'View error logs and system diagnostics', href: '/admin/debug', icon: <Bug size={22} />, color: '#f59e0b' },
     ],
   },
 ]

@@ -6,8 +6,9 @@ import { usePathname } from "next/navigation";
 export default function ClientScripts() {
   const pathname = usePathname();
 
-  // Navbar scroll background toggle
+  // Add js-ready class for CSS transition gating + navbar scroll background toggle
   useEffect(() => {
+    document.documentElement.classList.add("js-ready");
     const nav = document.getElementById("navbar");
     if (!nav) return;
     const onScroll = () => {

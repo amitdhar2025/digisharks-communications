@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic'
 /**
  * GET /api/admin/orders
  * Lists digital-product orders plus summary stats.
- * Optional query: ?deliveryStatus=not_yet|received
+ * Optional query: ?deliveryStatus=pending|processing|shipped|delivered
  *                 ?q=search (matches orderNumber, email, phone, name)
  *                 ?sort=date_desc|date_asc|amount_desc|amount_asc
  */
@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
     // Check view permission for sub-admins
     if (!isSuperAdmin(admin) && admin.subAdminId) {
       const subPerms = await getSubAdminPermissions(admin.subAdminId)
-      const denied = await requirePermission(admin, 'store', 'view', subPerms)
+      const denied = await requirePermission(admin, 'orders', 'view', subPerms)
       if (denied) return denied
     }
 
@@ -32,7 +32,8 @@ export async function GET(req: NextRequest) {
     const sort = url.searchParams.get('sort') || 'date_desc'
 
     const filter: any = {}
-    if (deliveryStatus === 'not_yet' || deliveryStatus === 'received') {
+    const validStatuses = ['pending', 'processing', 'shipped', 'delivered']
+    if (validStatuses.includes(deliveryStatus)) {
       filter.deliveryStatus = deliveryStatus
     }
     if (q) {
@@ -65,7 +66,7 @@ export async function GET(req: NextRequest) {
       await Promise.all([
         orders.find(filter).sort(sortSpec).limit(500).toArray(),
         orders.countDocuments({ 'payment.status': 'paid' }),
-        orders.countDocuments({ 'payment.status': 'paid', deliveryStatus: 'received' }),
+        orders.countDocuments({ 'payment.status': 'paid', deliveryStatus: 'delivered' }),
         orders
           .aggregate<{ _id: null; total: number }>([
             { $match: { 'payment.status': 'paid' } },
@@ -102,6 +103,8 @@ export async function GET(req: NextRequest) {
         currency: o.currency,
         payment: o.payment,
         deliveryStatus: o.deliveryStatus,
+        deliveryDate: o.deliveryDate || null,
+        trackingNotes: o.trackingNotes || null,
         emailSent: !!o.emailSent,
         emailSentAt: o.emailSentAt || null,
         emailError: o.emailError || null,

@@ -26,6 +26,7 @@ import {
   Globe,
   CheckSquare,
   AlertCircle,
+  Bug,
 } from 'lucide-react'
 
 export default function CMSDashboardPage() {
@@ -79,6 +80,8 @@ export default function CMSDashboardPage() {
     { title: 'Page Content', description: 'Edit text, images, and content for every page', href: '/content/admin/pages', icon: <FileEdit size={22} />, color: '#0ea5e9' },
     { title: 'Site Settings', description: 'Manage phone, email, social links & branding', href: '/content/admin/settings', icon: <Settings size={22} />, color: '#6366f1' },
     { title: 'Navigation Menus', description: 'Customize alert bar, main nav & sub-menus', href: '/content/admin/menus', icon: <MenuIcon size={22} />, color: '#06b6d4' },
+    { title: 'Debug & Errors', description: 'View error logs and system diagnostics', href: '/content/admin/debug', icon: <Bug size={22} />, color: '#f59e0b' },
+    { title: 'Change Username', description: 'Update your CMS admin account username', href: '/content/admin/change-username', icon: <Edit3 size={22} />, color: '#eab308' },
   ]
 
   // ── Loading skeleton ─────────────────────────────────────────────────

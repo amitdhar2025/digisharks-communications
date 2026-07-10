@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useState, useRef } from 'react'
 import type { ReactNode } from 'react'
+import { usePathname } from 'next/navigation'
 import ChatBotIcon from './ChatBotIcon'
 
 interface ChatbotSettings {
@@ -10,6 +11,7 @@ interface ChatbotSettings {
   faceStrokeColor: string; faceFillColor: string; faceCheekColor: string; antennaColor: string
   pillLabel: string; pillBgColor: string; pillTextColor: string; pillBorderColor: string; pillShadowColor: string
   bubbleSize: number; pillFontSize: number; pillPaddingX: number; pillPaddingY: number
+  mobileBottomOffset: number
   isEnabled: boolean
 }
 interface ServiceItem { id: string; label: string; icon: string; path: string; pageUrl: string; keywords: string[] }
@@ -22,7 +24,7 @@ const DEFAULT_SETTINGS: ChatbotSettings = {
   bubbleBgColor: '#20B486', bubbleBorderColor: '#ffffff', bubbleShadowColor: 'rgba(32, 180, 134, 0.45)',
   faceStrokeColor: '#ffffff', faceFillColor: '#ffffff', faceCheekColor: '#FF8FA3', antennaColor: '#FF5B2E',
   pillLabel: 'Talk to us', pillBgColor: '#1E2336', pillTextColor: '#ffffff', pillBorderColor: 'transparent', pillShadowColor: 'rgba(15, 22, 40, 0.35)',
-  bubbleSize: 72, pillFontSize: 15, pillPaddingX: 22, pillPaddingY: 10, isEnabled: true,
+  bubbleSize: 72, pillFontSize: 15, pillPaddingX: 22, pillPaddingY: 10, mobileBottomOffset: 110, isEnabled: true,
 }
 const DEFAULT_SERVICES: ServiceItem[] = [
   { id: 'digital-pr', label: 'Digital PR & Media', icon: '📰', path: '/press-release/', pageUrl: '/press-release/', keywords: ['pr', 'press release', 'media coverage'] },
@@ -135,15 +137,36 @@ export default function ChatWidget() {
 
   useEffect(() => {
     const t = Date.now()
-    Promise.all([
-      safeJson<{ settings?: Partial<ChatbotSettings> }>(`/api/chatbot/settings?t=${t}`, { settings: {} }),
-      safeJson<{ services?: ServiceItem[] }>(`/api/chatbot/services?t=${t}`, { services: [] }),
-    ]).then(([s, sv]) => {
-      if (s?.settings && Object.keys(s.settings).length > 0) {
-        setSettings({ ...DEFAULT_SETTINGS, ...s.settings })
-      }
-      if (sv?.services && sv.services.length > 0) setServices(sv.services)
-    }).catch(() => {}).finally(() => setFetchingSettings(false))
+    // Use the combined init endpoint for faster initial load
+    safeJson<{
+      chatbot?: Partial<ChatbotSettings>
+      services?: ServiceItem[]
+      settings?: { phone?: string; email?: string; address?: string; businessHours?: string }
+    }>(`/api/public/init?t=${t}`, {})
+      .then((data) => {
+        if (data?.chatbot && Object.keys(data.chatbot).length > 0) {
+          setSettings({ ...DEFAULT_SETTINGS, ...data.chatbot })
+        }
+        if (data?.services && data.services.length > 0) {
+          setServices(data.services)
+        }
+        if (data?.settings) {
+          const s = data.settings
+          setContactInfo((prev) => ({
+            ...prev,
+            phone: s.phone || prev.phone,
+            phoneTel: s.phone ? 'tel:' + s.phone.replace(/\s/g, '') : prev.phoneTel,
+            email: s.email || prev.email,
+            emailMailto: s.email ? 'mailto:' + s.email : prev.emailMailto,
+            address: s.address
+              ? s.address.split('<br').map((p: string) => p.replace(/^\s*\/?\s*/, ''))
+              : prev.address,
+            hours: s.businessHours || prev.hours,
+          }))
+        }
+      })
+      .catch(() => {})
+      .finally(() => setFetchingSettings(false))
   }, [])
 
   useEffect(() => {
@@ -182,6 +205,8 @@ export default function ChatWidget() {
     if (open && chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight
   }, [messages, open])
 
+  const pathname = usePathname()
+  const isProductPage = pathname?.startsWith('/digital-products/')
   const origin = typeof window !== 'undefined' ? window.location.origin : ''
 
   async function handleServiceClick(service: ServiceItem) {
@@ -197,7 +222,7 @@ export default function ChatWidget() {
     setLoading(false)
   }
 
-  // ── Site contact info (fetched from settings) ─────────────────────────
+  // ── Site contact info (fetched from settings via init endpoint) ────────
   const [contactInfo, setContactInfo] = useState({
     phone: '+91 96273 32332',
     phoneTel: 'tel:+919627332332',
@@ -207,26 +232,6 @@ export default function ChatWidget() {
     hours: 'Mon\u2013Sat, 10:00 AM \u2013 7:00 PM IST',
     contactPage: '/contact-us',
   })
-
-  useEffect(() => {
-    safeJson<{ settings?: { phone?: string; email?: string; address?: string; businessHours?: string } }>('/api/public/settings', { settings: {} })
-      .then((data) => {
-        if (!data.settings) return
-        const s = data.settings
-        setContactInfo((prev) => ({
-          ...prev,
-          phone: s.phone || prev.phone,
-          phoneTel: s.phone ? 'tel:' + s.phone.replace(/\s/g, '') : prev.phoneTel,
-          email: s.email || prev.email,
-          emailMailto: s.email ? 'mailto:' + s.email : prev.emailMailto,
-          address: s.address
-            ? s.address.split('<br').map((p: string) => p.replace(/^\s*\/?\s*/, ''))
-            : prev.address,
-          hours: s.businessHours || prev.hours,
-        }))
-      })
-      .catch(() => {})
-  }, [])
 
   // Words/phrases that are conversational acknowledgments — not actual queries.
   // The bot should respond with a friendly follow-up rather than searching for content.
@@ -456,6 +461,17 @@ export default function ChatWidget() {
   return (
       <div id="chat-widget-host">
         <style>{`
+        #chat-widget-host {
+          --cb-bottom: 20px;
+          --cb-panel-bottom: 96px;
+        }
+        ${isProductPage ? `
+        @media (max-width: 800px) {
+          #chat-widget-host {
+            --cb-bottom: ${settings.mobileBottomOffset || 110}px;
+            --cb-panel-bottom: ${(settings.mobileBottomOffset || 110) + 70}px;
+          }
+        }` : ''}
         @keyframes slideIn { from { opacity: 0; transform: translateY(16px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
         @keyframes chatBubbleBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
         @keyframes chatBubblePulse { 0% { box-shadow: 0 6px 18px ${bubbleShadow}, 0 0 0 0 ${bubbleBg}55; } 70% { box-shadow: 0 6px 18px ${bubbleShadow}, 0 0 0 18px ${bubbleBg}00; } 100% { box-shadow: 0 6px 18px ${bubbleShadow}, 0 0 0 0 ${bubbleBg}00; } }
@@ -464,7 +480,7 @@ export default function ChatWidget() {
       `}</style>
 
       {!open && !fetchingSettings && (
-        <div style={{ position: 'fixed', bottom: 20, right: 20, zIndex: 9999, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, animation: 'chatBubbleBob 3s ease-in-out infinite' }} aria-label="Open chat">
+        <div style={{ position: 'fixed', bottom: 'var(--cb-bottom, 20px)', right: 20, zIndex: 9999, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, animation: 'chatBubbleBob 3s ease-in-out infinite' }} aria-label="Open chat">
           <button onClick={() => setOpen(true)} style={{ width: bubbleSize, height: bubbleSize, padding: 0, borderRadius: '50%', background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', animation: 'chatBubblePulse 2.4s ease-out infinite', transition: 'transform 0.2s ease' }}
             onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.06)' }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)' }} aria-label="Open chat bubble">
             <ChatBotIcon bubbleBg={bubbleBg} bubbleBorder={bubbleBorder} bubbleShadow={bubbleShadow} faceStroke={faceStroke} faceFill={faceFill} faceCheek={faceCheek} antennaColor={antennaColor} size={bubbleSize} />
@@ -477,12 +493,12 @@ export default function ChatWidget() {
       )}
 
       {open && (
-        <button onClick={() => setOpen(false)} aria-label="Close chat" style={{ position: 'fixed', bottom: 20, right: 20, zIndex: 9999, width: Math.max(44, bubbleSize - 12), height: Math.max(44, bubbleSize - 12), borderRadius: '50%', background: primaryColor, border: 'none', color: '#fff', fontSize: 24, fontWeight: 700, cursor: 'pointer', boxShadow: `0 6px 22px ${primaryColor}66`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <button onClick={() => setOpen(false)} aria-label="Close chat" style={{ position: 'fixed', bottom: 'var(--cb-bottom, 20px)', right: 20, zIndex: 9999, width: Math.max(44, bubbleSize - 12), height: Math.max(44, bubbleSize - 12), borderRadius: '50%', background: primaryColor, border: 'none', color: '#fff', fontSize: 24, fontWeight: 700, cursor: 'pointer', boxShadow: `0 6px 22px ${primaryColor}66`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           ✕
         </button>
       )}
 
-      <div style={{ position: 'fixed', bottom: 96, right: 20, width: 360, maxWidth: 'calc(100vw - 40px)', height: 520, maxHeight: 'calc(100vh - 140px)', background: '#0f172a', border: '1px solid #1e293b', borderRadius: 16, display: open ? 'flex' : 'none', flexDirection: 'column', zIndex: 9998, boxShadow: '0 8px 40px rgba(0,0,0,0.4)', overflow: 'hidden', animation: open ? 'slideIn 0.25s ease-out' : undefined }}>
+      <div style={{ position: 'fixed', bottom: 'var(--cb-panel-bottom, 96px)', right: 20, width: 360, maxWidth: 'calc(100vw - 40px)', height: 520, maxHeight: 'calc(100vh - 140px)', background: '#0f172a', border: '1px solid #1e293b', borderRadius: 16, display: open ? 'flex' : 'none', flexDirection: 'column', zIndex: 9998, boxShadow: '0 8px 40px rgba(0,0,0,0.4)', overflow: 'hidden', animation: open ? 'slideIn 0.25s ease-out' : undefined }}>
         <div style={{ background: primaryColor, padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#4ade80' }} />

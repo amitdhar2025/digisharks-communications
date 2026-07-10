@@ -25,6 +25,7 @@ const DEFAULTS = {
   pillFontSize: 15,
   pillPaddingX: 22,
   pillPaddingY: 10,
+  mobileBottomOffset: 110,
 }
 
 // Clamp helpers for the size controls
@@ -53,6 +54,7 @@ function withDefaults(s: any) {
         ? DEFAULTS.pillBorderColor
         : s.pillBorderColor,
     pillShadowColor: s?.pillShadowColor || DEFAULTS.pillShadowColor,
+    mobileBottomOffset: s?.mobileBottomOffset ?? DEFAULTS.mobileBottomOffset,
   }
 }
 
@@ -116,6 +118,7 @@ export async function PUT(req: NextRequest) {
       pillFontSize,
       pillPaddingX,
       pillPaddingY,
+      mobileBottomOffset,
       isEnabled,
     } = body
 
@@ -151,6 +154,8 @@ export async function PUT(req: NextRequest) {
     if (pillFontSize !== undefined) settings.pillFontSize = clamp(pillFontSize, 10, 28,  DEFAULTS.pillFontSize)
     if (pillPaddingX !== undefined) settings.pillPaddingX = clamp(pillPaddingX,  8, 48,  DEFAULTS.pillPaddingX)
     if (pillPaddingY !== undefined) settings.pillPaddingY = clamp(pillPaddingY,  4, 28,  DEFAULTS.pillPaddingY)
+
+    if (mobileBottomOffset !== undefined) settings.mobileBottomOffset = clamp(mobileBottomOffset, 20, 300, DEFAULTS.mobileBottomOffset)
 
     if (isEnabled !== undefined) settings.isEnabled = isEnabled
 

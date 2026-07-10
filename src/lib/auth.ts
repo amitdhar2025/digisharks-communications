@@ -35,6 +35,10 @@ export interface AdminPayload {
 export const DEFAULT_SUBADMIN_PERMISSIONS: SubAdminPermissions = {
   blog: { view: false, create: false, edit: false, delete: false },
   store: { view: false, create: false, edit: false, delete: false },
+  orders: { view: false, edit: false, delete: false, export: false },
+  products: { view: false, create: false, edit: false, delete: false },
+  coupons: { view: false, create: false, edit: false, delete: false },
+  reports: { view: false, export: false },
   career: { view: false, create: false, edit: false, delete: false },
   chatbot: { view: false, manage: false, settings: false },
   seoAudit: { view: false, delete: false },
@@ -45,6 +49,10 @@ export const DEFAULT_SUBADMIN_PERMISSIONS: SubAdminPermissions = {
 export const FULL_PERMISSIONS: SubAdminPermissions = {
   blog: { view: true, create: true, edit: true, delete: true },
   store: { view: true, create: true, edit: true, delete: true },
+  orders: { view: true, edit: true, delete: true, export: true },
+  products: { view: true, create: true, edit: true, delete: true },
+  coupons: { view: true, create: true, edit: true, delete: true },
+  reports: { view: true, export: true },
   career: { view: true, create: true, edit: true, delete: true },
   chatbot: { view: true, manage: true, settings: true },
   seoAudit: { view: true, delete: true },

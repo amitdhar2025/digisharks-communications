@@ -81,8 +81,9 @@ export async function PUT(req) {
     const allowedFields = [
       'phone', 'email', 'address', 'businessHours',
       'socialFacebook', 'socialTwitter', 'socialInstagram',
-      'socialLinkedin', 'socialYoutube',
+      'socialLinkedin', 'socialYoutube', 'socialLinks',
       'siteName', 'footerTagline', 'copyrightText',
+      'footerLinkColumns',
       'privacyPolicyUrl', 'termsUrl', 'refundPolicyUrl',
       'headerLogo', 'headerLogoAlt', 'footerLogo', 'footerLogoAlt', 'favicon',
       'maintenanceMode', 'maintenanceMessage',

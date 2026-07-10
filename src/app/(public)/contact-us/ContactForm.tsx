@@ -54,7 +54,7 @@ export default function ContactForm() {
   }
 
   return (
-    <form className="contact-form fade-up stagger-2" id="contact-form" onSubmit={handleSubmit}>
+    <form className="contact-form fade-up stagger-2" id="contact-form" onSubmit={handleSubmit} autoComplete="off">
       <h3>📝 Send Us a Message</h3>
 
       {success && (

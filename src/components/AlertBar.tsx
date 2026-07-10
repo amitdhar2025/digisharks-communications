@@ -55,20 +55,17 @@ export default function AlertBar() {
   const [siteSettings, setSiteSettings] = useState<SiteSettings>({ phone: '+91 96273 32332' });
 
   useEffect(() => {
-    Promise.all([
-      fetch("/api/public/menus?type=alert-bar").then((r) => r.json()),
-      fetch("/api/public/menus?type=alert-ticker").then((r) => r.json()),
-      fetch("/api/public/settings").then((r) => r.json()),
-    ])
-      .then(([linksData, tickersData, settingsData]) => {
+    fetch("/api/public/init")
+      .then((r) => r.json())
+      .then((data) => {
         setQuickLinks(
-          linksData.items && linksData.items.length > 0 ? linksData.items : DEFAULT_LINKS
+          data.alertBar && data.alertBar.length > 0 ? data.alertBar : DEFAULT_LINKS
         )
         setTickers(
-          tickersData.items && tickersData.items.length > 0 ? tickersData.items : DEFAULT_TICKERS
+          data.alertTicker && data.alertTicker.length > 0 ? data.alertTicker : DEFAULT_TICKERS
         )
-        if (settingsData.settings) {
-          setSiteSettings(settingsData.settings)
+        if (data.settings) {
+          setSiteSettings(data.settings)
         }
       })
       .catch(() => {

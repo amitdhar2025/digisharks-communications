@@ -16,7 +16,7 @@ interface OrderResp {
     amount: number
     customer: { name: string; email: string }
     payment: { status: string }
-    deliveryStatus: 'not_yet' | 'received'
+    deliveryStatus: 'pending' | 'processing' | 'shipped' | 'delivered'
     emailSent: boolean
     createdAt: string
   } | null
@@ -119,14 +119,14 @@ export default function OrderSuccessView({ orderNumber }: { orderNumber: string 
           )}
         </p>
 
-        {o.deliveryStatus === 'not_yet' && !o.emailSent && (
+        {o.deliveryStatus !== 'delivered' && !o.emailSent && (
           <div className="dp-pending-note">
             ⏳ Your confirmation email is being sent. If you don't see it in a few minutes, check your spam folder or
             contact <a href={`mailto:${data.supportEmail}`} style={{ color: 'inherit' }}>{data.supportEmail}</a>.
           </div>
         )}
 
-        {o.deliveryStatus === 'received' && (
+        {o.deliveryStatus === 'delivered' && (
           <div className="dp-pending-note" style={{ background: 'rgba(16,185,129,.08)', borderColor: 'rgba(16,185,129,.35)', color: 'var(--emerald)' }}>
             ✓ Delivery email sent. Lifetime access, free future updates.
           </div>

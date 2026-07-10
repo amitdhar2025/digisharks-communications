@@ -18,6 +18,13 @@ const DEFAULT_SETTINGS = {
   email: 'marketing@digisharkscommunications.com',
   address: 'B-2, C-87, C Block, Sector 63<br />Noida, Uttar Pradesh 201301',
   businessHours: 'Mon–Sat: 10:00 AM – 7:00 PM IST',
+  socialLinks: [
+    { platform: 'facebook', label: 'Facebook', url: 'https://www.facebook.com/digisharks', iconSvg: '', iconEmoji: '📘' },
+    { platform: 'twitter', label: 'X / Twitter', url: 'https://twitter.com/digisharks', iconSvg: '', iconEmoji: '🐦' },
+    { platform: 'instagram', label: 'Instagram', url: 'https://www.instagram.com/digisharks', iconSvg: '', iconEmoji: '📸' },
+    { platform: 'linkedin', label: 'LinkedIn', url: 'https://www.linkedin.com/company/digisharks', iconSvg: '', iconEmoji: '💼' },
+    { platform: 'youtube', label: 'YouTube', url: 'https://www.youtube.com/@digisharks', iconSvg: '', iconEmoji: '▶️' },
+  ],
   socialFacebook: 'https://www.facebook.com/digisharks',
   socialTwitter: 'https://twitter.com/digisharks',
   socialInstagram: 'https://www.instagram.com/digisharks',

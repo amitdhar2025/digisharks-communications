@@ -119,7 +119,7 @@ export async function POST(req: NextRequest) {
               emailSent: result.ok,
               emailSentAt: result.ok ? new Date() : undefined,
               emailError: result.ok ? undefined : (result.error || 'unknown'),
-              deliveryStatus: result.ok ? 'received' : 'not_yet',
+              deliveryStatus: result.ok ? 'delivered' : 'pending',
               updatedAt: new Date(),
             },
           }
