@@ -11,7 +11,7 @@
     "dev": "next dev",
     "build": "node scripts/prebuild.js && next build",
     "start": "next start",
-    "test": "tsx src/__tests__/chatbot-match.test.ts && tsx src/__tests__/chatbot-learn-more.test.ts && tsx src/__tests__/clear-caches.test.ts && tsx src/__tests__/url-utils.test.ts && tsx src/__tests__/service-types.test.ts",
+    "test": "tsx src/__tests__/chatbot-match.test.ts && tsx src/__tests__/chatbot-learn-more.test.ts && tsx src/__tests__/clear-caches.test.ts && tsx src/__tests__/url-utils.test.ts && tsx src/__tests__/service-types.test.ts && tsx src/__tests__/permissions.test.ts && tsx src/__tests__/logger-mask.test.ts && tsx src/__tests__/require-permission.test.ts && tsx src/__tests__/api-route-auth.test.ts",
     "lint": "next lint",
     "optimize:assets": "node scripts/optimize-assets.js",
     "optimize:assets:dry": "node scripts/optimize-assets.js --dry-run --verbose",
