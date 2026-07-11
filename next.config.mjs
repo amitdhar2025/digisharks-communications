@@ -77,7 +77,7 @@ const nextConfig = {
               "media-src 'self' res.cloudinary.com; " +
               "font-src 'self'; " +
               "connect-src 'self' https://*.razorpay.com https://checkout.razorpay.com; " +
-              "frame-src 'self' https://checkout.razorpay.com https://www.google.com; " +
+              "frame-src 'self' https://checkout.razorpay.com https://www.youtube.com https://player.vimeo.com https://www.dailymotion.com https://www.google.com; " +
               "object-src 'none'; " +
               "base-uri 'self';",
           },

@@ -13,6 +13,7 @@ import {
   findBestScored,
   type QAPlain,
 } from '@/lib/chatbot-match'
+import { appendLearnMore } from '@/lib/chatbot-learn-more'
 
 export const dynamic = 'force-dynamic'
 
@@ -59,7 +60,7 @@ export async function POST(req: NextRequest) {
     const exactPhraseMatch = findExactMatch(items, trimmed)
     if (exactPhraseMatch) {
       ChatbotQA.findByIdAndUpdate(exactPhraseMatch._id, { $inc: { hitCount: 1 } }).catch(() => {})
-      return NextResponse.json({ answer: exactPhraseMatch.answer, matched: exactPhraseMatch.question })
+      return NextResponse.json({ answer: appendLearnMore(exactPhraseMatch.answer, exactPhraseMatch.category), matched: exactPhraseMatch.question })
     }
 
     // ── 2) Fuzzy match (Fuse.js) ──
@@ -75,7 +76,7 @@ export async function POST(req: NextRequest) {
     const fuseItem = findFuseBest(fuse.search(trimmed), userWords, 0.5)
     if (fuseItem) {
       ChatbotQA.findByIdAndUpdate(fuseItem._id, { $inc: { hitCount: 1 } }).catch(() => {})
-      return NextResponse.json({ answer: fuseItem.answer, matched: fuseItem.question })
+      return NextResponse.json({ answer: appendLearnMore(fuseItem.answer, fuseItem.category), matched: fuseItem.question })
     }
 
     // ── 3) Score-based overlap match ──
@@ -83,7 +84,7 @@ export async function POST(req: NextRequest) {
     const best = findBestScored(scored)
     if (best) {
       ChatbotQA.findByIdAndUpdate(best.item._id, { $inc: { hitCount: 1 } }).catch(() => {})
-      return NextResponse.json({ answer: best.item.answer, matched: best.item.question })
+      return NextResponse.json({ answer: appendLearnMore(best.item.answer, best.item.category), matched: best.item.question })
     }
 
     return NextResponse.json({ answer: fallback })

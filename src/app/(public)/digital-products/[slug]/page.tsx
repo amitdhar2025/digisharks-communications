@@ -6,6 +6,7 @@ import { useParams } from 'next/navigation'
 import { useCart } from '@/lib/cart-context'
 import { useWishlist } from '@/lib/wishlist-context'
 import { getProductContent } from '@/lib/product-content'
+import { getAnyVideoEmbedUrl } from '@/lib/video-utils'
 
 interface TrustCard {
   icon: string
@@ -75,6 +76,25 @@ interface Product {
   createdAt: string | null
 }
 
+/** Shared video player — renders iframe for platforms, <video> for direct files */
+function VideoPlayer({ url }: { url: string }) {
+  const embedUrl = getAnyVideoEmbedUrl(url)
+  if (!url) return null
+  if (embedUrl && embedUrl !== url) {
+    // Platform embed (YouTube, Vimeo, Dailymotion)
+    return (
+      <iframe
+        src={embedUrl}
+        title="Video"
+        allowFullScreen
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      />
+    )
+  }
+  // Direct video file
+  return <video src={url} controls preload="metadata" />
+}
+
 function formatINR(amount: number): string {
   return new Intl.NumberFormat('en-IN', {
     style: 'currency',
@@ -82,23 +102,6 @@ function formatINR(amount: number): string {
     maximumFractionDigits: 2,
     minimumFractionDigits: 2,
   }).format(amount)
-}
-
-/** Convert any YouTube URL (watch, youtu.be, embed) to embed format */
-function getYouTubeEmbedUrl(url: string): string | null {
-  try {
-    // youtu.be/XXXXX
-    const shortMatch = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/)
-    if (shortMatch) return `https://www.youtube.com/embed/${shortMatch[1]}`
-    // youtube.com/watch?v=XXXXX or youtube.com/embed/XXXXX
-    const watchMatch = url.match(/youtube\.com\/(?:watch\?v=|embed\/)([a-zA-Z0-9_-]+)/)
-    if (watchMatch) return `https://www.youtube.com/embed/${watchMatch[1]}`
-  } catch { /* ignore invalid URLs */ }
-  return null
-}
-
-function isYouTubeUrl(url: string): boolean {
-  return /youtube\.com|youtu\.be/.test(url)
 }
 
 export default function DynamicProductDetailPage() {
@@ -329,12 +332,32 @@ export default function DynamicProductDetailPage() {
       <div className="orb orb-2"></div>
       <div className="mesh-grid"></div>
       <main className="dp-product-detail">
+        {/* Breadcrumb JSON-LD Schema for SEO */}
+        {(() => {
+          const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://digisharkscommunications.com'
+          return (
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{
+                __html: JSON.stringify({
+                  '@context': 'https://schema.org',
+                  '@type': 'BreadcrumbList',
+                  'itemListElement': [
+                    { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': `${siteUrl}/` },
+                    { '@type': 'ListItem', 'position': 2, 'name': 'Digital Products', 'item': `${siteUrl}/digital-products` },
+                    { '@type': 'ListItem', 'position': 3, 'name': product.title, 'item': `${siteUrl}/digital-products/${product.slug}` },
+                  ],
+                }),
+              }}
+            />
+          )
+        })()}
         <nav className="dp-breadcrumb" aria-label="Breadcrumb">
           <Link href="/">Home</Link>
-          <span className="sep">›</span>
+          <span className="sep" aria-hidden="true">›</span>
           <Link href="/digital-products">Digital Products</Link>
-          <span className="sep">›</span>
-          <span className="current">{product.title}</span>
+          <span className="sep" aria-hidden="true">›</span>
+          <span className="current" aria-current="page">{product.title}</span>
         </nav>
 
         {error && <div className="alert alert-error">{error}</div>}
@@ -541,16 +564,7 @@ export default function DynamicProductDetailPage() {
               <>
                 <p className="dp-watch-video">{product?.demoVideoLabel || '▶ Watch Demo'}</p>
                 <div className="dp-video-wrap">
-                  {isYouTubeUrl(product.demoVideo) ? (
-                    <iframe
-                      src={getYouTubeEmbedUrl(product.demoVideo) || product.demoVideo}
-                      title="Demo video"
-                      allowFullScreen
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    />
-                  ) : (
-                    <video src={product.demoVideo} controls preload="metadata" />
-                  )}
+                  <VideoPlayer url={product.demoVideo} />
                 </div>
               </>
             )}
@@ -803,16 +817,7 @@ export default function DynamicProductDetailPage() {
                   <div key={i} style={{ display: safeIdx === i ? 'block' : 'none' }}>
                     {tab.isVideo ? (
                       <div className="dp-video-wrap" style={{ maxWidth: 700, marginTop: 0 }}>
-                        {isYouTubeUrl(tab.content) ? (
-                          <iframe
-                            src={getYouTubeEmbedUrl(tab.content) || tab.content}
-                            title={tab.label}
-                            allowFullScreen
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          />
-                        ) : (
-                          <video src={tab.content} controls preload="metadata" />
-                        )}
+                        <VideoPlayer url={tab.content} />
                       </div>
                     ) : tab.isHtml ? (
                       <div dangerouslySetInnerHTML={{ __html: tab.content }} />

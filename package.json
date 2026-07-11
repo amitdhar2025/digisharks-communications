@@ -8,7 +8,7 @@
     "dev": "next dev",
     "build": "npm run convert:avif && npm run convert:webp && npm run optimize:assets && next build",
     "start": "next start",
-    "test": "tsx src/__tests__/chatbot-match.test.ts",
+    "test": "tsx src/__tests__/chatbot-match.test.ts && tsx src/__tests__/chatbot-learn-more.test.ts && tsx src/__tests__/clear-caches.test.ts && tsx src/__tests__/url-utils.test.ts && tsx src/__tests__/service-types.test.ts",
     "lint": "next lint",
     "optimize:assets": "node scripts/optimize-assets.js",
     "optimize:assets:dry": "node scripts/optimize-assets.js --dry-run --verbose",

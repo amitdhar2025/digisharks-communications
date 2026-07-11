@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 import MediaCarousel from "@/components/MediaCarousel";
+import HeroMediaCarousel from "@/components/HeroMediaCarousel";
 import PortfolioSection from "@/components/PortfolioSection";
 import TestimonialSlider from "@/components/TestimonialSlider";
 import SeoAuditWidget from "@/components/SeoAuditWidget";
@@ -28,6 +29,7 @@ const DEFAULT_CONTENT = {
   ],
   // Hero
   heroVideo: '',
+  heroMedia: [],
   // Brand Logos
   brandLogosHeading: 'Check Out <span class="orange-text-num">Our Work</span>',
   brandLogosImages: [],
@@ -155,12 +157,26 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* ===== FULL-WIDTH VIDEO ===== */}
-        <div style={{position:"relative",left:"50%",right:"50%",marginLeft:"-50vw",marginRight:"-50vw",width:"100vw",lineHeight:0,overflow:"hidden"}}>
-          <video autoPlay muted loop playsInline disablePictureInPicture style={{width:"100vw",display:"block",pointerEvents:"none"}}>
-            <source src={content.heroVideo || '/Video.mp4'} type="video/mp4" />
-          </video>
-        </div>
+        {/* ===== HERO MEDIA (Carousel if multiple, single display otherwise) ===== */}
+        {(() => {
+          const mediaItems = (content.heroMedia || []).filter((m: any) => m.isActive !== false)
+            .sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0))
+          if (mediaItems.length > 0) {
+            return (
+              <div style={{ padding: '0 5vw', marginTop: 24 }}>
+                <HeroMediaCarousel items={mediaItems} />
+              </div>
+            )
+          }
+          // Fallback: show the heroVideo single video
+          return (
+            <div style={{position:"relative",left:"50%",right:"50%",marginLeft:"-50vw",marginRight:"-50vw",width:"100vw",lineHeight:0,overflow:"hidden"}}>
+              <video autoPlay muted loop playsInline disablePictureInPicture style={{width:"100vw",display:"block",pointerEvents:"none"}}>
+                <source src={content.heroVideo || '/Video.mp4'} type="video/mp4" />
+              </video>
+            </div>
+          )
+        })()}
 
         {/* ===== BRAND LOGOS ===== */}
         <section className="brand-logos-section">

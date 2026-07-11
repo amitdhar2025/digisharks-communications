@@ -21,6 +21,7 @@ import { connectCMSDb } from '@/lib/db-cms'
 import MenuItem from '@/models/MenuItem'
 import SiteSettings from '@/models/SiteSettings'
 import ChatbotSettings from '@/lib/models/ChatbotSettings'
+import type { ServiceItem } from '@/lib/service-types'
 
 export const dynamic = 'force-dynamic'
 
@@ -84,15 +85,15 @@ const DEFAULT_CHATBOT_SETTINGS = {
   isEnabled: true,
 }
 
-const DEFAULT_SERVICES = [
-  { id: 'digital-pr', label: 'Digital PR & Media', icon: '📰', path: '/press-release/', keywords: ['pr', 'press release', 'media coverage'] },
-  { id: 'seo-ppc', label: 'SEO & PPC', icon: '📈', path: '/digital-marketing-agency/', keywords: ['seo', 'ppc', 'google ads'] },
-  { id: 'ai-seo-aeo-geo', label: 'AI SEO, AEO & GEO', icon: '🤖', path: '/digital-marketing-agency/', keywords: ['ai seo', 'aeo', 'geo', 'answer engine'] },
-  { id: 'social-media', label: 'Social Media', icon: '📱', path: '/social-media/', keywords: ['social media', 'instagram'] },
-  { id: 'web-dev', label: 'Web Development', icon: '💻', path: '/web-development/', keywords: ['web development', 'website'] },
-  { id: 'brand-promotion', label: 'Brand Promotion', icon: '🏆', path: '/brand-promotion/', keywords: ['brand promotion', 'branding'] },
-  { id: 'political', label: 'Political Campaigns', icon: '🗳️', path: '/services-top-pr-digital-marketing/', keywords: ['political', 'campaign', 'election'] },
-  { id: 'about', label: 'About Us', icon: '🏢', path: '/about-us/', keywords: ['about', 'company', 'team'] },
+const DEFAULT_SERVICES: ServiceItem[] = [
+  { id: 'digital-pr', label: 'Digital PR & Media', icon: '📰', path: '/press-release/', pageUrl: '/press-release/', keywords: ['pr', 'press release', 'media coverage'] },
+  { id: 'seo-ppc', label: 'SEO & PPC', icon: '📈', path: '/digital-marketing-agency/', pageUrl: '/digital-marketing-agency/', keywords: ['seo', 'ppc', 'google ads'] },
+  { id: 'ai-seo-aeo-geo', label: 'AI SEO, AEO & GEO', icon: '🤖', path: '/digital-marketing-agency/', pageUrl: '/digital-marketing-agency/', keywords: ['ai seo', 'aeo', 'geo', 'answer engine'] },
+  { id: 'social-media', label: 'Social Media', icon: '📱', path: '/social-media/', pageUrl: '/social-media/', keywords: ['social media', 'instagram'] },
+  { id: 'web-dev', label: 'Web Development', icon: '💻', path: '/web-development/', pageUrl: '/web-development/', keywords: ['web development', 'website'] },
+  { id: 'brand-promotion', label: 'Brand Promotion', icon: '🏆', path: '/brand-promotion/', pageUrl: '/brand-promotion/', keywords: ['brand promotion', 'branding'] },
+  { id: 'political', label: 'Political Campaigns', icon: '🗳️', path: '/services-top-pr-digital-marketing/', pageUrl: '/services-top-pr-digital-marketing/', keywords: ['political', 'campaign', 'election'] },
+  { id: 'about', label: 'About Us', icon: '🏢', path: '/about-us/', pageUrl: '/about-us/', keywords: ['about', 'company', 'team'] },
 ]
 
 export async function GET() {

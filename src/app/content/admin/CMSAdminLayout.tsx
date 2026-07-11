@@ -20,6 +20,7 @@ import {
   Menu,
   Settings,
   Bug,
+  Zap,
   type LucideIcon,
 } from 'lucide-react'
 import MaintenanceBanner from '@/components/MaintenanceBanner'
@@ -145,6 +146,7 @@ export default function CMSAdminLayout({ children }: { children: React.ReactNode
               </span>
             )}
           </Link>
+          <NavLink href="/content/admin/cache" icon={Zap} label="Cache" onClick={closeSidebar} />
           <NavLink href="/content/admin/change-password" icon={Settings} label="Change Password" onClick={closeSidebar} />
           <NavLink href="/content/admin/change-username" icon={Settings} label="Change Username" onClick={closeSidebar} />
         </nav>

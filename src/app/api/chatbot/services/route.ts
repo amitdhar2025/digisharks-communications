@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
+import type { ServiceItem } from '@/lib/service-types'
 
 export const dynamic = 'force-dynamic'
 
-const serviceList = [
+const serviceList: ServiceItem[] = [
   {
     id: 'digital-pr',
     label: 'Digital PR & Media',
     icon: '📰',
     path: '/press-release/',
+    pageUrl: '/press-release/',
     keywords: ['pr', 'press release', 'media coverage', 'public relations', 'digital pr'],
   },
   {
@@ -15,6 +17,7 @@ const serviceList = [
     label: 'SEO & PPC',
     icon: '📈',
     path: '/digital-marketing-agency/',
+    pageUrl: '/digital-marketing-agency/',
     keywords: ['seo', 'ppc', 'google ads', 'search engine', 'digital marketing'],
   },
   {
@@ -22,6 +25,7 @@ const serviceList = [
     label: 'AI SEO, AEO & GEO',
     icon: '🤖',
     path: '/digital-marketing-agency/',
+    pageUrl: '/digital-marketing-agency/',
     keywords: ['ai seo', 'aeo', 'geo', 'answer engine', 'generative engine', 'ai optimization'],
   },
   {
@@ -29,6 +33,7 @@ const serviceList = [
     label: 'Social Media',
     icon: '📱',
     path: '/social-media/',
+    pageUrl: '/social-media/',
     keywords: ['social media', 'instagram', 'facebook', 'content', 'smo'],
   },
   {
@@ -36,6 +41,7 @@ const serviceList = [
     label: 'Web Development',
     icon: '💻',
     path: '/web-development/',
+    pageUrl: '/web-development/',
     keywords: ['web development', 'website', 'ecommerce', 'landing page', 'web design'],
   },
   {
@@ -43,6 +49,7 @@ const serviceList = [
     label: 'Brand Promotion',
     icon: '🏆',
     path: '/brand-promotion/',
+    pageUrl: '/brand-promotion/',
     keywords: ['brand promotion', 'branding', 'influencer', 'corporate branding'],
   },
   {
@@ -50,6 +57,7 @@ const serviceList = [
     label: 'Political Campaigns',
     icon: '🗳️',
     path: '/services-top-pr-digital-marketing/',
+    pageUrl: '/services-top-pr-digital-marketing/',
     keywords: ['political', 'campaign', 'election', 'booth', 'voter'],
   },
   {
@@ -57,6 +65,7 @@ const serviceList = [
     label: 'About Us',
     icon: '🏢',
     path: '/about-us/',
+    pageUrl: '/about-us/',
     keywords: ['about', 'company', 'team', 'vansh', 'who we are'],
   },
 ]

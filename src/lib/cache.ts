@@ -15,6 +15,13 @@ export class TTLCache<T> {
   constructor(ttlMs: number) {
     if (ttlMs <= 0) throw new Error('TTL must be > 0')
     this.ttlMs = ttlMs
+    // Register this cache instance in the global registry for admin cache clearing
+    if (typeof globalThis !== 'undefined') {
+      if (!global.__appCaches) global.__appCaches = new Map()
+      // Use a unique key based on the instance
+      const key = `ttl_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
+      global.__appCaches.set(key, this.store)
+    }
   }
 
   get(key: string): T | undefined {

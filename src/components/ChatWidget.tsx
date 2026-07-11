@@ -3,6 +3,8 @@ import { useEffect, useState, useRef } from 'react'
 import type { ReactNode } from 'react'
 import { usePathname } from 'next/navigation'
 import ChatBotIcon from './ChatBotIcon'
+import { isValidUrl } from '@/lib/url-utils'
+import { type ServiceItem, toServiceItems } from '@/lib/service-types'
 
 interface ChatbotSettings {
   botName: string; welcomeMessage: string; fallbackMessage: string
@@ -14,7 +16,6 @@ interface ChatbotSettings {
   mobileBottomOffset: number
   isEnabled: boolean
 }
-interface ServiceItem { id: string; label: string; icon: string; path: string; pageUrl: string; keywords: string[] }
 interface Message { role: 'user' | 'bot'; text: string; time: string }
 
 const DEFAULT_SETTINGS: ChatbotSettings = {
@@ -60,18 +61,24 @@ function renderMessageText(text: string): ReactNode {
     if (match.index > lastIndex) {
       parts.push(text.slice(lastIndex, match.index))
     }
-    // Push the clickable link
-    parts.push(
-      <a
-        key={lastIndex}
-        href={match[2]}
-        target="_blank"
-        rel="noopener noreferrer"
-        style={{ color: '#7dd3fc', textDecoration: 'underline', textUnderlineOffset: 2 }}
-      >
-        {match[1]}
-      </a>
-    )
+    // Push the clickable link (rendered as plain text if URL is invalid)
+    const linkUrl = match[2]
+    if (isValidUrl(linkUrl)) {
+      parts.push(
+        <a
+          key={lastIndex}
+          href={linkUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ color: '#7dd3fc', textDecoration: 'underline', textUnderlineOffset: 2 }}
+        >
+          {match[1]}
+        </a>
+      )
+    } else {
+      // Render as plain text so the user sees what was intended without a broken link
+      parts.push(`[${match[1]}](${linkUrl})`)
+    }
     lastIndex = match.index + match[0].length
   }
 
@@ -95,17 +102,23 @@ function renderMessageText(text: string): ReactNode {
       if (urlMatch.index > urlLastIdx) {
         segments.push(part.slice(urlLastIdx, urlMatch.index))
       }
-      segments.push(
-        <a
-          key={`${idx}-${urlLastIdx}`}
-          href={urlMatch[1]}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ color: '#7dd3fc', textDecoration: 'underline', textUnderlineOffset: 2 }}
-        >
-          {urlMatch[1]}
-        </a>
-      )
+      const bareUrl = urlMatch[1]
+      if (isValidUrl(bareUrl)) {
+        segments.push(
+          <a
+            key={`${idx}-${urlLastIdx}`}
+            href={bareUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: '#7dd3fc', textDecoration: 'underline', textUnderlineOffset: 2 }}
+          >
+            {bareUrl}
+          </a>
+        )
+      } else {
+        // Render as plain text if the URL isn't safe
+        segments.push(bareUrl)
+      }
       urlLastIdx = urlMatch.index + urlMatch[0].length
     }
     if (urlLastIdx < part.length) {
@@ -140,7 +153,7 @@ export default function ChatWidget() {
     // Use the combined init endpoint for faster initial load
     safeJson<{
       chatbot?: Partial<ChatbotSettings>
-      services?: ServiceItem[]
+      services?: Record<string, unknown>[]
       settings?: { phone?: string; email?: string; address?: string; businessHours?: string }
     }>(`/api/public/init?t=${t}`, {})
       .then((data) => {
@@ -148,7 +161,8 @@ export default function ChatWidget() {
           setSettings({ ...DEFAULT_SETTINGS, ...data.chatbot })
         }
         if (data?.services && data.services.length > 0) {
-          setServices(data.services)
+          // Coerce raw services to ensure every item has pageUrl
+          setServices(toServiceItems(data.services as unknown[]))
         }
         if (data?.settings) {
           const s = data.settings
@@ -217,7 +231,12 @@ export default function ChatWidget() {
       const res = await fetch('/api/chatbot/services', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ path: service.path, origin }) })
       const data = await safeJson<{ summary?: string }>('', { summary: undefined })
       try { Object.assign(data, JSON.parse(await res.text())) } catch {}
-      if (data.summary) setMessages((prev) => [...prev, { role: 'bot', text: `Great question! Here's what we do in **${service.label}**:\n\n${data.summary}\n\n👉 [Learn more](${service.pageUrl})`, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }])
+      if (data.summary) {
+        const learnMoreMd = isValidUrl(service.pageUrl)
+          ? `\n\n👉 [Learn more](${service.pageUrl})`
+          : ''
+        setMessages((prev) => [...prev, { role: 'bot', text: `Great question! Here's what we do in **${service.label}**:\n\n${data.summary}${learnMoreMd}`, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }])
+      }
     } catch { /* ignore */ }
     setLoading(false)
   }
@@ -392,7 +411,11 @@ export default function ChatWidget() {
         if (d && Array.isArray(d.results) && d.results.length > 0) {
           let reply = `I found a few articles on our site that might help:\n\n`
           d.results.slice(0, 4).forEach((it: any, i: number) => {
-            reply += `${i + 1}. **${it.title || 'Result'}**\n${it.excerpt || it.shortPitch || it.snippet || ''}\n👉 [Read more](${it.url})\n\n`
+            const resultUrl = it.url
+            const readMoreMd = isValidUrl(resultUrl)
+              ? `\n👉 [Read more](${resultUrl})`
+              : ''
+            reply += `${i + 1}. **${it.title || 'Result'}**\n${it.excerpt || it.shortPitch || it.snippet || ''}${readMoreMd}\n\n`
           })
           reply += `Let me know if you'd like more details!`
           setMessages((prev) => [...prev, { role: 'bot', text: reply, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }])
@@ -411,9 +434,13 @@ export default function ChatWidget() {
           if (d && Array.isArray(d.results) && d.results.length > 0) {
             let reply = `I couldn't find a direct answer on our site, but here are some useful results from the web:\n\n`
             d.results.slice(0, 4).forEach((it: any, i: number) => {
-              reply += `${i + 1}. **${it.title || 'Result'}**\n${it.snippet || ''}\n👉 [Read more](${it.url})\n\n`
+              const resultUrl = it.url
+              const readMoreMd = isValidUrl(resultUrl)
+                ? `\n👉 [Read more](${resultUrl})`
+                : ''
+              reply += `${i + 1}. **${it.title || 'Result'}**\n${it.snippet || ''}${readMoreMd}\n\n`
             })
-            if (d.googleSearchUrl) reply += `🌐 [See all results on Google](${d.googleSearchUrl})\n\n`
+            if (isValidUrl(d.googleSearchUrl)) reply += `🌐 [See all results on Google](${d.googleSearchUrl})\n\n`
             setMessages((prev) => [...prev, { role: 'bot', text: reply, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }])
             setLoading(false); return
           }

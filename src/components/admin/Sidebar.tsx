@@ -144,60 +144,60 @@ export default function AdminSidebar({ onNavClick, isOpen }: AdminSidebarProps) 
 
       {/* Main Section */}
       <div className="nav-section">Main</div>
-      {role === 'admin' && navItem('/admin/dashboard', '📊 Dashboard')}
-      {hasSectionAccess('queries') && navItem('/admin/queries', '📋 Queries')}
-      {hasSectionAccess('orders') && navItem('/admin/store', '📦 Orders & Sales')}
-      {hasSectionAccess('products') && navItem('/admin/store/products', '🏷️ Manage Products')}
-      {(role === 'admin' || permissions?.products?.create) && navItem('/admin/store/products/add', '＋ Add Product')}
-      {hasSectionAccess('reports') && navItem('/admin/reports', '📈 Sales Reports')}
-      {hasSectionAccess('coupons') && navItem('/admin/store/coupons', '🎟️ Coupons')}
-      {hasSectionAccess('blog') && navItem('/admin/blog', '📝 Blog')}
-      {hasSectionAccess('rss') && navItem('/admin/rss', '📡 RSS Feeds')}
-      {hasSectionAccess('career') && navItem('/admin/career', '💼 Career')}
+      {role === 'admin' && navItem('/admin/dashboard', '\u{1F4CA} Dashboard')}
+      {hasSectionAccess('queries') && navItem('/admin/queries', '\u{1F4CB} Queries')}
+      {hasSectionAccess('orders') && navItem('/admin/store', '\u{1F4E6} Orders & Sales')}
+      {hasSectionAccess('products') && navItem('/admin/store/products', '\u{1F3F7}\uFE0F Manage Products')}
+      {(role === 'admin' || permissions?.products?.create) && navItem('/admin/store/products/add', '\uFF0B Add Product')}
+      {hasSectionAccess('reports') && navItem('/admin/reports', '\u{1F4C8} Sales Reports')}
+      {hasSectionAccess('coupons') && navItem('/admin/store/coupons', '\u{1F39F}\uFE0F Coupons')}
+      {hasSectionAccess('blog') && navItem('/admin/blog', '\u{1F4DD} Blog')}
+      {hasSectionAccess('rss') && navItem('/admin/rss', '\u{1F4E1} RSS Feeds')}
+      {hasSectionAccess('career') && navItem('/admin/career', '\u{1F4BC} Career')}
 
       {/* Chatbot Section */}
       {hasSectionAccess('chatbot') && (
         <>
-          <div className="nav-section">🤖 Chatbot</div>
-          {navItem('/admin/chatbot', '📊 Dashboard')}
-          {(role === 'admin' || permissions?.chatbot?.manage) && navItem('/admin/chatbot/qna', '💬 Q&A Manager')}
-          {(role === 'admin' || permissions?.chatbot?.manage) && navItem('/admin/chatbot/upload', '📤 Upload')}
-          {(role === 'admin' || permissions?.chatbot?.settings) && navItem('/admin/chatbot/settings', '⚙ Settings')}
+          <div className="nav-section">{'\u{1F916}'} Chatbot</div>
+          {navItem('/admin/chatbot', '\u{1F4CA} Dashboard')}
+          {(role === 'admin' || permissions?.chatbot?.manage) && navItem('/admin/chatbot/qna', '\u{1F4AC} Q&A Manager')}
+          {(role === 'admin' || permissions?.chatbot?.manage) && navItem('/admin/chatbot/upload', '\u{1F4E4} Upload')}
+          {(role === 'admin' || permissions?.chatbot?.settings) && navItem('/admin/chatbot/settings', '\u2699 Settings')}
         </>
       )}
 
       {/* SEO Section */}
       {hasSectionAccess('seoAudit') && (
         <>
-          <div className="nav-section">🔍 SEO</div>
-          {navItem('/admin/seo-audit', '📊 Audit Dashboard')}
-          {navItem('/admin/seo-audit/settings', '⚙ Audit Settings')}
-          {navItem('/admin/sitemap', '🗺️ Sitemap')}
-          {navItem('/admin/robots', '🤖 Robots.txt')}
+          <div className="nav-section">{'\u{1F50D}'} SEO</div>
+          {navItem('/admin/seo-audit', '\u{1F4CA} Audit Dashboard')}
+          {navItem('/admin/seo-audit/settings', '\u2699 Audit Settings')}
+          {navItem('/admin/sitemap', '\u{1F5FA}\uFE0F Sitemap')}
+          {navItem('/admin/robots', '\u{1F916} Robots.txt')}
         </>
       )}
 
       {/* Security Section — super admin only */}
       {role === 'admin' && (
         <>
-          <div className="nav-section">🛡️ Security</div>
-          {navItem('/admin/security', '🛡️ Security Dashboard')}
+          <div className="nav-section">{'\u{1F6E1}\uFE0F Security'}</div>
+          {navItem('/admin/security', '\u{1F6E1}\uFE0F Security Dashboard')}
         </>
       )}
 
       {/* Admin Management — only for super admin */}
       {role === 'admin' && (
         <>
-          <div className="nav-section">⚙ Admin</div>
-          {navItem('/admin/change-password', '🔑 Change Password')}
-          {navItem('/admin/change-username', '✏️ Change Username')}
+          <div className="nav-section">{'\u2699 Admin'}</div>
+          {navItem('/admin/change-password', '\u{1F511} Change Password')}
+          {navItem('/admin/change-username', '\u270F\uFE0F Change Username')}
           <Link
             href="/admin/debug"
             className={`nav-item ${isActive('/admin/debug') ? 'active' : ''}`}
             onClick={onNavClick}
             style={{ display: 'flex', alignItems: 'center', gap: 8, position: 'relative' }}
           >
-            🐛 Debug & Errors
+            {'\u{1F41B}'} Debug & Errors
             {errorCount > 0 && (
               <span style={{
                 marginLeft: 'auto',
@@ -215,21 +215,22 @@ export default function AdminSidebar({ onNavClick, isOpen }: AdminSidebarProps) 
               </span>
             )}
           </Link>
-          {navItem('/admin/trash', `🗑 Trash${trashCount > 0 ? ` (${trashCount})` : ''}`)}
-          {navItem('/admin/sub-admins', '👥 Sub-Admins')}
-          {navItem('/admin/settings/payments', '💳 Payment Settings')}
-          {navItem('/admin/login-logs', '📋 Log Details')}
+          {navItem('/admin/cache', '\u26A1 Cache')}
+          {navItem('/admin/trash', `\u{1F5D1} Trash${trashCount > 0 ? ` (${trashCount})` : ''}`)}
+          {navItem('/admin/sub-admins', '\u{1F465} Sub-Admins')}
+          {navItem('/admin/settings/payments', '\u{1F4B3} Payment Settings')}
+          {navItem('/admin/login-logs', '\u{1F4CB} Log Details')}
         </>
       )}
 
-      {navItem('/', '🏠 Home (opens in new tab)')}
+      {navItem('/', '\u{1F3E0} Home (opens in new tab)')}
 
       <div className="spacer" />
 
       <div className="nav-section">Account</div>
       <div style={{ padding: '8px 12px', fontSize: 13, color: '#94a3b8' }}>
         Signed in as{' '}
-        <span style={{ color: '#7dd3fc' }}>{username || '…'}</span>
+        <span style={{ color: '#7dd3fc' }}>{username || '\u2026'}</span>
         {role === 'sub-admin' && (
           <span style={{ color: '#fbbf24', fontSize: 11, marginLeft: 6, display: 'inline-block' }}>
             (sub-admin)
@@ -237,7 +238,7 @@ export default function AdminSidebar({ onNavClick, isOpen }: AdminSidebarProps) 
         )}
       </div>
       <button className="nav-item" onClick={handleLogout} style={{ color: '#fca5a5' }}>
-        🚪 Sign out
+        {'\u{1F6AA}'} Sign out
       </button>
       <div
         style={{
@@ -247,7 +248,7 @@ export default function AdminSidebar({ onNavClick, isOpen }: AdminSidebarProps) 
           borderTop: '1px solid #1e293b',
         }}
       >
-        v1.0 · MongoDB-backed
+        v1.0 \u00B7 MongoDB-backed
       </div>
     </aside>
   )

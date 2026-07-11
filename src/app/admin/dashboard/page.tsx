@@ -38,6 +38,7 @@ import {
   Bug,
 } from 'lucide-react'
 import TrashDashboardSection from '@/components/admin/TrashDashboardSection'
+import CacheClearBox from '@/components/admin/CacheClearBox'
 
 /* ── Types ────────────────────────────────────────────── */
 
@@ -466,6 +467,9 @@ export default function DashboardPage() {
         {/* ── TRASH SECTION (super admin only) ── */}
         {isSuperAdmin && <TrashDashboardSection />}
 
+        {/* ── CACHE CLEAR BOX ── */}
+        <CacheClearBox />
+
         {/* ── YELLOW TIP BOX ── */}
         <div
           style={{
@@ -498,6 +502,7 @@ export default function DashboardPage() {
     </div>
   )
 }
+
 
 /* ── Dashboard Card — vertical layout ─────────────────── */
 

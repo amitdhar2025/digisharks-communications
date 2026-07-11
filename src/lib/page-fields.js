@@ -49,6 +49,7 @@ const PAGE_FIELDS = {
           { key: 'heroSecondaryCta', label: 'Secondary CTA Button', type: 'link' },
           { key: 'heroStats', label: 'Stats Row', type: 'stat[]' },
           { key: 'heroVideo', label: 'Hero Background Video URL', type: 'video' },
+          { key: 'heroMedia', label: 'Hero Banner Images/Videos (Auto Carousel)', type: 'gallery[]' },
         ],
       },
       {

@@ -4,6 +4,7 @@ import { useEffect, useState, FormEvent } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import RichTextEditor from '@/components/RichTextEditor'
+import VideoThumbnail from '@/components/admin/VideoThumbnail'
 
 interface ProductVariation {
   name: string
@@ -368,13 +369,15 @@ export default function EditProductPage() {
           <div className="field">
             <label>Demo Video URL</label>
             <div className="flex gap-2 items-center">
-              <input type="text" value={demoVideo} onChange={(e) => setDemoVideo(e.target.value)} className="flex-1 bg-slate-900/70 border border-slate-600/60 rounded-lg px-2.5 py-2 text-xs text-slate-200 placeholder-slate-500 outline-none focus:border-sky-500" />
+              <input type="text" value={demoVideo} onChange={(e) => setDemoVideo(e.target.value)} placeholder="YouTube/Vimeo URL or direct video URL..." className="flex-1 bg-slate-900/70 border border-slate-600/60 rounded-lg px-2.5 py-2 text-xs text-slate-200 placeholder-slate-500 outline-none focus:border-sky-500" />
               <label className={`flex-shrink-0 inline-flex items-center gap-1 px-2.5 py-2 rounded-lg text-xs font-medium cursor-pointer transition-colors ${uploadingVideo === 'demo' ? 'bg-sky-500/20 text-sky-300' : 'bg-slate-700/50 text-slate-300 hover:bg-slate-700'}`}>
                 {uploadingVideo === 'demo' ? '…' : '🎬 Upload'}
                 <input type="file" accept="video/*" hidden disabled={uploadingVideo !== null} onChange={async (e) => { const file = e.target.files?.[0]; if (!file) return; setUploadingVideo('demo'); const url = await uploadFile(file); if (url) setDemoVideo(url); setUploadingVideo(null); e.target.value = '' }} />
               </label>
               {demoVideo && <button type="button" className="p-1.5 rounded text-red-400 hover:bg-red-600/15 transition-colors flex-shrink-0" onClick={() => setDemoVideo('')}>✕</button>}
             </div>
+            {/* Video thumbnail preview */}
+            {demoVideo && <VideoThumbnail url={demoVideo} onRemove={() => setDemoVideo('')} />}
             <div className="field" style={{ marginTop: 8 }}>
               <label>▶ Demo Video Label</label>
               <input type="text" value={demoVideoLabel} onChange={(e) => setDemoVideoLabel(e.target.value)} placeholder='Defaults to "▶ Watch Demo"' className="bg-slate-900/70 border border-slate-600/60 rounded-lg px-2.5 py-2 text-xs text-slate-200 placeholder-slate-500 outline-none focus:border-sky-500 w-full" />
@@ -390,13 +393,15 @@ export default function EditProductPage() {
           <div className="field">
             <label>How-to-Use Video URL</label>
             <div className="flex gap-2 items-center">
-              <input type="text" value={howToVideo} onChange={(e) => setHowToVideo(e.target.value)} className="flex-1 bg-slate-900/70 border border-slate-600/60 rounded-lg px-2.5 py-2 text-xs text-slate-200 placeholder-slate-500 outline-none focus:border-sky-500" />
+              <input type="text" value={howToVideo} onChange={(e) => setHowToVideo(e.target.value)} placeholder="YouTube/Vimeo URL or direct video URL..." className="flex-1 bg-slate-900/70 border border-slate-600/60 rounded-lg px-2.5 py-2 text-xs text-slate-200 placeholder-slate-500 outline-none focus:border-sky-500" />
               <label className={`flex-shrink-0 inline-flex items-center gap-1 px-2.5 py-2 rounded-lg text-xs font-medium cursor-pointer transition-colors ${uploadingVideo === 'howToUse' ? 'bg-sky-500/20 text-sky-300' : 'bg-slate-700/50 text-slate-300 hover:bg-slate-700'}`}>
                 {uploadingVideo === 'howToUse' ? '…' : '🎬 Upload'}
                 <input type="file" accept="video/*" hidden disabled={uploadingVideo !== null} onChange={async (e) => { const file = e.target.files?.[0]; if (!file) return; setUploadingVideo('howToUse'); const url = await uploadFile(file); if (url) setHowToVideo(url); setUploadingVideo(null); e.target.value = '' }} />
               </label>
               {howToVideo && <button type="button" className="p-1.5 rounded text-red-400 hover:bg-red-600/15 transition-colors flex-shrink-0" onClick={() => setHowToVideo('')}>✕</button>}
             </div>
+            {/* Video thumbnail preview */}
+            {howToVideo && <VideoThumbnail url={howToVideo} onRemove={() => setHowToVideo('')} />}
           </div>
 
           {/* ── Testimonials / Reviews ── */}
