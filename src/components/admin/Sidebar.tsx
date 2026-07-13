@@ -216,6 +216,7 @@ export default function AdminSidebar({ onNavClick, isOpen }: AdminSidebarProps) 
             )}
           </Link>
           {navItem('/admin/cache', '\u26A1 Cache')}
+          {navItem('/admin/backups', '\u{1F4BE} Backups')}
           {navItem('/admin/trash', `\u{1F5D1} Trash${trashCount > 0 ? ` (${trashCount})` : ''}`)}
           {navItem('/admin/sub-admins', '\u{1F465} Sub-Admins')}
           {navItem('/admin/settings/payments', '\u{1F4B3} Payment Settings')}
