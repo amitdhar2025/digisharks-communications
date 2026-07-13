@@ -113,7 +113,7 @@ function StatusBadge({ status }: { status: string }) {
 export default function BackupsPage() {
   const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [items, setItems] = useState<BackupItem[]>([])
   const [stats, setStats] = useState<BackupStats | null>(null)
   const [triggering, setTriggering] = useState(false)
