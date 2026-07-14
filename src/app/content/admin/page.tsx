@@ -30,6 +30,7 @@ import {
   Users,
 } from 'lucide-react'
 import ActivitySummaryWidget from '@/components/admin/ActivitySummaryWidget'
+import SyncToGitHubBox from '@/components/admin/SyncToGitHubBox'
 
 export default function CMSDashboardPage() {
   const [stats, setStats] = useState({ total: 0, withContent: 0, withoutContent: 0 })
@@ -279,6 +280,9 @@ export default function CMSDashboardPage() {
           </div>
         )}
       </div>
+
+      {/* ── GITHUB SYNC ── */}
+      <SyncToGitHubBox variant="cms" />
 
       {/* ── TIP BOX ──────────────────────────────────────────────────── */}
       <div className="cms-tip">

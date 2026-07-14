@@ -1,0 +1,76 @@
+name: Sync CMS Data to GitHub
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (export only, no commit)'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
+  repository_dispatch:
+    types: [sync-cms-to-github]
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Need full history + token to push back
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          NODE_ENV: development
+
+      - name: Export CMS data to JSON files
+        run: node scripts/export-cms-to-json.mjs ${{ github.event.inputs.dry_run == 'true' && '--dry-run' || '' }}
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          if [ -z "$(git status cms-data/ --porcelain)" ]; then
+            echo "No changes in cms-data/ directory."
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "Changes detected in cms-data/:"
+            git status cms-data/ --porcelain
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push changes
+        if: steps.check_changes.outputs.has_changes == 'true'
+        run: |
+          git config user.name "CMS Sync Bot"
+          git config user.email "cms-sync-bot@digisharkscommunications.com"
+          git add cms-data/
+          TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          git commit -m "chore: sync CMS data from MongoDB to GitHub — ${TIMESTAMP}" \
+                     -m "Auto-committed by GitHub Actions workflow sync-cms-to-github.yml" \
+                     -m "Trigger: ${{ github.event_name == 'workflow_dispatch' && 'manual dispatch' || 'repository_dispatch (CMS save)' }}"
+          git push
+
+      - name: Show summary
+        run: |
+          echo "## Sync Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Trigger:** ${{ github.event_name == 'workflow_dispatch' && 'Manual (Admin Dashboard)' || 'Auto (CMS Save)' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Dry run:** ${{ github.event.inputs.dry_run || 'false' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Changes committed:** ${{ steps.check_changes.outputs.has_changes }}" >> $GITHUB_STEP_SUMMARY

@@ -13,6 +13,7 @@ import { connectCMSDb } from '@/lib/db-cms'
 import { getCMSAdminFromCookies } from '@/lib/auth-cms'
 import { getPageFields } from '@/lib/page-fields'
 import { logActivity } from '@/lib/activity-log'
+import { triggerGithubSync } from '@/lib/trigger-github-sync'
 
 export const dynamic = 'force-dynamic'
 
@@ -98,6 +99,9 @@ export async function PUT(req, { params }) {
       target: slug,
       metadata: { pageName },
     }).catch(() => {})
+
+    // Fire-and-forget: trigger GitHub sync so CMS changes appear in the repo
+    triggerGithubSync(admin.username).catch(() => {})
 
     return NextResponse.json({
       success: true,

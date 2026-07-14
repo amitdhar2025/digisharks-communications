@@ -82,12 +82,27 @@ Go to **GitHub** → Repo → **Settings** → **Secrets and variables** → **A
 | 6 | `B2_APPLICATION_KEY` | ⚠️ *Get from Backblaze B2 Dashboard* | ☐ |
 | 7 | `B2_BUCKET_NAME` | ⚠️ *Your B2 bucket name (e.g. `digisharks-backups`)* | ☐ |
 
-### Required for Backup Trigger (Admin Dashboard)
+### Required for Backup & GitHub Sync Triggers
 
-| # | Secret Name | Value | Status |
-|---|-------------|-------|--------|
-| 8 | `GITHUB_PAT` | ⚠️ *Your GitHub Personal Access Token with `actions:write` scope* | ☐ |
-| 9 | `GITHUB_REPO` | `amitdhar2025/digisharks-communications` | ☐ |
+Both the **Backup** and **CMS Sync to GitHub** features use these GitHub API credentials.
+
+| # | Secret Name | Value | Used By | Status |
+|---|-------------|-------|---------|--------|
+| 8 | `GH_PAT` | ⚠️ *Your GitHub Personal Access Token with `repo` and `workflow` scopes* | Backup trigger + CMS sync trigger | ☐ |
+| 9 | `GH_REPO` | `amitdhar2025/digisharks-communications` | Backup trigger + CMS sync trigger | ☐ |
+
+> **Note:** The `sync-cms-to-github.yml` workflow also uses `secrets.MONGODB_URI` (same secret as row 1 above) to connect to MongoDB and export CMS collections to JSON files in the `cms-data/` directory.
+
+---
+
+## Part 2b: GitHub Actions Workflow Configuration
+
+The following workflows are configured:
+
+| Workflow File | Trigger | Description |
+|---------------|---------|-------------|
+| `.github/workflows/sync-cms-to-github.yml` | Manual dispatch (Admin Dashboard → Sync to GitHub) + Auto on CMS save | Exports CMS collections (pages, settings, menus, etc.) from MongoDB → `cms-data/*.json` and commits to GitHub |
+| `.github/workflows/backup.yml` | Manual dispatch (Admin Dashboard → Backups → Run Backup Now) | Creates full MongoDB + Media backup and uploads to Backblaze B2 |
 
 ---
 
@@ -116,3 +131,6 @@ After configuring everything and deploying:
 - [ ] Submit a contact form — check email is sent
 - [ ] Run a test checkout — Razorpay payment flow works
 - [ ] Trigger a backup from Admin → Backups → Run Backup Now
+- [ ] Click **Sync to GitHub** on Admin Dashboard or CMS Dashboard — verify GitHub Action triggers successfully
+- [ ] After sync, verify `cms-data/*.json` files appear in the GitHub repository
+- [ ] Edit a CMS page, save it — verify the sync is automatically triggered

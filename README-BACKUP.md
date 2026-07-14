@@ -44,10 +44,10 @@ To enable the manual "Back up now" button on `/admin/backups`, you need to set t
 
 | Variable | Description | Where to get it |
 |----------|-------------|-----------------|
-| `GITHUB_PAT` | GitHub Personal Access Token with `repo` and `workflow` scopes | See guide below |
-| `GITHUB_REPO` | Repository in format "owner/repo" (e.g. `digisharks/digisharks-communications`) | Your GitHub repo URL |
+| `GH_PAT` | GitHub Personal Access Token with `repo` and `workflow` scopes | See guide below |
+| `GH_REPO` | Repository in format "owner/repo" (e.g. `digisharks/digisharks-communications`) | Your GitHub repo URL |
 
-If you deploy on Vercel, `GITHUB_REPO` is automatically detected from `VERCEL_GIT_REPO_OWNER` and `VERCEL_GIT_REPO_SLUG` — you only need to set `GITHUB_PAT`.
+If you deploy on Vercel, `GH_REPO` is automatically detected from `VERCEL_GIT_REPO_OWNER` and `VERCEL_GIT_REPO_SLUG` — you only need to set `GH_PAT`.
 
 ### Creating a GitHub Personal Access Token (PAT)
 
@@ -86,8 +86,8 @@ The dashboard trigger button dispatches the backup workflow via the GitHub API, 
 #### Once you have the token:
 
 1. Go to your hosting provider's dashboard (e.g. Vercel Project Settings → Environment Variables)
-2. Add `GITHUB_PAT` with the copied token as the value
-3. Optionally add `GITHUB_REPO` as `digisharks/digisharks-communications` (not needed if deploying on Vercel — it's auto-detected)
+2. Add `GH_PAT` with the copied token as the value
+3. Optionally add `GH_REPO` as `digisharks/digisharks-communications` (not needed if deploying on Vercel — it's auto-detected)
 4. Redeploy the project for the env vars to take effect
 
 > ⚠️ **Security note**: Treat your PAT like a password. Never commit it to version control, share it, or log it. The token is stored as a secure environment variable in your hosting provider's dashboard.
@@ -138,7 +138,7 @@ Also add a variable (not secret):
 
 ### 4. Set Hosting Environment Variables (Vercel / others)
 
-To enable manual backup triggering from the admin dashboard (the "Back up now" button on `/admin/backups`), add `GITHUB_PAT` and (if not on Vercel) `GITHUB_REPO` to your hosting provider's environment variables.
+To enable manual backup triggering from the admin dashboard (the "Back up now" button on `/admin/backups`), add `GH_PAT` and (if not on Vercel) `GH_REPO` to your hosting provider's environment variables.
 
 **How it works:** The trigger endpoint dispatches the backup workflow via the [GitHub Actions API](https://docs.github.com/en/rest/actions/workflows#create-a-workflow-dispatch-event) (`POST /repos/{owner}/{repo}/actions/workflows/backup.yml/dispatches`). It doesn't run the backup script directly — the actual backup executes on GitHub Actions runners, so no additional dependencies are needed on your hosting platform.
 
@@ -224,9 +224,9 @@ Check the GitHub Actions log for errors. Common issues:
 - MongoDB URI is invalid or blocked by IP allowlist
 
 ### Dashboard shows "GitHub API not configured"
-The trigger endpoint requires `GITHUB_PAT` and `GITHUB_REPO` environment variables to dispatch the workflow. If these aren't set, the dashboard will show this error. To fix it:
-- Set `GITHUB_PAT` (GitHub Personal Access Token with `repo` and `workflow` scopes) in your hosting environment
-- Set `GITHUB_REPO` as `owner/repo` format (auto-detected on Vercel)
+The trigger endpoint requires `GH_PAT` and `GH_REPO` environment variables to dispatch the workflow. If these aren't set, the dashboard will show this error. To fix it:
+- Set `GH_PAT` (GitHub Personal Access Token with `repo` and `workflow` scopes) in your hosting environment
+- Set `GH_REPO` as `owner/repo` format (auto-detected on Vercel)
 - Alternatively, trigger backups directly from the **Actions** tab on GitHub
 
 ### MongoDB connection timeout

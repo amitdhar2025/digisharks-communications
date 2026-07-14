@@ -11,8 +11,8 @@
  * at .github/workflows/backup.yml in your repository.
  *
  * Environment variables required:
- *   GITHUB_PAT   — GitHub Personal Access Token with `repo` + `workflow` scopes
- *   GITHUB_REPO  — Repository in format "owner/repo" (e.g. "digisharks/digisharks-communications")
+ *   GH_PAT   — GitHub Personal Access Token with `repo` + `workflow` scopes
+ *   GH_REPO  — Repository in format "owner/repo" (e.g. "digisharks/digisharks-communications")
  *                  Falls back to VERCEL_GIT_REPO_OWNER/VERCEL_GIT_REPO_SLUG if set.
  */
 
@@ -24,7 +24,7 @@ export const dynamic = 'force-dynamic'
 
 async function getRepoSlug(): Promise<string | null> {
   // Try explicit env var first (set by the user)
-  const explicit = process.env.GITHUB_REPO
+  const explicit = process.env.GH_REPO
   if (explicit) return explicit
 
   // Fall back to Vercel's automatic git env vars
@@ -54,13 +54,13 @@ export async function POST(req: NextRequest) {
   }
 
   // ── Check that GitHub env vars are configured ──
-  const pat = process.env.GITHUB_PAT
+  const pat = process.env.GH_PAT
   const repo = await getRepoSlug()
 
   if (!pat || !repo) {
     const missing = []
-    if (!pat) missing.push('GITHUB_PAT')
-    if (!repo) missing.push('GITHUB_REPO')
+    if (!pat) missing.push('GH_PAT')
+    if (!repo) missing.push('GH_REPO')
     logActivity({ event: 'backup_trigger_failed', description: `Backup trigger failed: missing ${missing.join(', ')}${admin.username ? ` (by ${admin.username})` : ''}`, username: admin.username, dashboard: 'admin' }).catch(() => {})
     return NextResponse.json(
       {
@@ -107,7 +107,7 @@ export async function POST(req: NextRequest) {
       logActivity({ event: 'backup_trigger_failed', description: `Backup trigger failed (${type}): GitHub API auth error (HTTP ${ghResponse.status})`, username: admin.username, dashboard: 'admin' }).catch(() => {})
       return NextResponse.json(
         {
-          error: 'GitHub API authentication failed. Check that your GITHUB_PAT has `repo` and `workflow` scopes and is still valid.',
+          error: 'GitHub API authentication failed. Check that your GH_PAT has `repo` and `workflow` scopes and is still valid.',
         },
         { status: 502 }
       )
@@ -116,7 +116,7 @@ export async function POST(req: NextRequest) {
       logActivity({ event: 'backup_trigger_failed', description: `Backup trigger failed (${type}): GitHub API 404 — repo or workflow not found`, username: admin.username, dashboard: 'admin' }).catch(() => {})
       return NextResponse.json(
         {
-          error: `GitHub repository or workflow file not found. Check that GITHUB_REPO is correct and .github/workflows/backup.yml exists.`,
+          error: `GitHub repository or workflow file not found. Check that GH_REPO is correct and .github/workflows/backup.yml exists.`,
         },
         { status: 502 }
       )
@@ -131,7 +131,7 @@ export async function POST(req: NextRequest) {
     console.error('[backups] Failed to dispatch workflow:', err)
     logActivity({ event: 'backup_trigger_failed', description: `Backup trigger failed (${type}): network error`, username: admin.username, dashboard: 'admin' }).catch(() => {})
     return NextResponse.json(
-      { error: 'Failed to reach GitHub API. Check your network and GITHUB_PAT.' },
+      { error: 'Failed to reach GitHub API. Check your network and GH_PAT.' },
       { status: 502 }
     )
   }
