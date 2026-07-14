@@ -33,6 +33,15 @@ const nextConfig = {
   compress: true,
 
   // ================================================================
+  // Output file tracing — ensures dynamically-accessed files (e.g.
+  // log files read/written by the debug route at runtime) are
+  // included in the serverless bundle.
+  // ================================================================
+  outputFileTracingIncludes: {
+    '/api/admin/debug': ['./logs/**'],
+  },
+
+  // ================================================================
   // Security headers — applied to every response.
   // ================================================================
   async headers() {
