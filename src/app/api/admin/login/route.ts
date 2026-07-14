@@ -111,9 +111,14 @@ async function sendFailedLoginAlert(params: {
       attemptTime: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) + ' IST',
       location: params.location,
     })
-    await sendMail({ to, subject, html, text })
-  } catch {
-    // Best-effort — don't let email failures break the login flow
+    const result = await sendMail({ to, subject, html, text })
+    if (result.mode === 'console') {
+      console.log('[admin] Failed login alert logged to console (no SMTP). To:', to, 'IP:', params.ip, 'Reason:', params.reason)
+    } else {
+      console.log('[admin] Failed login alert sent via SMTP to:', to, 'IP:', params.ip, 'Reason:', params.reason)
+    }
+  } catch (err) {
+    console.error('[admin] Failed to send login alert email:', err)
   }
 }
 
@@ -154,7 +159,7 @@ export async function POST(req: NextRequest) {
 
     if (!username || !password) {
       logAuthEvent('login_failed', user || 'unknown', ip, { reason: 'missing_credentials' })
-      sendFailedLoginAlert({ username: user || 'unknown', ip, userAgent: req.headers.get('user-agent') || '', reason: 'missing_credentials' }).catch(() => {})
+      sendFailedLoginAlert({ username: user || 'unknown', ip, userAgent: req.headers.get('user-agent') || '', reason: 'missing_credentials' })
       return NextResponse.json(
         { error: 'Username and password are required' },
         { status: 400 }
@@ -170,7 +175,7 @@ export async function POST(req: NextRequest) {
     if (subAdmin) {
       if (!subAdmin.isActive) {
         logAuthEvent('login_failed', user, ip, { reason: 'sub_admin_disabled' })
-        sendFailedLoginAlert({ username: user, ip, userAgent, reason: 'sub_admin_disabled' }).catch(() => {})
+        sendFailedLoginAlert({ username: user, ip, userAgent, reason: 'sub_admin_disabled' })
         return NextResponse.json(
           { error: 'Account is disabled. Contact the main admin.' },
           { status: 403 }
@@ -180,7 +185,7 @@ export async function POST(req: NextRequest) {
       const ok = await bcrypt.compare(pwd, subAdmin.passwordHash)
       if (!ok) {
         logAuthEvent('login_failed', user, ip, { reason: 'invalid_password' })
-        sendFailedLoginAlert({ username: user, ip, userAgent, reason: 'invalid_password' }).catch(() => {})
+        sendFailedLoginAlert({ username: user, ip, userAgent, reason: 'invalid_password' })
         return NextResponse.json(
           { error: 'Invalid username or password' },
           { status: 401 }
@@ -234,9 +239,9 @@ export async function POST(req: NextRequest) {
         // Fire-and-forget geo lookup for the alert email
         geoLookup(ip).then((geo) => {
           const loc = [geo.city, geo.region, geo.country].filter(Boolean).join(', ')
-          sendFailedLoginAlert({ username: user, ip, userAgent, reason: 'invalid_password', location: loc || undefined }).catch(() => {})
+          sendFailedLoginAlert({ username: user, ip, userAgent, reason: 'invalid_password', location: loc || undefined })
         }).catch(() => {
-          sendFailedLoginAlert({ username: user, ip, userAgent, reason: 'invalid_password' }).catch(() => {})
+          sendFailedLoginAlert({ username: user, ip, userAgent, reason: 'invalid_password' })
         })
         return NextResponse.json(
           { error: 'Invalid username or password' },
@@ -303,9 +308,9 @@ export async function POST(req: NextRequest) {
     // Fire-and-forget geo lookup for the alert email
     geoLookup(ip).then((geo) => {
       const loc = [geo.city, geo.region, geo.country].filter(Boolean).join(', ')
-      sendFailedLoginAlert({ username: user, ip, userAgent, reason: 'invalid_credentials', location: loc || undefined }).catch(() => {})
+      sendFailedLoginAlert({ username: user, ip, userAgent, reason: 'invalid_credentials', location: loc || undefined })
     }).catch(() => {
-      sendFailedLoginAlert({ username: user, ip, userAgent, reason: 'invalid_credentials' }).catch(() => {})
+      sendFailedLoginAlert({ username: user, ip, userAgent, reason: 'invalid_credentials' })
     })
     return NextResponse.json(
       { error: 'Invalid username or password' },
