@@ -54,6 +54,8 @@
     "@types/react": "18.3.31",
     "@types/react-dom": "18.3.7",
     "@types/recharts": "^1.8.29",
+    "archiver": "^8.0.0",
+    "backblaze-b2": "^1.7.1",
     "bcryptjs": "^2.4.3",
     "bwip-js": "^4.11.1",
     "cloudinary": "^2.10.0",

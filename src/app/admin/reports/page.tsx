@@ -76,6 +76,68 @@ const STATUS_COLORS: Record<string, string> = {
   delivered: '#22c55e',
 }
 
+/* ── CSV Download Helpers ─────────────────────────────── */
+
+function downloadCSV(filename: string, headers: string[], rows: string[][]) {
+  const csvContent = [
+    headers.join(','),
+    ...rows.map((r) => r.map((c) => `"${c.replace(/"/g, '""')}"`).join(',')),
+  ].join('\n')
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+function exportFullReport(data: ReportsData, periodLabel: string) {
+  // Sheet 1: Summary
+  downloadCSV(
+    `reports_summary_${periodLabel}.csv`,
+    ['Metric', 'Value'],
+    [
+      ['Total Revenue', `₹${data.summary.totalRevenue}`],
+      ['Total Orders', String(data.summary.totalOrders)],
+      ['Total Items Sold', String(data.summary.totalItemsSold)],
+      ['Avg Order Value', `₹${data.summary.avgOrderValue}`],
+    ],
+  )
+}
+
+function exportRevenueCSV(data: ReportsData, periodLabel: string) {
+  downloadCSV(
+    `revenue_by_period_${periodLabel}.csv`,
+    ['Period', 'Revenue', 'Orders', 'Items Sold'],
+    data.revenueByPeriod.map((r) => [r.label, String(r.revenue), String(r.orders), String(r.itemsSold)]),
+  )
+}
+
+function exportDailyRevenueCSV(data: ReportsData) {
+  downloadCSV(
+    'daily_revenue.csv',
+    ['Date', 'Revenue', 'Orders'],
+    data.dailyRevenue.map((r) => [r.date, String(r.revenue), String(r.orders)]),
+  )
+}
+
+function exportBestSellersCSV(data: ReportsData) {
+  downloadCSV(
+    'best_sellers.csv',
+    ['Product', 'Qty Sold', 'Revenue', 'Orders'],
+    data.bestSellers.map((r) => [r.title, String(r.totalQty), String(r.totalRevenue), String(r.orderCount)]),
+  )
+}
+
+function exportStatusBreakdownCSV(data: ReportsData) {
+  downloadCSV(
+    'order_status_breakdown.csv',
+    ['Status', 'Count'],
+    data.statusBreakdown.map((r) => [STATUS_LABELS[r.status] || r.status, String(r.count)]),
+  )
+}
+
 /* ── Custom Tooltip ───────────────────────────────────── */
 
 function ChartTooltip({ active, payload, label }: any) {
@@ -182,7 +244,7 @@ export default function ReportsPage() {
               Revenue breakdown, best-selling products, and order analytics
             </div>
           </div>
-          <div style={{ display: 'flex', gap: 8 }}>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             {(['daily', 'weekly', 'monthly', 'all'] as const).map((p) => (
               <button
                 key={p}
@@ -194,6 +256,24 @@ export default function ReportsPage() {
                 {p === 'all' ? 'All Time' : p}
               </button>
             ))}
+            {data && (
+              <div className="dropdown" style={{ position: 'relative', display: 'inline-block' }}>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={() => {
+                    const label = period === 'all' ? 'alltime' : period
+                    exportFullReport(data, label)
+                    setTimeout(() => exportRevenueCSV(data, label), 200)
+                    setTimeout(() => exportDailyRevenueCSV(data), 400)
+                    setTimeout(() => exportBestSellersCSV(data), 600)
+                    setTimeout(() => exportStatusBreakdownCSV(data), 800)
+                  }}
+                >
+                  ⬇ Download All CSVs
+                </button>
+              </div>
+            )}
           </div>
         </div>
 

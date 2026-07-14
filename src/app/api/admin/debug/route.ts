@@ -29,6 +29,42 @@ function tail(filePath: string, lines: number = 100): string[] {
   }
 }
 
+/** Get daily log entry counts for the last N days (for histogram chart) */
+function getLogFrequency(filePath: string, days: number = 14): { date: string; count: number }[] {
+  try {
+    if (!fs.existsSync(filePath)) return []
+    const content = fs.readFileSync(filePath, 'utf-8')
+    const lines = content.split('\n').filter(Boolean)
+    
+    // Build a map of date -> count
+    const dailyCounts: Record<string, number> = {}
+    for (const line of lines) {
+      try {
+        const parsed = JSON.parse(line)
+        if (parsed.timestamp) {
+          const date = parsed.timestamp.slice(0, 10) // 'YYYY-MM-DD'
+          dailyCounts[date] = (dailyCounts[date] || 0) + 1
+        }
+      } catch {
+        // Non-JSON line, skip
+      }
+    }
+    
+    // Fill in all days in range (including zero-count days)
+    const result: { date: string; count: number }[] = []
+    const now = new Date()
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date(now)
+      d.setDate(d.getDate() - i)
+      const dateStr = d.toISOString().slice(0, 10)
+      result.push({ date: dateStr, count: dailyCounts[dateStr] || 0 })
+    }
+    return result
+  } catch {
+    return []
+  }
+}
+
 /** Get system info */
 function getSystemInfo() {
   return {
@@ -77,16 +113,12 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  // ── Rate limiting ───────────────────────────────────────────────
+  // ── Rate limiting (generous — debug pages need frequent refreshes) ─
   const ip = getClientIp(req)
-  const rateCheck = checkRateLimit(ip, 30, 60_000) // 30 requests per minute
+  const rateCheck = checkRateLimit(ip, 60, 60_000) // 60 requests per minute
   if (!rateCheck.allowed) {
-    logAuthEvent('access', 'anonymous', ip, {
-      action: 'debug_rate_limited',
-      userAgent: req.headers.get('user-agent') || '',
-    })
     return NextResponse.json(
-      { error: 'Too many requests. Please wait before refreshing.' },
+      { error: 'Too many requests. Please wait before refreshing.', rateLimited: true },
       {
         status: 429,
         headers: {
@@ -97,17 +129,9 @@ export async function GET(req: NextRequest) {
     )
   }
 
-  // ── Audit log ──────────────────────────────────────────────────
-  const username = admin?.username || cmsAdmin?.username || 'unknown'
-  logAuthEvent('access', username, ip, {
-    action: 'debug_view',
-    type: req.nextUrl.searchParams.get('type') || 'all',
-    userAgent: req.headers.get('user-agent') || '',
-  })
-
   try {
     const { searchParams } = new URL(req.url)
-    const type = searchParams.get('type') || 'errors'
+    const type = searchParams.get('type') || 'all'
     const count = parseInt(searchParams.get('count') || '100', 10)
     const download = searchParams.get('download') === '1'
 
@@ -142,14 +166,18 @@ export async function GET(req: NextRequest) {
     switch (type) {
       case 'errors':
         data = {
-          logs: tail(ERROR_LOG, count),
+          errorLogs: tail(ERROR_LOG, count),
+          logs: tail(ERROR_LOG, count), // keep legacy key
           stats: getLogStats(),
+          errorFrequency: getLogFrequency(ERROR_LOG),
         }
         break
       case 'combined':
         data = {
-          logs: tail(COMBINED_LOG, count),
+          combinedLogs: tail(COMBINED_LOG, count),
+          logs: tail(COMBINED_LOG, count), // keep legacy key
           stats: getLogStats(),
+          combinedFrequency: getLogFrequency(COMBINED_LOG),
         }
         break
       case 'system':
@@ -161,6 +189,8 @@ export async function GET(req: NextRequest) {
           combinedLogs: tail(COMBINED_LOG, count),
           stats: getLogStats(),
           systemInfo: getSystemInfo(),
+          errorFrequency: getLogFrequency(ERROR_LOG),
+          combinedFrequency: getLogFrequency(COMBINED_LOG),
         }
     }
 

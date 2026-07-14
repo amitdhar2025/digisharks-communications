@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getAdminFromRequest, isSuperAdmin, getSubAdminPermissions } from '@/lib/auth'
 import { requirePermission } from '@/lib/permissions'
 import { getAuditHistory, getAuditStats, deleteAllAudits } from '@/lib/seo-audit'
+import { logActivity } from '@/lib/activity-log'
 
 export async function GET(req: NextRequest) {
   const admin = getAdminFromRequest(req)
@@ -57,6 +58,7 @@ export async function DELETE(req: NextRequest) {
     }
 
     const result = await deleteAllAudits()
+    logActivity({ event: 'seo_audit_delete', description: `Deleted ${result.deleted} SEO audit(s)`, username: admin.username, dashboard: 'admin' }).catch(() => {})
     return NextResponse.json({
       success: true,
       deleted: result.deleted,

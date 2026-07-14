@@ -3,6 +3,7 @@ import { getAdminFromRequest } from '@/lib/auth'
 import { permanentDelete, getTrashCollection } from '@/lib/trash'
 import { deleteAllItemFiles } from '@/lib/cloudinary-delete'
 import { ObjectId } from 'mongodb'
+import { logActivity } from '@/lib/activity-log'
 
 export const dynamic = 'force-dynamic'
 
@@ -63,6 +64,7 @@ export async function DELETE(
     // Permanently delete from trash — pass section for faster lookup
     await permanentDelete(id, { username: admin.username, role: admin.role }, sectionFromBody || trashDoc?.collectionName)
 
+    logActivity({ event: 'trash_permanent_delete', description: `Permanently deleted item from trash (${id})`, username: admin.username, dashboard: 'admin', target: id }).catch(() => {})
     return NextResponse.json({ message: 'Item permanently deleted.' })
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Failed to permanently delete item'

@@ -34,7 +34,7 @@
 
 /* Breadcrumb — enhanced for SEO & visibility */
 .dp-breadcrumb {
-  display: flex;
+  display: none;
   align-items: center;
   gap: 0.4rem;
   font-size: 14px;
@@ -1249,7 +1249,7 @@
 }
 .dp-cart h1 {
   font-family: var(--font-dm-sans), sans-serif;
-  font-size: 28px;
+  font-size: 38px !important;
   font-weight: 700;
   color: #2a2a2a;
   margin: 0 0 1.5rem;
@@ -2670,12 +2670,13 @@
 }
 .dp-checkout h1 {
   font-family: var(--font-dm-sans), sans-serif;
-  font-size: 28px;
+  font-size: 38px !important;
   font-weight: 700;
   color: #2a2a2a;
   margin: 0 0 1.5rem;
   background: none;
   -webkit-text-fill-color: #2a2a2a;
+  margin-top:-50px;
 }
 .dp-checkout-grid {
   display: grid;

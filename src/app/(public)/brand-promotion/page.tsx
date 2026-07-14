@@ -48,10 +48,11 @@ const DEFAULT_CONTENT = {
   ctaPrimaryCta: { text: 'Get Free Brand Promotion Consultation →', href: '/contact-us/' },
 }
 
-const siteUrl = "https://digisharks-communications.vercel.app/brand-promotion/";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.digisharkscommunications.com'
+const siteUrl = `${SITE_URL}/brand-promotion/`;
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://digisharks-communications.vercel.app/"),
+  metadataBase: new URL(SITE_URL + '/'),
   title: "Brand Promotion Agency in India | Digisharks Communications",
   description:
     "Build a powerful brand that customers trust. Strategic brand promotion services combining creativity, market research, digital marketing, and PR.",

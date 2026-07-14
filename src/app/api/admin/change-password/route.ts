@@ -4,6 +4,7 @@ import { getAdminsCollection } from '@/lib/db'
 import { getAdminFromCookies } from '@/lib/auth'
 import { sendMail } from '@/lib/mailer'
 import logger from '@/lib/logger'
+import { logActivity } from '@/lib/activity-log'
 
 export const dynamic = 'force-dynamic'
 
@@ -101,6 +102,7 @@ export async function POST(req: NextRequest) {
       })
     }
 
+    logActivity({ event: 'password_change', description: `Admin password changed: ${admin.username}`, username: admin.username, dashboard: 'admin' }).catch(() => {})
     return NextResponse.json({
       success: true,
       message: 'Password changed successfully. A confirmation email has been sent.',

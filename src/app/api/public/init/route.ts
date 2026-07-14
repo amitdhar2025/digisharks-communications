@@ -21,8 +21,15 @@ import { connectCMSDb } from '@/lib/db-cms'
 import MenuItem from '@/models/MenuItem'
 import SiteSettings from '@/models/SiteSettings'
 import ChatbotSettings from '@/lib/models/ChatbotSettings'
+import { TTLCache } from '@/lib/cache'
 import type { ServiceItem } from '@/lib/service-types'
 
+// 30-second in-memory cache for instant page loads
+type InitData = {
+  alertBar: any[]; alertTicker: any[]; mainNav: any[]; servicesSub: any[]
+  settings: Record<string, any>; chatbot: Record<string, any>; services: ServiceItem[]
+}
+const initCache = new TTLCache<InitData>(30_000) // 30 seconds
 export const dynamic = 'force-dynamic'
 
 // ── Defaults (matching each standalone endpoint) ───────────────────
@@ -32,6 +39,8 @@ const DEFAULT_SETTINGS = {
   email: 'marketing@digisharkscommunications.com',
   address: 'B-2, C-87, C Block, Sector 63<br />Noida, Uttar Pradesh 201301',
   businessHours: 'Mon–Sat: 10:00 AM – 7:00 PM IST',
+  headerSocialLinks: [],
+  footerSocialLinks: [],
   socialLinks: [
     { platform: 'facebook', label: 'Facebook', url: 'https://www.facebook.com/digisharks', iconSvg: '', iconEmoji: '📘' },
     { platform: 'twitter', label: 'X / Twitter', url: 'https://twitter.com/digisharks', iconSvg: '', iconEmoji: '🐦' },
@@ -98,9 +107,16 @@ const DEFAULT_SERVICES: ServiceItem[] = [
 
 export async function GET() {
   const headers = {
-    'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
-    'Pragma': 'no-cache',
-    'Expires': '0',
+    'Cache-Control': 'public, max-age=30, s-maxage=30, stale-while-revalidate=60',
+    'Pragma': 'cache',
+  }
+
+  // ── Check cache first ──────────────────────────────────────────────
+  const cached = initCache.get('init_data')
+  if (cached) {
+    return NextResponse.json(cached, {
+      headers: { ...headers, 'X-Cache': 'HIT' },
+    })
   }
 
   try {
@@ -127,18 +143,22 @@ export async function GET() {
       chatbot = { ...chatbot, ...chatbotSettings }
     }
 
-    return NextResponse.json(
-      {
-        alertBar: byType['alert-bar'],
-        alertTicker: byType['alert-ticker'],
-        mainNav: byType['main-nav'],
-        servicesSub: byType['services-sub'],
-        settings: settings || DEFAULT_SETTINGS,
-        chatbot,
-        services: DEFAULT_SERVICES,
-      },
-      { headers },
-    )
+    const responseData: InitData = {
+      alertBar: byType['alert-bar'],
+      alertTicker: byType['alert-ticker'],
+      mainNav: byType['main-nav'],
+      servicesSub: byType['services-sub'],
+      settings: settings || DEFAULT_SETTINGS,
+      chatbot,
+      services: DEFAULT_SERVICES,
+    }
+
+    // ── Store in cache ───────────────────────────────────────────────
+    initCache.set('init_data', responseData)
+
+    return NextResponse.json(responseData, {
+      headers: { ...headers, 'X-Cache': 'MISS' },
+    })
   } catch (err) {
     console.error('[public] GET /api/public/init error:', err)
     // Return defaults on error so the frontend doesn't break
@@ -152,7 +172,7 @@ export async function GET() {
         chatbot: DEFAULT_CHATBOT_SETTINGS,
         services: DEFAULT_SERVICES,
       },
-      { headers },
+      { headers: { ...headers, 'X-Cache': 'ERROR' } },
     )
   }
 }

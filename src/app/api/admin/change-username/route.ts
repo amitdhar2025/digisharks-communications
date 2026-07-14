@@ -4,6 +4,7 @@ import { getAdminsCollection } from '@/lib/db'
 import { getAdminFromCookies, signAdminToken, setAdminCookie } from '@/lib/auth'
 import { sendMail } from '@/lib/mailer'
 import logger from '@/lib/logger'
+import { logActivity } from '@/lib/activity-log'
 
 export const dynamic = 'force-dynamic'
 
@@ -129,6 +130,7 @@ export async function POST(req: NextRequest) {
       })
     }
 
+    logActivity({ event: 'username_change', description: `Admin username changed: ${admin.username} → ${trimmedUsername}`, username: admin.username, dashboard: 'admin' }).catch(() => {})
     return NextResponse.json({
       success: true,
       message: 'Username changed successfully. A confirmation email has been sent. Please use your new username next time you log in.',

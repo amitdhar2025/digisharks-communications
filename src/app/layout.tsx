@@ -38,7 +38,7 @@ const plusJakarta = Plus_Jakarta_Sans({
   display: "swap",
 });
 
-const siteUrl = "https://digisharks-communications.vercel.app/";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.digisharkscommunications.com/";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

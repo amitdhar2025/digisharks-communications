@@ -13,6 +13,7 @@ import { NextResponse } from 'next/server'
 import MenuItem from '@/models/MenuItem'
 import { connectCMSDb } from '@/lib/db-cms'
 import { getCMSAdminFromCookies } from '@/lib/auth-cms'
+import { logActivity } from '@/lib/activity-log'
 
 export const dynamic = 'force-dynamic'
 
@@ -43,6 +44,20 @@ export async function PUT(req) {
 
     await MenuItem.bulkWrite(ops)
 
+    // ── Invalidate public init cache so menu order reflects on frontend ─
+    try {
+      if (typeof globalThis !== 'undefined' && globalThis.__appCaches) {
+        for (const store of globalThis.__appCaches.values()) {
+          if (typeof store.clear === 'function') {
+            store.clear()
+          }
+        }
+      }
+    } catch (cacheErr) {
+      console.warn('[cms] Failed to clear caches:', cacheErr)
+    }
+
+    logActivity({ event: 'menu_reorder', description: `Reordered ${body.items.length} menu items`, username: admin.username, dashboard: 'cms' }).catch(() => {})
     return NextResponse.json({ success: true, updated: body.items.length })
   } catch (err) {
     console.error('[cms] PUT /api/content/admin/menus/reorder error:', err)

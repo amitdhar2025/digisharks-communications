@@ -95,7 +95,11 @@ export default function Navigation({ active = "none" }: NavigationProps) {
       .then((data) => {
         if (data.settings) {
           // Use dynamic socialLinks if available, otherwise fall back to legacy fields
-          if (data.settings.socialLinks && data.settings.socialLinks.length > 0) {
+          // Use headerSocialLinks if available, otherwise fall back to top-level socialLinks
+          const headerLinks = data.settings.headerSocialLinks;
+          if (headerLinks && headerLinks.length > 0) {
+            setSocialLinks(headerLinks);
+          } else if (data.settings.socialLinks && data.settings.socialLinks.length > 0) {
             setSocialLinks(data.settings.socialLinks);
           } else {
             // Build from legacy individual fields

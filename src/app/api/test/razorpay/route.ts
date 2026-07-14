@@ -24,7 +24,7 @@ export const dynamic = 'force-dynamic'
  *   }
  */
 export async function GET(_req: NextRequest) {
-  const cfg = getRazorpayConfig()
+  const cfg = await getRazorpayConfig()
 
   if (cfg.mode === 'sandbox') {
     return NextResponse.json({

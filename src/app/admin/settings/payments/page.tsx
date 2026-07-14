@@ -3,6 +3,7 @@
 import { useEffect, useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import AdminSidebar from '@/components/admin/Sidebar'
 
 interface PaymentSettings {
   razorpayKeyId: string
@@ -24,8 +25,8 @@ const ALL_PAYMENT_METHODS = [
 
 export default function PaymentSettingsPage() {
   const router = useRouter()
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const [loading, setLoading] = useState(true)
-  const [busy, setBusy] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [toast, setToast] = useState<{ kind: 'success' | 'error'; text: string } | null>(null)
@@ -49,10 +50,20 @@ export default function PaymentSettingsPage() {
     return () => clearTimeout(t)
   }, [toast])
 
+  // Check auth first
   useEffect(() => {
-    setLoading(true)
-    fetch('/api/admin/settings/payments', { credentials: 'include' })
+    fetch('/api/admin/me', { credentials: 'include' })
+      .then(r => r.json())
+      .then(d => {
+        if (!d?.authenticated) {
+          router.push('/admin/login')
+          return
+        }
+        // Now load settings
+        return fetch('/api/admin/settings/payments', { credentials: 'include' })
+      })
       .then(async (r) => {
+        if (!r) return
         if (r.status === 401) { router.push('/admin/login'); return }
         const data = await r.json()
         const s = data.settings || {}
@@ -114,191 +125,214 @@ export default function PaymentSettingsPage() {
     try {
       const res = await fetch('/api/test/razorpay')
       const data = await res.json()
+
+      let message = data.ok ? '✅ Connected to Razorpay!' : '❌ Connection failed'
+      if (data.razorpayMessage) {
+        if (data.httpStatus === 401) {
+          message = '🔑 Razorpay rejected the API keys (HTTP 401). The Key ID or Key Secret may be invalid, expired, or the account needs KYC verification.'
+        } else if (data.mode === 'sandbox') {
+          message = '⚠️ No Razorpay keys configured. Enter keys above or use sandbox mode for testing.'
+        } else {
+          // Prefix any raw Razorpay error so it's never confused with admin auth
+          message = 'Razorpay: ' + data.razorpayMessage
+        }
+      }
+
       setTestResult({
         ok: data.ok,
-        message: data.razorpayMessage || (data.ok ? 'Connected!' : 'Connection failed'),
+        message,
       })
     } catch {
-      setTestResult({ ok: false, message: 'Network error' })
+      setTestResult({ ok: false, message: 'Network error - could not reach Razorpay API' })
     } finally {
       setTesting(false)
     }
   }
 
-  if (loading) {
-    return <div className="empty"><span className="spinner" /> Loading payment settings…</div>
-  }
-
   return (
-    <div>
-      <div className="admin-topbar">
-        <div>
-          <h1>💳 Payment Settings</h1>
-          <div className="sub">Configure Razorpay and other payment methods for the checkout page</div>
-        </div>
-        <div className="cell-actions">
-          <Link href="/admin/dashboard" className="btn btn-ghost">← Dashboard</Link>
-        </div>
-      </div>
+    <div className="admin-layout">
+      <div className={`sidebar-backdrop${sidebarOpen ? ' open' : ''}`} onClick={() => setSidebarOpen(false)} />
+      <button className="sidebar-toggle" onClick={() => setSidebarOpen(!sidebarOpen)} aria-label="Toggle sidebar">☰</button>
+      <AdminSidebar isOpen={sidebarOpen} onNavClick={() => setSidebarOpen(false)} />
 
-      {toast && <div className={'alert ' + (toast.kind === 'success' ? 'alert-success' : 'alert-error')} role="status">{toast.text}</div>}
-      {error && <div className="alert alert-error">{error}</div>}
+      <main className="admin-main">
+        {loading && (
+          <div className="empty"><span className="spinner" /> Loading payment settings…</div>
+        )}
 
-      <form onSubmit={handleSave} autoComplete="off">
-        {/* ── Razorpay Section ── */}
-        <div style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: 12, padding: 24, marginBottom: 20 }}>
-          <h2 style={{ fontSize: 18, fontWeight: 700, color: '#e2e8f0', marginBottom: 18 }}>🔑 Razorpay Configuration</h2>
-          <p className="text-xs text-slate-500 mb-4">
-            Get your API keys from{' '}
-            <a href="https://dashboard.razorpay.com/app/keys" target="_blank" rel="noopener noreferrer" style={{ color: '#7dd3fc' }}>
-              Razorpay Dashboard
-            </a>
-            . Test keys start with <code>rzp_test_</code>, live keys start with <code>rzp_live_</code>.
-          </p>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-            <div className="field">
-              <label>Key ID</label>
-              <input
-                type="text"
-                value={razorpayKeyId}
-                onChange={(e) => setRazorpayKeyId(e.target.value)}
-                placeholder="rzp_test_xxxxxxxxxxxx or rzp_live_xxxxxxxxxxxx"
-              />
+        {!loading && (
+          <>
+            <div className="admin-topbar">
+              <div>
+                <h1>💳 Payment Settings</h1>
+                <div className="sub">Configure Razorpay and other payment methods for the checkout page</div>
+              </div>
+              <div className="cell-actions">
+                <Link href="/admin/dashboard" className="btn btn-ghost">← Dashboard</Link>
+              </div>
             </div>
-            <div className="field">
-              <label>Key Secret</label>
-              <input
-                type="password"
-                value={razorpayKeySecret}
-                onChange={(e) => setRazorpayKeySecret(e.target.value)}
-                placeholder={razorpayKeySecret === '••••••••' ? '••••••••' : 'Enter key secret'}
-              />
-            </div>
-          </div>
 
-          <div className="field" style={{ marginTop: 8 }}>
-            <label>Mode</label>
-            <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', color: '#cbd5e1', fontSize: 14 }}>
-                <input
-                  type="radio"
-                  name="razorpayMode"
-                  value="sandbox"
-                  checked={razorpayMode === 'sandbox'}
-                  onChange={() => setRazorpayMode('sandbox')}
-                  style={{ accentColor: '#f59e0b' }}
-                />
-                ⚙ Sandbox (Test)
-              </label>
-              <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', color: '#cbd5e1', fontSize: 14 }}>
-                <input
-                  type="radio"
-                  name="razorpayMode"
-                  value="live"
-                  checked={razorpayMode === 'live'}
-                  onChange={() => setRazorpayMode('live')}
-                  style={{ accentColor: '#22c55e' }}
-                />
-                ✅ Live (Real payments)
-              </label>
-            </div>
-          </div>
+            {toast && <div className={'alert ' + (toast.kind === 'success' ? 'alert-success' : 'alert-error')} role="status">{toast.text}</div>}
+            {error && <div className="alert alert-error">{error}</div>}
 
-          <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
-            <button type="button" className="btn btn-ghost" onClick={testConnection} disabled={testing || !razorpayKeyId}>
-              {testing ? <span className="spinner" /> : '🔌'} Test Connection
-            </button>
-            {testResult && (
-              <span style={{
-                display: 'inline-flex', alignItems: 'center', gap: 6,
-                padding: '8px 12px', borderRadius: 8, fontSize: 12,
-                background: testResult.ok ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)',
-                color: testResult.ok ? '#86efac' : '#fca5a5',
-                border: `1px solid ${testResult.ok ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)'}`,
-              }}>
-                {testResult.ok ? '✅' : '❌'} {testResult.message}
-              </span>
-            )}
-          </div>
-        </div>
+            <form onSubmit={handleSave} autoComplete="off">
+              {/* ── Razorpay Section ── */}
+              <div style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: 12, padding: 24, marginBottom: 20 }}>
+                <h2 style={{ fontSize: 18, fontWeight: 700, color: '#e2e8f0', marginBottom: 18 }}>🔑 Razorpay Configuration</h2>
+                <p className="text-xs text-slate-500 mb-4">
+                  Get your API keys from{' '}
+                  <a href="https://dashboard.razorpay.com/app/keys" target="_blank" rel="noopener noreferrer" style={{ color: '#7dd3fc' }}>
+                    Razorpay Dashboard
+                  </a>
+                  . Test keys start with <code>rzp_test_</code>, live keys start with <code>rzp_live_</code>.
+                </p>
 
-        {/* ── Payment Methods ── */}
-        <div style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: 12, padding: 24, marginBottom: 20 }}>
-          <h2 style={{ fontSize: 18, fontWeight: 700, color: '#e2e8f0', marginBottom: 12 }}>💳 Accepted Payment Methods</h2>
-          <p className="text-xs text-slate-500 mb-4">Choose which payment methods to show on the checkout page.</p>
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-            {ALL_PAYMENT_METHODS.map((m) => (
-              <label
-                key={m.id}
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 8,
-                  padding: '10px 16px', borderRadius: 10, cursor: 'pointer',
-                  background: paymentMethods.includes(m.id) ? 'rgba(14,165,233,0.1)' : '#0b1220',
-                  border: `1px solid ${paymentMethods.includes(m.id) ? 'rgba(14,165,233,0.3)' : '#1e293b'}`,
-                  color: paymentMethods.includes(m.id) ? '#7dd3fc' : '#94a3b8',
-                  fontWeight: paymentMethods.includes(m.id) ? 600 : 400,
-                  transition: 'all 0.15s',
-                  userSelect: 'none',
-                }}
-              >
-                <input
-                  type="checkbox"
-                  checked={paymentMethods.includes(m.id)}
-                  onChange={() => toggleMethod(m.id)}
-                  style={{ display: 'none' }}
-                />
-                <span>{m.icon}</span>
-                <span>{m.label}</span>
-              </label>
-            ))}
-          </div>
-        </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                  <div className="field">
+                    <label>Key ID</label>
+                    <input
+                      type="text"
+                      value={razorpayKeyId}
+                      onChange={(e) => setRazorpayKeyId(e.target.value)}
+                      placeholder="rzp_test_xxxxxxxxxxxx or rzp_live_xxxxxxxxxxxx"
+                    />
+                  </div>
+                  <div className="field">
+                    <label>Key Secret</label>
+                    <input
+                      type="password"
+                      value={razorpayKeySecret}
+                      onChange={(e) => setRazorpayKeySecret(e.target.value)}
+                      placeholder={razorpayKeySecret === '••••••••' ? '••••••••' : 'Enter key secret'}
+                    />
+                  </div>
+                </div>
 
-        {/* ── Bank Transfer ── */}
-        <div style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: 12, padding: 24, marginBottom: 20 }}>
-          <h2 style={{ fontSize: 18, fontWeight: 700, color: '#e2e8f0', marginBottom: 12 }}>🏦 Bank Transfer Details</h2>
-          <p className="text-xs text-slate-500 mb-4">Displayed to customers who choose direct bank transfer.</p>
-          <div className="field">
-            <label>UPI ID</label>
-            <input type="text" value={upiId} onChange={(e) => setUpiId(e.target.value)} placeholder="example@upi" />
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginTop: 8 }}>
-            <div className="field">
-              <label>Bank Name</label>
-              <input type="text" value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder="e.g. HDFC Bank" />
-            </div>
-            <div className="field">
-              <label>Account Number</label>
-              <input type="text" value={bankAccount} onChange={(e) => setBankAccount(e.target.value)} placeholder="Enter account number" />
-            </div>
-            <div className="field">
-              <label>IFSC Code</label>
-              <input type="text" value={bankIfsc} onChange={(e) => setBankIfsc(e.target.value)} placeholder="e.g. HDFC0001234" />
-            </div>
-          </div>
-        </div>
+                <div className="field" style={{ marginTop: 8 }}>
+                  <label>Mode</label>
+                  <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', color: '#cbd5e1', fontSize: 14 }}>
+                      <input
+                        type="radio"
+                        name="razorpayMode"
+                        value="sandbox"
+                        checked={razorpayMode === 'sandbox'}
+                        onChange={() => setRazorpayMode('sandbox')}
+                        style={{ accentColor: '#f59e0b' }}
+                      />
+                      ⚙ Sandbox (Test)
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', color: '#cbd5e1', fontSize: 14 }}>
+                      <input
+                        type="radio"
+                        name="razorpayMode"
+                        value="live"
+                        checked={razorpayMode === 'live'}
+                        onChange={() => setRazorpayMode('live')}
+                        style={{ accentColor: '#22c55e' }}
+                      />
+                      ✅ Live (Real payments)
+                    </label>
+                  </div>
+                </div>
 
-        {/* ── How to Setup Guide ── */}
-        <div style={{ background: 'rgba(14,165,233,0.04)', border: '1px solid rgba(14,165,233,0.12)', borderRadius: 12, padding: 20, marginBottom: 20 }}>
-          <h3 style={{ fontSize: 15, fontWeight: 700, color: '#e2e8f0', marginBottom: 8 }}>📖 Setup Guide</h3>
-          <ol style={{ color: '#94a3b8', fontSize: 13, lineHeight: 1.8, margin: 0, paddingLeft: 20 }}>
-            <li>Go to <a href="https://dashboard.razorpay.com/app/keys" target="_blank" rel="noopener noreferrer" style={{ color: '#7dd3fc' }}>Razorpay Dashboard → API Keys</a></li>
-            <li>Copy your <strong>Key ID</strong> and <strong>Key Secret</strong> into the fields above</li>
-            <li>Set mode to <strong>Sandbox</strong> for testing or <strong>Live</strong> for real payments</li>
-            <li>Click <strong>Test Connection</strong> to verify your keys work</li>
-            <li>If using <strong>Live mode</strong>, make sure your Razorpay account is KYC-verified</li>
-            <li>Click <strong>Save Settings</strong> to apply changes</li>
-          </ol>
-        </div>
+                <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
+                  <button type="button" className="btn btn-ghost" onClick={testConnection} disabled={testing || !razorpayKeyId}>
+                    {testing ? <span className="spinner" /> : '🔌'} Test Connection
+                  </button>
+                  {testResult && (
+                    <span style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 6,
+                      padding: '8px 12px', borderRadius: 8, fontSize: 12,
+                      background: testResult.ok ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)',
+                      color: testResult.ok ? '#86efac' : '#fca5a5',
+                      border: `1px solid ${testResult.ok ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)'}`,
+                    }}>
+                      {testResult.ok ? '✅' : '❌'} {testResult.message}
+                    </span>
+                  )}
+                </div>
+              </div>
 
-        <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-          <Link href="/admin/dashboard" className="btn btn-ghost">Cancel</Link>
-          <button type="submit" className="btn btn-primary" disabled={saving}>
-            {saving ? <><span className="spinner" /> Saving…</> : '💾 Save Settings'}
-          </button>
-        </div>
-      </form>
+              {/* ── Payment Methods ── */}
+              <div style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: 12, padding: 24, marginBottom: 20 }}>
+                <h2 style={{ fontSize: 18, fontWeight: 700, color: '#e2e8f0', marginBottom: 12 }}>💳 Accepted Payment Methods</h2>
+                <p className="text-xs text-slate-500 mb-4">Choose which payment methods to show on the checkout page.</p>
+                <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                  {ALL_PAYMENT_METHODS.map((m) => (
+                    <label
+                      key={m.id}
+                      style={{
+                        display: 'inline-flex', alignItems: 'center', gap: 8,
+                        padding: '10px 16px', borderRadius: 10, cursor: 'pointer',
+                        background: paymentMethods.includes(m.id) ? 'rgba(14,165,233,0.1)' : '#0b1220',
+                        border: `1px solid ${paymentMethods.includes(m.id) ? 'rgba(14,165,233,0.3)' : '#1e293b'}`,
+                        color: paymentMethods.includes(m.id) ? '#7dd3fc' : '#94a3b8',
+                        fontWeight: paymentMethods.includes(m.id) ? 600 : 400,
+                        transition: 'all 0.15s',
+                        userSelect: 'none',
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={paymentMethods.includes(m.id)}
+                        onChange={() => toggleMethod(m.id)}
+                        style={{ display: 'none' }}
+                      />
+                      <span>{m.icon}</span>
+                      <span>{m.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* ── Bank Transfer ── */}
+              <div style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: 12, padding: 24, marginBottom: 20 }}>
+                <h2 style={{ fontSize: 18, fontWeight: 700, color: '#e2e8f0', marginBottom: 12 }}>🏦 Bank Transfer Details</h2>
+                <p className="text-xs text-slate-500 mb-4">Displayed to customers who choose direct bank transfer.</p>
+                <div className="field">
+                  <label>UPI ID</label>
+                  <input type="text" value={upiId} onChange={(e) => setUpiId(e.target.value)} placeholder="example@upi" />
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginTop: 8 }}>
+                  <div className="field">
+                    <label>Bank Name</label>
+                    <input type="text" value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder="e.g. HDFC Bank" />
+                  </div>
+                  <div className="field">
+                    <label>Account Number</label>
+                    <input type="text" value={bankAccount} onChange={(e) => setBankAccount(e.target.value)} placeholder="Enter account number" />
+                  </div>
+                  <div className="field">
+                    <label>IFSC Code</label>
+                    <input type="text" value={bankIfsc} onChange={(e) => setBankIfsc(e.target.value)} placeholder="e.g. HDFC0001234" />
+                  </div>
+                </div>
+              </div>
+
+              {/* ── How to Setup Guide ── */}
+              <div style={{ background: 'rgba(14,165,233,0.04)', border: '1px solid rgba(14,165,233,0.12)', borderRadius: 12, padding: 20, marginBottom: 20 }}>
+                <h3 style={{ fontSize: 15, fontWeight: 700, color: '#e2e8f0', marginBottom: 8 }}>📖 Setup Guide</h3>
+                <ol style={{ color: '#94a3b8', fontSize: 13, lineHeight: 1.8, margin: 0, paddingLeft: 20 }}>
+                  <li>Go to <a href="https://dashboard.razorpay.com/app/keys" target="_blank" rel="noopener noreferrer" style={{ color: '#7dd3fc' }}>Razorpay Dashboard → API Keys</a></li>
+                  <li>Copy your <strong>Key ID</strong> and <strong>Key Secret</strong> into the fields above</li>
+                  <li>Set mode to <strong>Sandbox</strong> for testing or <strong>Live</strong> for real payments</li>
+                  <li>Click <strong>Test Connection</strong> to verify your keys work</li>
+                  <li>If using <strong>Live mode</strong>, make sure your Razorpay account is KYC-verified</li>
+                  <li>Click <strong>Save Settings</strong> to apply changes</li>
+                </ol>
+              </div>
+
+              <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+                <Link href="/admin/dashboard" className="btn btn-ghost">Cancel</Link>
+                <button type="submit" className="btn btn-primary" disabled={saving}>
+                  {saving ? <><span className="spinner" /> Saving…</> : '💾 Save Settings'}
+                </button>
+              </div>
+            </form>
+          </>
+        )}
+      </main>
     </div>
   )
 }

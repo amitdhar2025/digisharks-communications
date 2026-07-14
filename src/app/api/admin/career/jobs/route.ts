@@ -4,6 +4,7 @@ import { requirePermission } from '@/lib/permissions'
 import { connectMongoose } from '@/lib/mongoose'
 import CareerJob from '@/lib/models/CareerJob'
 import slugify from 'slugify'
+import { logActivity } from '@/lib/activity-log'
 
 export const dynamic = 'force-dynamic'
 
@@ -117,6 +118,7 @@ export async function POST(req: NextRequest) {
 
     await job.save()
 
+    logActivity({ event: 'job_create', description: `Created job: ${body.title} (${slug})`, username: admin.username, dashboard: 'admin', target: slug }).catch(() => {})
     return NextResponse.json({
       job: {
         ...job.toObject(),

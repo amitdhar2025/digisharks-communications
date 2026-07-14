@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminFromRequest } from '@/lib/auth'
 import { restoreFromTrash } from '@/lib/trash'
+import { logActivity } from '@/lib/activity-log'
 
 export const dynamic = 'force-dynamic'
 
@@ -21,6 +22,7 @@ export async function POST(
       username: admin.username,
       role: admin.role,
     }, section)
+    logActivity({ event: 'trash_restore', description: `Restored ${result.collectionName || 'item'} from trash (${id})`, username: admin.username, dashboard: 'admin', target: id }).catch(() => {})
     return NextResponse.json({
       message: `Item restored to ${result.collectionName}.`,
     })

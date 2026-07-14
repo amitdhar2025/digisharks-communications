@@ -30,10 +30,11 @@ const DEFAULT_CONTENT = {
   ctaSecondaryCta: { text: 'View Pricing', href: '/services-top-pr-digital-marketing/' },
 }
 
-const siteUrl = "https://digisharks-communications.vercel.app/press-release/";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.digisharkscommunications.com'
+const siteUrl = `${SITE_URL}/press-release/`;
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://digisharks-communications.vercel.app/"),
+  metadataBase: new URL(SITE_URL + '/'),
   title: "Press Release & Digital PR Agency | Digisharks Communications",
   description:
     "One of India's most trusted PR agencies. Strategic press release distribution, media relations, and digital PR services that build brand authority and visibility.",

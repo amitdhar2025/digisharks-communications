@@ -11,7 +11,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Edit, ExternalLink, CheckCircle, Clock, ArrowLeft } from 'lucide-react'
+import { Edit, ExternalLink, CheckCircle, Clock, ArrowLeft, FileText } from 'lucide-react'
 import {
   BTN_PRIMARY_XS,
   BTN_VIEW,
@@ -54,9 +54,12 @@ export default function CMSPagesPage() {
     })
   }
 
-  function getPublicUrl(slug: string) {
-    if (slug === 'home') return '/'
-    return '/' + slug
+  function getPublicUrl(page: any) {
+    if (page.isRegistrationForm) {
+      return '/' + page.slug
+    }
+    if (page.slug === 'home') return '/'
+    return '/' + page.slug
   }
 
   return (
@@ -104,17 +107,36 @@ export default function CMSPagesPage() {
                   <tr>
                     <td colSpan={4} className="text-center py-12 text-slate-500 text-sm">No pages found.</td>
                   </tr>
-                ) : (
-                  pages.map((page: any) => (
+                ) : (                    pages.map((page: any) => (
                     <tr key={page.slug} className="border-b border-slate-700/50 last:border-b-0 hover:bg-slate-700/10 transition-colors">
                       <td className="px-4 py-3.5">
-                        <div className="font-semibold text-slate-200">{page.pageName}</div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold text-slate-200">{page.pageName}</span>
+                          {page.isRegistrationForm && (
+                            <span style={{
+                              display: 'inline-flex', alignItems: 'center', gap: 3,
+                              padding: '2px 7px', borderRadius: 20,
+                              background: 'rgba(139,92,246,0.15)',
+                              border: '1px solid rgba(139,92,246,0.3)',
+                              color: '#c4b5fd', fontSize: 10, fontWeight: 600,
+                              letterSpacing: '0.02em', whiteSpace: 'nowrap',
+                            }}>
+                              <FileText size={10} />
+                              FORM
+                            </span>
+                          )}
+                        </div>
                         <div className="text-xs text-slate-500 mt-0.5 font-mono">
-                          /{page.slug === 'home' ? '' : page.slug}
+                          /{page.isRegistrationForm ? page.slug : (page.slug === 'home' ? '' : page.slug)}
                         </div>
                       </td>
                       <td className="px-4 py-3.5">
-                        {page.hasContent ? (
+                        {page.isRegistrationForm ? (
+                          <span className={PILL_SAVED_CLASS}>
+                            <FileText size={11} />
+                            Form Configured
+                          </span>
+                        ) : page.hasContent ? (
                           <span className={PILL_SAVED_CLASS}>
                             <CheckCircle size={11} />
                             Content Saved
@@ -131,15 +153,26 @@ export default function CMSPagesPage() {
                       </td>
                       <td className="px-4 py-3.5">
                         <div className="flex gap-1.5">
-                          <Link
-                            href={`/content/admin/pages/${page.slug}/edit`}
-                            className={BTN_PRIMARY_XS}
-                          >
-                            <Edit size={12} />
-                            Edit Content
-                          </Link>
+                          {page.isRegistrationForm ? (
+                            <Link
+                              href={`/content/admin/registration-form-builder?key=${page.formKey}`}
+                              className={BTN_PRIMARY_XS}
+                              style={{ background: 'linear-gradient(135deg, #8b5cf6, #6366f1)' }}
+                            >
+                              <FileText size={12} />
+                              Edit Form
+                            </Link>
+                          ) : (
+                            <Link
+                              href={`/content/admin/pages/${page.slug}/edit`}
+                              className={BTN_PRIMARY_XS}
+                            >
+                              <Edit size={12} />
+                              Edit Content
+                            </Link>
+                          )}
                           <a
-                            href={getPublicUrl(page.slug)}
+                            href={getPublicUrl(page)}
                             target="_blank"
                             rel="noopener noreferrer"
                             className={BTN_VIEW}

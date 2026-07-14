@@ -47,6 +47,7 @@ interface FooterSettings {
   address: string;
   businessHours: string;
   socialLinks?: SocialLink[];
+  footerSocialLinks?: SocialLink[];
   socialFacebook: string;
   socialTwitter: string;
   socialInstagram: string;
@@ -147,13 +148,15 @@ export default function Footer() {
           </Link>
           <p className="footer-tagline">{s.footerTagline}</p>
           <div className="social-icons">
-            {(s.socialLinks && s.socialLinks.length > 0 ? s.socialLinks : [
-              { platform: 'facebook', label: 'Facebook', url: s.socialFacebook, iconEmoji: '📘' },
-              { platform: 'instagram', label: 'Instagram', url: s.socialInstagram, iconEmoji: '📸' },
-              { platform: 'linkedin', label: 'LinkedIn', url: s.socialLinkedin, iconEmoji: '💼' },
-              { platform: 'twitter', label: 'X / Twitter', url: s.socialTwitter, iconEmoji: '🐦' },
-              { platform: 'youtube', label: 'YouTube', url: s.socialYoutube, iconEmoji: '▶️' },
-            ] as SocialLink[]).filter((l) => l.url).map((link) => (
+{(s.footerSocialLinks && s.footerSocialLinks.length > 0 ? s.footerSocialLinks : (
+              s.socialLinks && s.socialLinks.length > 0 ? s.socialLinks : [
+                { platform: 'facebook', label: 'Facebook', url: s.socialFacebook, iconEmoji: '📘' },
+                { platform: 'instagram', label: 'Instagram', url: s.socialInstagram, iconEmoji: '📸' },
+                { platform: 'linkedin', label: 'LinkedIn', url: s.socialLinkedin, iconEmoji: '💼' },
+                { platform: 'twitter', label: 'X / Twitter', url: s.socialTwitter, iconEmoji: '🐦' },
+                { platform: 'youtube', label: 'YouTube', url: s.socialYoutube, iconEmoji: '▶️' },
+              ] as SocialLink[]
+            )).filter((l) => l.url).map((link) => (
               <a
                 key={link.platform}
                 href={link.url}

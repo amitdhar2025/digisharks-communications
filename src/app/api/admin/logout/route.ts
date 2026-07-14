@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { clearAdminCookie, getAdminFromCookies } from '@/lib/auth'
 import { getLoginLogsCollection } from '@/lib/db'
+import { logActivity } from '@/lib/activity-log'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,6 +20,7 @@ export async function POST() {
     } catch {
       // Best-effort
     }
+    logActivity({ event: 'logout', description: `Admin logged out: ${admin.username}`, username: admin.username, dashboard: 'admin' }).catch(() => {})
   }
 
   await clearAdminCookie()

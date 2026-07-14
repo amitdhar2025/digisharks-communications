@@ -10,7 +10,9 @@ import { ObjectId } from 'mongodb'
 import { getAdminFromRequest, isSuperAdmin, getSubAdminPermissions } from '@/lib/auth'
 import { requirePermission } from '@/lib/permissions'
 import { getProductsCollection } from '@/lib/products'
+import { softDeleteFromNative } from '@/lib/trash'
 import slugify from 'slugify'
+import { logActivity } from '@/lib/activity-log'
 
 export const dynamic = 'force-dynamic'
 
@@ -89,6 +91,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: 'Product not found' }, { status: 404 })
     }
 
+    logActivity({ event: 'product_update', description: `Updated product: ${body.title || id}`, username: admin.username, dashboard: 'admin', target: id }).catch(() => {})
     return NextResponse.json({ success: true })
   } catch (err) {
     console.error('PUT /api/admin/products/[id] error:', err)
@@ -113,14 +116,18 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   }
 
   try {
-    const products = await getProductsCollection()
-    const result = await products.deleteOne({ _id: new ObjectId(id) })
+    const adminInfo = { username: admin.username, role: (isSuperAdmin(admin) ? 'admin' : 'sub-admin') as 'admin' | 'sub-admin' }
 
-    if (result.deletedCount === 0) {
-      return NextResponse.json({ error: 'Product not found' }, { status: 404 })
-    }
+    const trashId = await softDeleteFromNative(
+      'products',
+      'products',
+      id,
+      adminInfo,
+      (doc) => (doc as any).title || 'Product',
+    )
 
-    return NextResponse.json({ success: true })
+    logActivity({ event: 'product_delete', description: `Deleted product: ${id}`, username: admin.username, dashboard: 'admin', target: id }).catch(() => {})
+    return NextResponse.json({ success: true, message: 'Product moved to trash.' })
   } catch (err) {
     console.error('DELETE /api/admin/products/[id] error:', err)
     return NextResponse.json({ error: 'Failed to delete product' }, { status: 500 })

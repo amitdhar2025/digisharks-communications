@@ -35,10 +35,11 @@ const DEFAULT_CONTENT = {
   mapAddress: 'B-2, C-87, C Block, Sector 63, Noida, Uttar Pradesh 201301',
 }
 
-const siteUrl = "https://digisharks-communications.vercel.app/portfolio/";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.digisharkscommunications.com'
+const siteUrl = `${SITE_URL}/portfolio/`;
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://digisharks-communications.vercel.app/"),
+  metadataBase: new URL(SITE_URL + '/'),
   title: "Top PR Agency in India | Digisharks Communications Portfolio",
   description:
     "Explore the portfolio of Digisharks Communications — India's top PR and digital marketing agency. See our award-winning projects, campaigns, and client success stories.",

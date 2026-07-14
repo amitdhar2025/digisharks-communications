@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminFromRequest } from '@/lib/auth'
 import { getSecuritySettings, saveSecuritySettings } from '@/lib/anti-spam'
+import { logActivity } from '@/lib/activity-log'
 
 export const dynamic = 'force-dynamic'
 
@@ -28,6 +29,7 @@ export async function POST(req: NextRequest) {
     }
 
     const updated = await saveSecuritySettings({ bannedIps: list })
+    logActivity({ event: 'security_ip_' + action, description: `${action === 'ban' ? 'Banned' : 'Unbanned'} IP: ${ip}`, username: admin.username, dashboard: 'admin', target: ip }).catch(() => {})
     return NextResponse.json({ success: true, bannedIps: updated.bannedIps })
   } catch (err) {
     console.error('POST /api/admin/security/ban-ip error', err)

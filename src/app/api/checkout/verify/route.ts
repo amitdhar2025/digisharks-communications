@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing payment fields.' }, { status: 400 })
     }
 
-    const ok = verifyRazorpaySignature({
+    const ok = await verifyRazorpaySignature({
       orderId: body.razorpayOrderId,
       paymentId: body.razorpayPaymentId,
       signature: body.razorpaySignature,

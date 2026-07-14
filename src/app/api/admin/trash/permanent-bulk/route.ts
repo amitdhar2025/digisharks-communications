@@ -3,6 +3,7 @@ import { getAdminFromRequest, isSuperAdmin } from '@/lib/auth'
 import { bulkPermanentDelete, getTrashCollection } from '@/lib/trash'
 import { deleteAllItemFiles } from '@/lib/cloudinary-delete'
 import { ObjectId } from 'mongodb'
+import { logActivity } from '@/lib/activity-log'
 
 export const dynamic = 'force-dynamic'
 
@@ -55,6 +56,7 @@ export async function DELETE(req: NextRequest) {
 
     const result = await bulkPermanentDelete(ids, { username: admin.username, role: admin.role })
 
+    logActivity({ event: 'trash_permanent_delete', description: `Bulk deleted ${result.success} item(s) from trash`, username: admin.username, dashboard: 'admin' }).catch(() => {})
     return NextResponse.json({
       message: `${result.success} item(s) permanently deleted.`,
       ...result,

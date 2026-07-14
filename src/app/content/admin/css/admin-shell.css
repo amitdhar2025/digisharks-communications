@@ -199,6 +199,7 @@
   flex-direction: column;
   gap: 6px;
   padding: 0;
+  overflow-y: auto;
 }
 
 .cms-nav-link {

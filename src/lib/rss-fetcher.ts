@@ -10,7 +10,7 @@ const parser = new Parser({
   timeout: 10000,
   headers: {
     'User-Agent':
-      'Mozilla/5.0 (compatible; DigiSharksRSS/1.0; +https://digisharks-communications.vercel.app)',
+      'Mozilla/5.0 (compatible; DigiSharksRSS/1.0; +https://www.digisharkscommunications.com)',
     Accept: 'application/rss+xml, application/xml, text/xml, */*',
   },
   customFields: {

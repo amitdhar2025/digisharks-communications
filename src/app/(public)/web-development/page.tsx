@@ -5,10 +5,11 @@ import type React from "react";
 import Footer from "../../../components/Footer";
 import QuickEditButton from '@/components/QuickEditButton'
 
-const siteUrl = "https://digisharks-communications.vercel.app/web-development/";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.digisharkscommunications.com'
+const siteUrl = `${SITE_URL}/web-development/`;
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://digisharks-communications.vercel.app/"),
+  metadataBase: new URL(SITE_URL + '/'),
   title: "Web Development Company in India | Digisharks Communications",
   description:
     "Build a powerful digital presence for your business with modern, responsive, conversion-focused website development. Business websites, e-commerce, WordPress, and more.",

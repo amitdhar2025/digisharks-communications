@@ -13,6 +13,7 @@ import AdminUser from '@/models/AdminUser'
 import { connectCMSDb } from '@/lib/db-cms'
 import { getCMSAdminFromCookies } from '@/lib/auth-cms'
 import { sendMail } from '@/lib/mailer'
+import { logActivity } from '@/lib/activity-log'
 
 export const dynamic = 'force-dynamic'
 
@@ -110,6 +111,7 @@ export async function POST(req) {
       })
     }
 
+    logActivity({ event: 'password_change', description: `CMS admin password changed: ${admin.username}`, username: admin.username, dashboard: 'cms' }).catch(() => {})
     return NextResponse.json({
       success: true,
       message: 'Password changed successfully. A confirmation email has been sent.',

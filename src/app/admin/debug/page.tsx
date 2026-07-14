@@ -20,9 +20,15 @@ import {
   Zap,
   ChevronDown,
   ChevronRight,
+  History,
 } from 'lucide-react'
 
 /* ── Types ────────────────────────────────────────────── */
+
+interface DailyCount {
+  date: string
+  count: number
+}
 
 interface SystemInfo {
   nodeVersion: string
@@ -55,28 +61,53 @@ export default function DebugPage() {
   const [logStats, setLogStats] = useState<LogStat[]>([])
   const [systemInfo, setSystemInfo] = useState<SystemInfo | null>(null)
   const [loading, setLoading] = useState(true)
-  const [tab, setTab] = useState<'errors' | 'combined' | 'system'>('errors')
+  const [tab, setTab] = useState<'errors' | 'combined' | 'system' | 'activity'>('errors')
   const [clearing, setClearing] = useState(false)
   const [clearMsg, setClearMsg] = useState('')
+  const [loadError, setLoadError] = useState('')
+  const [errorFrequency, setErrorFrequency] = useState<DailyCount[]>([])
+  const [combinedFrequency, setCombinedFrequency] = useState<DailyCount[]>([])
   const [expandedLines, setExpandedLines] = useState<Set<number>>(new Set())
+
+  // ── Activity log state ──
+  const [activityItems, setActivityItems] = useState<any[]>([])
+  const [activityTotal, setActivityTotal] = useState(0)
+  const [activityPages, setActivityPages] = useState(1)
+  const [activityPage, setActivityPage] = useState(1)
+  const [activityPeriod, setActivityPeriod] = useState<string>('all')
+  const [activityEvent, setActivityEvent] = useState('')
+  const [activityDashboard, setActivityDashboard] = useState('')
+  const [activityEventTypes, setActivityEventTypes] = useState<string[]>([])
+  const [activityUsernames, setActivityUsernames] = useState<string[]>([])
+  const [activitySearch, setActivitySearch] = useState('')
+  const [activityLoading, setActivityLoading] = useState(false)
+  const [activityClearing, setActivityClearing] = useState(false)
+  const [activityClearMsg, setActivityClearMsg] = useState('')
+  const [deletingId, setDeletingId] = useState<string | null>(null)
 
   const loadData = useCallback(async () => {
     setLoading(true)
     try {
       const [allData, sysData] = await Promise.all([
-        adminFetch<{ errorLogs: string[]; combinedLogs: string[]; stats: LogStat[] }>('/api/admin/debug'),
+        adminFetch<{ errorLogs: string[]; combinedLogs: string[]; stats: LogStat[]; errorFrequency: DailyCount[]; combinedFrequency: DailyCount[] }>('/api/admin/debug'),
         adminFetch<{ info: SystemInfo }>('/api/admin/debug?type=system'),
       ])
       if (allData.data) {
         setErrorLogs(allData.data.errorLogs || [])
         setCombinedLogs(allData.data.combinedLogs || [])
         setLogStats(allData.data.stats || [])
+        setErrorFrequency(allData.data.errorFrequency || [])
+        setCombinedFrequency(allData.data.combinedFrequency || [])
       }
       if (sysData.data?.info) {
         setSystemInfo(sysData.data.info)
       }
+      // Show API errors (e.g. rate limited)
+      if (allData.error) {
+        setLoadError(allData.error)
+      }
     } catch {
-      // ignore
+      setLoadError('Failed to load debug data. Check your connection.')
     } finally {
       setLoading(false)
     }
@@ -95,6 +126,117 @@ export default function DebugPage() {
       })
       .catch(() => router.push('/admin/login'))
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Read ?tab=activity from URL on mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('tab') === 'activity') {
+      setTab('activity')
+    }
+  }, [])
+
+  // Load activity logs
+  const loadActivity = useCallback(async () => {
+    setActivityLoading(true)
+    try {
+      const params = new URLSearchParams({
+        page: String(activityPage),
+        limit: '50',
+      })
+      if (activityPeriod !== 'all') params.set('period', activityPeriod)
+      if (activityEvent) params.set('event', activityEvent)
+      if (activityDashboard) params.set('dashboard', activityDashboard)
+      if (activitySearch.trim()) params.set('search', activitySearch.trim())
+
+      const { data } = await adminFetch<any>(`/api/admin/activity-log?${params}`)
+      if (data) {
+        setActivityItems(data.items || [])
+        setActivityTotal(data.total || 0)
+        setActivityPages(data.pages || 1)
+        setActivityEventTypes(data.eventTypes || [])
+        setActivityUsernames(data.usernames || [])
+      }
+    } catch {}
+    finally { setActivityLoading(false) }
+  }, [activityPage, activityPeriod, activityEvent, activityDashboard, activitySearch])
+
+  useEffect(() => {
+    if (tab === 'activity') loadActivity()
+  }, [tab, loadActivity])
+
+  async function handleDeleteRow(id: string, description: string) {
+    if (!confirm(`Delete this activity entry?\n\n${description.slice(0, 120)}`)) return
+    setDeletingId(id)
+    try {
+      const res = await fetch(`/api/admin/activity-log?ids=${id}`, { method: 'DELETE' })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Delete failed')
+      setActivityClearMsg(`🗑️ ${data.message}`)
+      loadActivity()
+    } catch (e: any) {
+      setActivityClearMsg(e.message || 'Failed to delete entry')
+    } finally {
+      setDeletingId(null)
+    }
+  }
+
+  async function handleClearActivity(mode: 'filtered' | 'all' | 'seed') {
+    if (mode === 'seed') {
+      if (!confirm('Generate sample activity log entries for testing?')) return
+      setActivityClearMsg('')
+      setActivityClearing(true)
+      try {
+        const sampleEntries = [
+          { event: 'login', description: 'Admin logged in: admin', username: 'admin', dashboard: 'admin' as const },
+          { event: 'login', description: 'CMS admin logged in: content_manager', username: 'content_manager', dashboard: 'cms' as const },
+          { event: 'logout', description: 'Admin logged out: admin', username: 'admin', dashboard: 'admin' as const },
+          { event: 'page_edit', description: 'Updated page content: Home Page (/home)', username: 'content_manager', dashboard: 'cms' as const, target: 'home' },
+          { event: 'page_edit', description: 'Updated page content: About Us (/about)', username: 'content_manager', dashboard: 'cms' as const, target: 'about' },
+          { event: 'login', description: 'Sub-admin logged in: editor', username: 'editor', dashboard: 'admin' as const },
+          { event: 'page_edit', description: 'Updated page content: Services (/services)', username: 'content_manager', dashboard: 'cms' as const, target: 'services' },
+          { event: 'logout', description: 'CMS admin logged out: content_manager', username: 'content_manager', dashboard: 'cms' as const },
+          { event: 'login', description: 'Admin logged in: admin', username: 'admin', dashboard: 'admin' as const },
+          { event: 'page_edit', description: 'Updated page content: Contact Us (/contact)', username: 'content_manager', dashboard: 'cms' as const, target: 'contact' },
+        ]
+        for (const entry of sampleEntries) {
+          await fetch('/api/admin/activity-log', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(entry),
+          })
+        }
+        setActivityClearMsg('✅ Seeded 10 sample entries with login/logout/page_edit events across Admin & CMS dashboards.')
+        loadActivity()
+      } catch { setActivityClearMsg('Failed to seed test data') }
+      finally { setActivityClearing(false) }
+      return
+    }
+
+    const label = mode === 'all' ? 'ALL activity log entries' : 'activity entries matching current filters'
+    if (!confirm(`Clear ${label}? This cannot be undone.`)) return
+    setActivityClearMsg('')
+    setActivityClearing(true)
+    try {
+      const params = new URLSearchParams()
+      if (mode === 'all') {
+        params.set('all', '1')
+      } else {
+        if (activityPeriod !== 'all') params.set('period', activityPeriod)
+        if (activityEvent) params.set('event', activityEvent)
+        if (activityDashboard) params.set('dashboard', activityDashboard)
+        if (activitySearch.trim()) params.set('search', activitySearch.trim())
+      }
+      const res = await fetch(`/api/admin/activity-log?${params}`, { method: 'DELETE' })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Clear failed')
+      setActivityClearMsg(`🗑️ ${data.message}`)
+      loadActivity()
+    } catch (e: any) {
+      setActivityClearMsg(e.message || 'Failed to clear activity logs')
+    } finally {
+      setActivityClearing(false)
+    }
+  }
 
   async function handleClear(target: 'errors' | 'combined' | 'all') {
     if (!confirm(`Clear ${target === 'all' ? 'all log files' : target + '.log'}? This cannot be undone.`)) return
@@ -123,6 +265,34 @@ export default function DebugPage() {
   function formatMem(mb: number) {
     if (mb >= 1024) return `${(mb / 1024).toFixed(1)} GB`
     return `${mb} MB`
+  }
+
+  function LogFrequencyChart({ data, barColor }: { data: DailyCount[]; barColor: string }) {
+    const maxCount = Math.max(...data.map(d => d.count), 1)
+    return (
+      <div style={{ display: 'flex', alignItems: 'flex-end', gap: 3, height: 80, paddingTop: 4 }}>
+        {data.map((d) => {
+          const pct = (d.count / maxCount) * 100
+          const isToday = d.date === new Date().toISOString().slice(0, 10)
+          return (
+            <div
+              key={d.date}
+              title={`${d.date}: ${d.count} entries`}
+              style={{
+                flex: 1,
+                height: `${Math.max(pct, 2)}%`,
+                background: d.count > 0 ? barColor : '#1e293b',
+                opacity: isToday ? 1 : d.count > 0 ? 0.7 : 0.4,
+                borderRadius: '2px 2px 0 0',
+                minHeight: d.count > 0 ? 4 : 2,
+                transition: 'height 0.3s',
+                cursor: 'pointer',
+              }}
+            />
+          )
+        })}
+      </div>
+    )
   }
 
   function renderLogLine(line: string, idx: number) {
@@ -197,6 +367,42 @@ export default function DebugPage() {
           </div>
         )}
 
+        {loadError && (
+          <div className="alert alert-error" style={{ marginBottom: 16 }}>
+            {loadError}
+            <button className="btn btn-ghost" style={{ marginLeft: 12, padding: '2px 10px', fontSize: 12 }} onClick={() => { setLoadError(''); loadData(); }}>
+              Retry
+            </button>
+          </div>
+        )}
+
+        {/* ── HISTOGRAM CHART ── */}
+        {(errorFrequency.length > 0 || combinedFrequency.length > 0) && (
+          <div style={{
+            background: '#0f172a', border: '1px solid #1e293b', borderRadius: 12, padding: '16px 20px',
+            marginBottom: 20,
+          }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#e2e8f0', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Activity size={16} style={{ color: '#0ea5e9' }} />
+              Log Activity (last 14 days)
+            </div>
+            <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+              {errorFrequency.length > 0 && (
+                <div style={{ flex: 1, minWidth: 280 }}>
+                  <div style={{ fontSize: 11, color: '#ef4444', marginBottom: 6, fontWeight: 600 }}>🛑 Error Log</div>
+                  <LogFrequencyChart data={errorFrequency} barColor="#ef4444" />
+                </div>
+              )}
+              {combinedFrequency.length > 0 && (
+                <div style={{ flex: 1, minWidth: 280 }}>
+                  <div style={{ fontSize: 11, color: '#0ea5e9', marginBottom: 6, fontWeight: 600 }}>📋 Combined Log</div>
+                  <LogFrequencyChart data={combinedFrequency} barColor="#0ea5e9" />
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* ── LOG STATS ── */}
         <div className="stat-grid" style={{ marginBottom: 20 }}>
           {logStats.map((stat) => (
@@ -224,8 +430,9 @@ export default function DebugPage() {
           {([
             { key: 'errors' as const, label: '🛑 Error Log', icon: <AlertTriangle size={14} /> },
             { key: 'combined' as const, label: '📋 Combined Log', icon: <FileText size={14} /> },
-            { key: 'system' as const, label: '💻 System Info', icon: <Server size={14} /> },
-          ]).map((t) => (
+          { key: 'system' as const, label: '💻 System Info', icon: <Server size={14} /> },
+          { key: 'activity' as const, label: '📋 Activity Log', icon: <History size={14} /> },
+        ]).map((t) => (
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
@@ -294,6 +501,258 @@ export default function DebugPage() {
                 </div>
               ))}
             </div>
+          </div>
+        ) : tab === 'activity' ? (
+          <div style={{
+            background: '#0f172a', border: '1px solid #1e293b', borderRadius: 12, overflow: 'hidden',
+          }}>
+            {/* Activity log filters */}
+            <div style={{
+              display: 'flex', gap: 8, flexWrap: 'wrap',
+              padding: '12px 14px', background: '#0b1220',
+              borderBottom: '1px solid #1e293b',
+              alignItems: 'center',
+            }}>
+              {/* Period filter */}
+              {[
+                { value: 'all', label: 'All Time' },
+                { value: '24h', label: 'Last 24 Hours' },
+                { value: '7d', label: 'Last 7 Days' },
+                { value: '30d', label: 'This Month' },
+              ].map(p => (
+                <button
+                  key={p.value}
+                  onClick={() => { setActivityPeriod(p.value); setActivityPage(1) }}
+                  style={{
+                    padding: '4px 10px', borderRadius: 6, border: '1px solid',
+                    fontSize: 11, fontWeight: 600, cursor: 'pointer',
+                    fontFamily: 'inherit', whiteSpace: 'nowrap',
+                    background: activityPeriod === p.value ? 'rgba(14,165,233,0.15)' : 'transparent',
+                    color: activityPeriod === p.value ? '#7dd3fc' : '#64748b',
+                    borderColor: activityPeriod === p.value ? 'rgba(14,165,233,0.3)' : '#1e293b',
+                    transition: 'all 0.15s',
+                  }}
+                >
+                  {p.label}
+                </button>
+              ))}
+
+              {/* Event type filter */}
+              <select
+                value={activityEvent}
+                onChange={(e) => { setActivityEvent(e.target.value); setActivityPage(1) }}
+                style={{
+                  background: '#0b1220', color: '#94a3b8', border: '1px solid #1e293b',
+                  borderRadius: 6, padding: '4px 8px', fontSize: 11,
+                  fontFamily: 'inherit', cursor: 'pointer',
+                }}
+              >
+                <option value="">All Events</option>
+                {activityEventTypes.map(ev => (
+                  <option key={ev} value={ev}>{ev}</option>
+                ))}
+              </select>
+
+              {/* Dashboard filter */}
+              <select
+                value={activityDashboard}
+                onChange={(e) => { setActivityDashboard(e.target.value); setActivityPage(1) }}
+                style={{
+                  background: '#0b1220', color: '#94a3b8', border: '1px solid #1e293b',
+                  borderRadius: 6, padding: '4px 8px', fontSize: 11,
+                  fontFamily: 'inherit', cursor: 'pointer',
+                }}
+              >
+                <option value="">All Dashboards</option>
+                <option value="admin">Main Admin</option>
+                <option value="cms">CMS</option>
+              </select>
+
+              {/* Search */}
+              <input
+                type="text"
+                placeholder="Search description, user..."
+                value={activitySearch}
+                onChange={(e) => { setActivitySearch(e.target.value); setActivityPage(1) }}
+                style={{
+                  flex: '1 1 180px', background: '#0b1220', border: '1px solid #1e293b',
+                  borderRadius: 6, padding: '4px 8px', fontSize: 11, color: '#e2e8f0',
+                  fontFamily: 'inherit', outline: 'none',
+                }}
+              />
+
+              <button className="btn btn-ghost" style={{ padding: '4px 10px', fontSize: 11 }} onClick={loadActivity} title="Refresh">
+                <RefreshCw size={12} />
+              </button>
+              <a
+                href={`/api/admin/activity-log?export=csv&${new URLSearchParams({
+                  ...(activityPeriod !== 'all' ? { period: activityPeriod } : {}),
+                  ...(activityEvent ? { event: activityEvent } : {}),
+                  ...(activityDashboard ? { dashboard: activityDashboard } : {}),
+                  ...(activitySearch.trim() ? { search: activitySearch.trim() } : {}),
+                }).toString()}`}
+                download
+                className="btn btn-ghost"
+                style={{ padding: '4px 10px', fontSize: 10, textDecoration: 'none' }}
+              >
+                ⬇ CSV
+              </a>
+              <button
+                className="btn btn-ghost"
+                style={{ padding: '4px 10px', fontSize: 10, borderColor: 'rgba(239,68,68,0.3)', color: '#fca5a5' }}
+                onClick={() => handleClearActivity(activityEvent || activityDashboard || activityPeriod !== 'all' || activitySearch.trim() ? 'filtered' : 'all')}
+                disabled={activityClearing}
+              >
+                <Trash2 size={11} /> {activityClearing ? 'Clearing…' : 'Clear'}
+              </button>
+              {activityTotal > 0 && (
+                <button
+                  className="btn btn-ghost"
+                  style={{ padding: '4px 10px', fontSize: 10, borderColor: 'rgba(239,68,68,0.5)', color: '#fca5a5' }}
+                  onClick={() => handleClearActivity('all')}
+                  disabled={activityClearing}
+                >
+                  <Trash2 size={11} /> Clear All
+                </button>
+              )}
+              {activityTotal === 0 && (
+                <button
+                  className="btn btn-ghost"
+                  style={{ padding: '4px 10px', fontSize: 10, borderColor: 'rgba(34,197,94,0.3)', color: '#86efac' }}
+                  onClick={() => handleClearActivity('seed')}
+                  disabled={activityClearing}
+                >
+                  🌱 Seed
+                </button>
+              )}
+            </div>
+            {activityClearMsg && (
+              <div style={{ padding: '8px 14px', fontSize: 11, color: activityClearMsg.includes('✅') || activityClearMsg.includes('🗑️') ? '#86efac' : '#fca5a5', background: '#0b1220', borderBottom: '1px solid #1e293b' }}>
+                {activityClearMsg}
+              </div>
+            )}
+
+            {/* Activity entries */}
+            <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+              {activityLoading ? (
+                <div className="empty" style={{ padding: '40px 20px' }}>
+                  <div className="spinner" style={{ margin: '0 auto 8px' }} />
+                  <div>Loading activity log…</div>
+                </div>
+              ) : activityItems.length === 0 ? (
+                <div className="empty" style={{ padding: '40px 20px' }}>
+                  <div className="icon" style={{ fontSize: 32 }}>📭</div>
+                  <div>No activity entries found</div>
+                </div>
+              ) : (
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid #1e293b', background: '#0b1220' }}>
+                      <th style={{ padding: '8px 10px', textAlign: 'left', color: '#64748b', fontWeight: 600, fontSize: 10, textTransform: 'uppercase', letterSpacing: '.05em' }}>Time</th>
+                      <th style={{ padding: '8px 10px', textAlign: 'left', color: '#64748b', fontWeight: 600, fontSize: 10, textTransform: 'uppercase', letterSpacing: '.05em' }}>Event</th>
+                      <th style={{ padding: '8px 10px', textAlign: 'left', color: '#64748b', fontWeight: 600, fontSize: 10, textTransform: 'uppercase', letterSpacing: '.05em' }}>User</th>
+                      <th style={{ padding: '8px 10px', textAlign: 'left', color: '#64748b', fontWeight: 600, fontSize: 10, textTransform: 'uppercase', letterSpacing: '.05em' }}>Dashboard</th>
+                      <th style={{ padding: '8px 10px', textAlign: 'left', color: '#64748b', fontWeight: 600, fontSize: 10, textTransform: 'uppercase', letterSpacing: '.05em' }}>Description</th>
+                      <th style={{ padding: '8px 10px', textAlign: 'left', color: '#64748b', fontWeight: 600, fontSize: 10, textTransform: 'uppercase', letterSpacing: '.05em' }}>Target</th>
+                      <th style={{ padding: '8px 10px', textAlign: 'center', color: '#64748b', fontWeight: 600, fontSize: 10, textTransform: 'uppercase', letterSpacing: '.05em', width: 50 }}>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {activityItems.map((item: any) => {
+                      const eventColors: Record<string, string> = {
+                        login: '#22c55e',
+                        logout: '#ef4444',
+                        page_edit: '#0ea5e9',
+                      }
+                      const eventColor = eventColors[item.event] || '#94a3b8'
+                      return (
+                        <tr key={item._id} style={{ borderBottom: '1px solid #1e293b' }}>
+                          <td style={{ padding: '7px 10px', color: '#64748b', whiteSpace: 'nowrap', fontSize: 11 }}>
+                            {new Date(item.createdAt).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                          </td>
+                          <td style={{ padding: '7px 10px' }}>
+                            <span style={{
+                              display: 'inline-block', padding: '1px 7px', borderRadius: 4,
+                              background: `${eventColor}15`, color: eventColor,
+                              fontSize: 10, fontWeight: 600, letterSpacing: '.02em',
+                            }}>
+                              {item.event}
+                            </span>
+                          </td>
+                          <td style={{ padding: '7px 10px', color: '#7dd3fc', fontWeight: 600, fontSize: 11 }}>{item.username}</td>
+                          <td style={{ padding: '7px 10px', color: '#94a3b8', fontSize: 11 }}>
+                            <span style={{
+                              display: 'inline-block', padding: '1px 6px', borderRadius: 4,
+                              background: item.dashboard === 'admin' ? 'rgba(234,179,8,0.12)' : 'rgba(139,92,246,0.12)',
+                              color: item.dashboard === 'admin' ? '#eab308' : '#a78bfa',
+                              fontSize: 10, fontWeight: 600,
+                            }}>
+                              {item.dashboard === 'admin' ? 'Admin' : 'CMS'}
+                            </span>
+                          </td>
+                          <td style={{ padding: '7px 10px', color: '#e2e8f0', fontSize: 11, maxWidth: 300, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={item.description}>
+                            {item.description}
+                          </td>
+                          <td style={{ padding: '7px 10px', color: '#64748b', fontSize: 11, fontFamily: 'monospace' }}>
+                            {item.target || '—'}
+                          </td>
+                          <td style={{ padding: '7px 10px', textAlign: 'center' }}>
+                            <button
+                              onClick={() => handleDeleteRow(item._id, item.description)}
+                              disabled={deletingId === item._id}
+                              title="Delete this entry"
+                              style={{
+                                background: 'transparent',
+                                border: 'none',
+                                cursor: 'pointer',
+                                padding: '4px',
+                                borderRadius: 4,
+                                color: deletingId === item._id ? '#64748b' : '#ef4444',
+                                opacity: deletingId === item._id ? 0.5 : 0.6,
+                                transition: 'all 0.15s',
+                              }}
+                              onMouseEnter={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.background = 'rgba(239,68,68,0.12)' }}
+                              onMouseLeave={e => { e.currentTarget.style.opacity = '0.6'; e.currentTarget.style.background = 'transparent' }}
+                            >
+                              {deletingId === item._id ? (
+                                <div className="spinner" style={{ width: 12, height: 12, margin: 0, borderWidth: 1.5 }} />
+                              ) : (
+                                <Trash2 size={12} />
+                              )}
+                            </button>
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              )}
+            </div>
+
+            {/* Activity pagination */}
+            {activityPages > 1 && (
+              <div style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                padding: '8px 14px', borderTop: '1px solid #1e293b',
+                background: '#0b1220', fontSize: 11, color: '#94a3b8',
+              }}>
+                <span>Page {activityPage} of {activityPages} · {activityTotal} total</span>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <button className="btn btn-ghost" style={{ padding: '4px 8px', fontSize: 11 }}
+                    disabled={activityPage <= 1}
+                    onClick={() => setActivityPage(p => Math.max(1, p - 1))}
+                  >
+                    ← Prev
+                  </button>
+                  <button className="btn btn-ghost" style={{ padding: '4px 8px', fontSize: 11 }}
+                    disabled={activityPage >= activityPages}
+                    onClick={() => setActivityPage(p => Math.min(activityPages, p + 1))}
+                  >
+                    Next →
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         ) : (
           <div style={{

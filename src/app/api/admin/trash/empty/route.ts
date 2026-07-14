@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getAdminFromRequest, isSuperAdmin } from '@/lib/auth'
 import { emptyAllTrash, getTrashCollection } from '@/lib/trash'
 import { deleteAllItemFiles } from '@/lib/cloudinary-delete'
+import { logActivity } from '@/lib/activity-log'
 
 export const dynamic = 'force-dynamic'
 
@@ -35,6 +36,7 @@ export async function DELETE(req: NextRequest) {
 
     const count = await emptyAllTrash({ username: admin.username, role: admin.role })
 
+    logActivity({ event: 'trash_empty', description: `Emptied trash: ${count} item(s) permanently deleted`, username: admin.username, dashboard: 'admin' }).catch(() => {})
     return NextResponse.json({
       message: `Trash emptied. ${count} item(s) permanently deleted.`,
       count,

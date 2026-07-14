@@ -3,6 +3,7 @@ import { ObjectId } from 'mongodb'
 import { getAdminFromRequest, isSuperAdmin, getSubAdminPermissions } from '@/lib/auth'
 import { requirePermission } from '@/lib/permissions'
 import { getDb } from '@/lib/db'
+import { logActivity } from '@/lib/activity-log'
 
 export const dynamic = 'force-dynamic'
 
@@ -99,6 +100,7 @@ export async function POST(req: NextRequest) {
       createdAt: new Date(),
     }
     const result = await coupons.insertOne(doc)
+    logActivity({ event: 'coupon_create', description: `Created coupon: ${code}`, username: admin.username, dashboard: 'admin' }).catch(() => {})
     return NextResponse.json({ success: true, coupon: { ...doc, _id: result.insertedId.toString() } })
   } catch (err: any) {
     return NextResponse.json({ error: err?.message || 'Server error' }, { status: 500 })

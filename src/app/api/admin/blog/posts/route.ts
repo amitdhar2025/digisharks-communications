@@ -5,6 +5,7 @@ import { connectMongoose } from '@/lib/mongoose'
 import BlogPost from '@/lib/models/BlogPost'
 import { softDeleteFromMongoose } from '@/lib/trash'
 import { sanitizePlainTextFields } from '@/lib/sanitize'
+import { logActivity } from '@/lib/activity-log'
 
 export const dynamic = 'force-dynamic'
 
@@ -182,6 +183,7 @@ export async function POST(req: NextRequest) {
       .populate('tags', 'name slug')
       .lean()
 
+    logActivity({ event: 'blog_create', description: `Created blog post: ${postData.title || 'Untitled'} (${slug})`, username: admin.username, dashboard: 'admin', target: slug }).catch(() => {})
     return NextResponse.json({
       post: {
         ...populated,
@@ -231,6 +233,7 @@ export async function DELETE(req: NextRequest) {
       }
     }
 
+    logActivity({ event: 'blog_delete', description: `Deleted ${successCount} blog post(s)`, username: admin.username, dashboard: 'admin' }).catch(() => {})
     return NextResponse.json({
       success: true,
       deleted: successCount,

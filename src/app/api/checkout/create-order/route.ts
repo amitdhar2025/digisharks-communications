@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
     const amountPaise = Math.round(amount * 100)
     const orderNumber = await generateOrderNumber()
 
-    const cfg = getRazorpayConfig()
+    const cfg = await getRazorpayConfig()
     const receipt = orderNumber.replace(/[^A-Za-z0-9_-]/g, '').slice(0, 40)
 
     const rpOrder = await createRazorpayOrder({

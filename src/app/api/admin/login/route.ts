@@ -5,6 +5,7 @@ import { getAdminsCollection, getSubAdminsCollection, getLoginLogsCollection } f
 import { ensureAdminExists } from '@/lib/admin-seed'
 import logger, { logAuthEvent } from '@/lib/logger'
 import { getClientIp } from '@/lib/rateLimit'
+import { logActivity } from '@/lib/activity-log'
 
 export const dynamic = 'force-dynamic'
 
@@ -124,6 +125,7 @@ export async function POST(req: NextRequest) {
       const token = signSubAdminToken(subAdmin.username, String(subAdmin._id))
       await setAdminCookie(token)
       logAuthEvent('login', subAdmin.username, ip, { role: 'sub-admin' })
+      logActivity({ event: 'login', description: `Sub-admin logged in: ${subAdmin.username}`, username: subAdmin.username, dashboard: 'admin', ip }).catch(() => {})
       return NextResponse.json({
         success: true,
         username: subAdmin.username,
@@ -167,6 +169,7 @@ export async function POST(req: NextRequest) {
       const token = signAdminToken(admin.username)
       await setAdminCookie(token)
       logAuthEvent('login', admin.username, ip, { method: 'database' })
+      logActivity({ event: 'login', description: `Admin logged in: ${admin.username}`, username: admin.username, dashboard: 'admin', ip }).catch(() => {})
       return NextResponse.json({
         success: true,
         username: admin.username,
@@ -195,6 +198,7 @@ export async function POST(req: NextRequest) {
       const token = signAdminToken(envUser)
       await setAdminCookie(token)
       logAuthEvent('login', envUser, ip, { method: 'env_fallback' })
+      logActivity({ event: 'login', description: `Admin logged in (env fallback): ${envUser}`, username: envUser, dashboard: 'admin', ip }).catch(() => {})
       return NextResponse.json({
         success: true,
         username: envUser,

@@ -27,7 +27,9 @@ import {
   CheckSquare,
   AlertCircle,
   Bug,
+  Users,
 } from 'lucide-react'
+import ActivitySummaryWidget from '@/components/admin/ActivitySummaryWidget'
 
 export default function CMSDashboardPage() {
   const [stats, setStats] = useState({ total: 0, withContent: 0, withoutContent: 0 })
@@ -82,6 +84,7 @@ export default function CMSDashboardPage() {
     { title: 'Navigation Menus', description: 'Customize alert bar, main nav & sub-menus', href: '/content/admin/menus', icon: <MenuIcon size={22} />, color: '#06b6d4' },
     { title: 'Debug & Errors', description: 'View error logs and system diagnostics', href: '/content/admin/debug', icon: <Bug size={22} />, color: '#f59e0b' },
     { title: 'Change Username', description: 'Update your CMS admin account username', href: '/content/admin/change-username', icon: <Edit3 size={22} />, color: '#eab308' },
+    { title: 'Registrations', description: 'View and manage public registration entries', href: '/content/admin/registered', icon: <Users size={22} />, color: '#22c55e' },
   ]
 
   // ── Loading skeleton ─────────────────────────────────────────────────
@@ -151,6 +154,9 @@ export default function CMSDashboardPage() {
           ))}
         </div>
       </div>
+
+      {/* ── RECENT ACTIVITY ── */}
+      <ActivitySummaryWidget debugLink="/content/admin/debug" />
 
       {/* ── QUICK ACCESS ─────────────────────────────────────────────── */}
       <div className="mb-6">

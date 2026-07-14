@@ -4,6 +4,7 @@ import { requirePermission } from '@/lib/permissions'
 import { connectMongoose } from '@/lib/mongoose'
 import SeoAudit from '@/lib/models/SeoAudit'
 import { softDeleteFromMongoose } from '@/lib/trash'
+import { logActivity } from '@/lib/activity-log'
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const admin = getAdminFromRequest(req)
@@ -30,6 +31,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
       (doc) => (doc as any)?.url || id,
     )
 
+    logActivity({ event: 'seo_audit_delete', description: `Deleted SEO audit: ${id}`, username: admin.username, dashboard: 'admin', target: id }).catch(() => {})
     return NextResponse.json({ success: true, message: 'Audit moved to trash.' })
   } catch (err: any) {
     console.error('DELETE /api/admin/seo-audit/[id] error:', err)

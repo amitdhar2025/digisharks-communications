@@ -9,6 +9,7 @@ import { NextResponse } from 'next/server'
 import MenuItem from '@/models/MenuItem'
 import { connectCMSDb } from '@/lib/db-cms'
 import { getCMSAdminFromCookies } from '@/lib/auth-cms'
+import { logActivity } from '@/lib/activity-log'
 
 export const dynamic = 'force-dynamic'
 
@@ -52,6 +53,7 @@ export async function PUT(req, { params }) {
       )
     }
 
+    logActivity({ event: 'menu_update', description: `Updated menu item: ${updated.label}`, username: admin.username, dashboard: 'cms', target: updated.type }).catch(() => {})
     return NextResponse.json({ item: updated })
   } catch (err) {
     console.error('[cms] PUT /api/content/admin/menus/[id] error:', err)
@@ -82,6 +84,7 @@ export async function DELETE(req, { params }) {
       )
     }
 
+    logActivity({ event: 'menu_delete', description: `Deleted menu item: ${deleted.label} (${deleted.type})`, username: admin.username, dashboard: 'cms', target: deleted.type }).catch(() => {})
     return NextResponse.json({ success: true })
   } catch (err) {
     console.error('[cms] DELETE /api/content/admin/menus/[id] error:', err)

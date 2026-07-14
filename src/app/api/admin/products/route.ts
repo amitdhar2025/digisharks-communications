@@ -9,7 +9,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getAdminFromRequest, isSuperAdmin, getSubAdminPermissions } from '@/lib/auth'
 import { requirePermission } from '@/lib/permissions'
 import { getProductsCollection } from '@/lib/products'
+import { softDeleteFromNative } from '@/lib/trash'
 import slugify from 'slugify'
+import { logActivity } from '@/lib/activity-log'
 
 export const dynamic = 'force-dynamic'
 
@@ -72,6 +74,54 @@ export async function GET(req: NextRequest) {
   } catch (err) {
     console.error('GET /api/admin/products error:', err)
     return NextResponse.json({ error: 'Failed to load products' }, { status: 500 })
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  const admin = getAdminFromRequest(req)
+  if (!admin) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+  if (!isSuperAdmin(admin)) {
+    const subPerms = admin.subAdminId ? await getSubAdminPermissions(admin.subAdminId) : null
+    const denied = await requirePermission(admin, 'products', 'delete', subPerms)
+    if (denied) return denied
+  }
+
+  try {
+    const products = await getProductsCollection()
+    const allProducts = await products.find({}).project({ _id: 1, title: 1 }).toArray()
+
+    if (allProducts.length === 0) {
+      return NextResponse.json({ success: true, message: 'No products to delete.' })
+    }
+
+    const adminInfo = { username: admin.username, role: (isSuperAdmin(admin) ? 'admin' : 'sub-admin') as 'admin' | 'sub-admin' }
+    let deletedCount = 0
+
+    for (const product of allProducts) {
+      try {
+        await softDeleteFromNative(
+          'products',
+          'products',
+          product._id,
+          adminInfo,
+          (doc) => (doc as any).title || 'Product',
+        )
+        deletedCount++
+      } catch (err) {
+        console.error(`Failed to soft-delete product ${product._id}:`, err)
+      }
+    }
+
+    logActivity({ event: 'product_delete', description: `Deleted ${deletedCount} product(s)`, username: admin.username, dashboard: 'admin' }).catch(() => {})
+    return NextResponse.json({
+      success: true,
+      message: `${deletedCount} product(s) moved to trash.`,
+    })
+  } catch (err) {
+    console.error('DELETE /api/admin/products error:', err)
+    return NextResponse.json({ error: 'Failed to delete products' }, { status: 500 })
   }
 }
 
@@ -148,6 +198,7 @@ export async function POST(req: NextRequest) {
 
     const result = await products.insertOne(doc as any)
 
+    logActivity({ event: 'product_create', description: `Created product: ${title}`, username: admin.username, dashboard: 'admin' }).catch(() => {})
     return NextResponse.json({
       success: true,
       item: { ...doc, _id: String(result.insertedId) },

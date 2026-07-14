@@ -3,6 +3,7 @@ import { ObjectId } from 'mongodb'
 import { getAdminFromRequest, isSuperAdmin, getSubAdminPermissions } from '@/lib/auth'
 import { requirePermission } from '@/lib/permissions'
 import { getOrdersCollection } from '@/lib/products'
+import { logActivity } from '@/lib/activity-log'
 
 export const dynamic = 'force-dynamic'
 
@@ -60,6 +61,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     if (!res) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
+    logActivity({ event: 'order_status_change', description: `Updated order ${id} status to ${body.deliveryStatus || 'changed'}`, username: admin.username, dashboard: 'admin', target: id }).catch(() => {})
     return NextResponse.json({
       success: true,
       deliveryStatus: res.deliveryStatus,

@@ -9,6 +9,7 @@ import { NextResponse } from 'next/server'
 import MenuItem from '@/models/MenuItem'
 import { connectCMSDb } from '@/lib/db-cms'
 import { getCMSAdminFromCookies } from '@/lib/auth-cms'
+import { logActivity } from '@/lib/activity-log'
 
 export const dynamic = 'force-dynamic'
 
@@ -77,7 +78,7 @@ export async function POST(req) {
       body.order = (lastItem?.order ?? -1) + 1
     }
 
-    const item = await MenuItem.create({
+    const item =    await MenuItem.create({
       type: body.type,
       label: body.label.trim(),
       href: body.href.trim(),
@@ -85,6 +86,8 @@ export async function POST(req) {
       isActive: body.isActive !== false,
       icon: body.icon || '',
     })
+
+    logActivity({ event: 'menu_create', description: `Created menu item: ${body.label} (${body.type})`, username: admin.username, dashboard: 'cms', target: body.type }).catch(() => {})
 
     return NextResponse.json({ item }, { status: 201 })
   } catch (err) {

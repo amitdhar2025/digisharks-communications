@@ -27,10 +27,11 @@ const DEFAULT_CONTENT = {
   ctaSecondaryCta: { text: 'View Pricing', href: '/services-top-pr-digital-marketing/' },
 }
 
-const siteUrl = "https://digisharks-communications.vercel.app/digital-marketing-agency/";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.digisharkscommunications.com'
+const siteUrl = `${SITE_URL}/digital-marketing-agency/`;
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://digisharks-communications.vercel.app/"),
+  metadataBase: new URL(SITE_URL + '/'),
   title: "Digital Marketing Agency in India | SEO, Google Ads & PPC | Digisharks",
   description:
     "Get instant growth results for your business. As a leading digital marketing agency, we deliver SEO, Google Ads, web design, content marketing, and more.",

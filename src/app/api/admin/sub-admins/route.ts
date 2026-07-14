@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs'
 import { getAdminFromRequest, isSuperAdmin, DEFAULT_SUBADMIN_PERMISSIONS } from '@/lib/auth'
 import { getSubAdminsCollection, SubAdminPermissions } from '@/lib/db'
 import { deepMergePermissions } from '@/lib/permissions'
+import { logActivity } from '@/lib/activity-log'
 
 export const dynamic = 'force-dynamic'
 
@@ -46,6 +47,7 @@ export async function DELETE(req: NextRequest) {
       }
     }
 
+    logActivity({ event: 'subadmin_delete', description: `Deleted ${deletedCount} sub-admin(s)`, username: admin.username, dashboard: 'admin' }).catch(() => {})
     return NextResponse.json({
       success: true,
       deletedCount,
@@ -147,6 +149,7 @@ export async function POST(req: NextRequest) {
 
     const result = await col.insertOne(doc)
 
+    logActivity({ event: 'subadmin_create', description: `Created sub-admin: ${doc.username}`, username: admin.username, dashboard: 'admin' }).catch(() => {})
     return NextResponse.json({
       success: true,
       item: {

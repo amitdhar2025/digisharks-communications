@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getAdminFromRequest } from '@/lib/auth'
 import connectMongoose from '@/lib/mongoose'
 import SeoAuditConfig from '@/lib/models/SeoAuditConfig'
+import { logActivity } from '@/lib/activity-log'
 
 export async function GET(req: NextRequest) {
   const admin = getAdminFromRequest(req)
@@ -62,6 +63,7 @@ export async function PUT(req: NextRequest) {
       { upsert: true, new: true, runValidators: true }
     ).lean()
 
+    logActivity({ event: 'seo_audit_config_update', description: 'Updated SEO audit configuration', username: admin.username, dashboard: 'admin' }).catch(() => {})
     return NextResponse.json({
       success: true,
       config: {

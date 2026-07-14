@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminFromRequest } from '@/lib/auth'
 import { getSecuritySettings, saveSecuritySettings } from '@/lib/anti-spam'
+import { logActivity } from '@/lib/activity-log'
 
 export const dynamic = 'force-dynamic'
 
@@ -47,6 +48,7 @@ export async function POST(req: NextRequest) {
     }
 
     const settings = await saveSecuritySettings(updates)
+    logActivity({ event: 'security_settings_update', description: `Updated security settings (${Object.keys(updates).length} fields)`, username: admin.username, dashboard: 'admin' }).catch(() => {})
     return NextResponse.json({ success: true, settings })
   } catch (err) {
     console.error('POST /api/admin/security/settings error', err)

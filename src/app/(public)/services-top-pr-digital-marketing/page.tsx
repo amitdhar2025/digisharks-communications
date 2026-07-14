@@ -34,10 +34,11 @@ const DEFAULT_CONTENT = {
   ctaSecondaryCta: { text: 'Talk to an Expert', href: '#' },
 }
 
-const siteUrl = "https://digisharks-communications.vercel.app/services-top-pr-digital-marketing/";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.digisharkscommunications.com'
+const siteUrl = `${SITE_URL}/services-top-pr-digital-marketing/`;
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://digisharks-communications.vercel.app/"),
+  metadataBase: new URL(SITE_URL + '/'),
   title: "Services & Pricing | Top PR & Digital Marketing Agency | Digisharks",
   description:
     "Transparent pricing for Press Release, Web Design, Online Marketing, Events Management, Brand Promotions & Social Media Marketing. Top PR and digital marketing services from Digisharks Communications.",

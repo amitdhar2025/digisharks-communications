@@ -7,6 +7,7 @@ import CareerApplication from '@/lib/models/CareerApplication'
 import mongoose from 'mongoose'
 import slugify from 'slugify'
 import { softDeleteFromMongoose } from '@/lib/trash'
+import { logActivity } from '@/lib/activity-log'
 
 export const dynamic = 'force-dynamic'
 
@@ -97,6 +98,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Job not found' }, { status: 404 })
     }
 
+    logActivity({ event: 'job_update', description: `Updated job: ${job?.title || id}`, username: admin.username, dashboard: 'admin', target: id }).catch(() => {})
     return NextResponse.json({
       job: {
         ...job,
@@ -162,6 +164,7 @@ export async function DELETE(
       } catch { /* ignore individual failures */ }
     }
 
+    logActivity({ event: 'job_delete', description: `Deleted job: ${job?.title || id}`, username: admin.username, dashboard: 'admin', target: id }).catch(() => {})
     return NextResponse.json({ success: true, deletedApplications: true, message: 'Job and applications moved to trash.' })
   } catch (err) {
     console.error('DELETE /api/admin/career/jobs/[id] error', err)

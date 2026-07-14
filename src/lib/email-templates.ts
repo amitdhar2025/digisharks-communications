@@ -1,7 +1,7 @@
 // Branded HTML email templates for Digisharks Communications.
 // Uses String.fromCharCode-based entity construction to avoid HTML stripping.
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://digisharks-communications.vercel.app'
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.digisharkscommunications.com'
 const FROM_NAME = 'Digisharks Communications'
 const LOGO_URL = SITE_URL + '/Digis.png'
 
@@ -375,7 +375,7 @@ export function buildAdminNewApplicationEmail(info: AdminNewApplicationInfo, leg
   const categorySafe = escapeHtml(info.jobCategory || '—')
   const locationSafe = escapeHtml(info.jobLocation || '—')
   const coverHtml = info.coverLetter ? escapeHtml(info.coverLetter).replace(/\n/g, '<br>') : '—'
-  const adminUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://digisharks-communications.vercel.app') + '/admin/career'
+  const adminUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://www.digisharkscommunications.com') + '/admin/career'
 
   const body =
     header('New Job Application Received') +
@@ -419,7 +419,7 @@ export function buildAdminStatusChangeEmail(info: AdminStatusChangeInfo, legalUr
   const oldStatusLabel = escapeHtml(info.oldStatus || '—').replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
   const newStatusLabel = escapeHtml(info.newStatus || '—').replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
   const notesSafe = info.adminNotes ? escapeHtml(info.adminNotes).replace(/\n/g, '<br>') : '—'
-  const adminUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://digisharks-communications.vercel.app') + '/admin/career'
+  const adminUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://www.digisharkscommunications.com') + '/admin/career'
 
   const body =
     header('Application Status Updated') +

@@ -39,6 +39,7 @@ import {
 } from 'lucide-react'
 import TrashDashboardSection from '@/components/admin/TrashDashboardSection'
 import CacheClearBox from '@/components/admin/CacheClearBox'
+import ActivitySummaryWidget from '@/components/admin/ActivitySummaryWidget'
 
 /* ── Types ────────────────────────────────────────────── */
 
@@ -432,6 +433,9 @@ export default function DashboardPage() {
             </div>
           </div>
         ))}
+
+        {/* ── RECENT ACTIVITY ── */}
+        <ActivitySummaryWidget debugLink="/admin/debug" />
 
         {/* ── SECTIONS WITH NAVIGATION CARDS ── */}
         {SECTIONS.map((section) => (

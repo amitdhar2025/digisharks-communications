@@ -17,6 +17,7 @@ import bcrypt from 'bcryptjs'
 import AdminUser from '@/models/AdminUser'
 import { connectCMSDb } from '@/lib/db-cms'
 import { signCMSToken, setCMSCookie } from '@/lib/auth-cms'
+import { logActivity } from '@/lib/activity-log'
 
 export const dynamic = 'force-dynamic'
 
@@ -97,6 +98,7 @@ export async function POST(req) {
       if (envUser && envPass && envUser === user.toLowerCase() && envPass === pwd) {
         const token = signCMSToken(envUser)
         await setCMSCookie(token)
+        logActivity({ event: 'login', description: `CMS admin logged in (env fallback): ${envUser}`, username: envUser, dashboard: 'cms' }).catch(() => {})
         return NextResponse.json({
           success: true,
           username: envUser,
@@ -125,6 +127,7 @@ export async function POST(req) {
     const token = signCMSToken(admin.username)
     await setCMSCookie(token)
 
+    logActivity({ event: 'login', description: `CMS admin logged in: ${admin.username}`, username: admin.username, dashboard: 'cms' }).catch(() => {})
     return NextResponse.json({
       success: true,
       username: admin.username,

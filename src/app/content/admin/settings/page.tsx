@@ -129,10 +129,17 @@ const FIELD_SECTIONS: SettingsSection[] = [
     ],
   },
   {
-    label: 'Social Media Links',
+    label: 'Header Social Icons',
     icon: '🌐',
     fields: [
-      { key: 'socialLinks', label: 'Social Media Links', type: 'socialLinks' },
+      { key: 'headerSocialLinks', label: 'Header Social Icons', type: 'socialLinks' },
+    ],
+  },
+  {
+    label: 'Footer Social Icons',
+    icon: '🔗',
+    fields: [
+      { key: 'footerSocialLinks', label: 'Footer Social Icons', type: 'socialLinks' },
     ],
   },
   {
@@ -410,12 +417,14 @@ export default function SettingsPage() {
     }
 
     if (field.type === 'socialLinks') {
-      const links: SocialLink[] = settings.socialLinks || []
+      const links: SocialLink[] = settings[field.key] || []
       return (
         <div key={field.key} className={fieldClass}>
           <label className={LABEL_CLASS}>{field.label}</label>
           <p className="text-xs text-slate-500 mb-3">
-            Manage social media links. Add platforms, update URLs, and reorder. These appear in the header (SVG icons) and footer (emoji icons).
+            {field.key === 'headerSocialLinks'
+              ? 'Manage social links shown in the site header (SVG icons).'
+              : 'Manage social links shown in the site footer (emoji icons).'}
           </p>
           {links.map((link, li) => (
             <div key={li} className="bg-slate-900/50 border border-slate-700 rounded-lg p-3.5 mb-3">
@@ -430,7 +439,7 @@ export default function SettingsPage() {
                         const temp = n[li]
                         n[li] = n[li - 1]
                         n[li - 1] = temp
-                        handleChange('socialLinks', n)
+                        handleChange(field.key, n)
                       }
                     }}
                     disabled={li === 0}
@@ -446,7 +455,7 @@ export default function SettingsPage() {
                         const temp = n[li]
                         n[li] = n[li + 1]
                         n[li + 1] = temp
-                        handleChange('socialLinks', n)
+                        handleChange(field.key, n)
                       }
                     }}
                     disabled={li === links.length - 1}
@@ -462,7 +471,7 @@ export default function SettingsPage() {
                   onClick={() => {
                     const n = [...links]
                     n.splice(li, 1)
-                    handleChange('socialLinks', n)
+                    handleChange(field.key, n)
                   }}
                 >
                   <X size={13} />
@@ -475,7 +484,7 @@ export default function SettingsPage() {
                     const selected = KNOWN_PLATFORMS_LIST.find(p => p.platform === e.target.value)
                     const n = [...links]
                     n[li] = { ...n[li], platform: e.target.value, label: selected?.label || e.target.value, iconEmoji: selected?.iconEmoji || '🔗' }
-                    handleChange('socialLinks', n)
+                    handleChange(field.key, n)
                   }}
                   className="flex-1 bg-slate-900/70 border border-slate-600/60 rounded px-2 py-1.5 text-xs text-slate-200 placeholder-slate-500 outline-none focus:border-sky-500"
                 >
@@ -494,7 +503,7 @@ export default function SettingsPage() {
                   onChange={(e) => {
                     const n = [...links]
                     n[li] = { ...n[li], label: e.target.value }
-                    handleChange('socialLinks', n)
+                    handleChange(field.key, n)
                   }}
                   className="flex-1 bg-slate-900/70 border border-slate-600/60 rounded px-2 py-1.5 text-xs text-slate-200 placeholder-slate-500 outline-none focus:border-sky-500"
                 />
@@ -505,8 +514,8 @@ export default function SettingsPage() {
                   onChange={(e) => {
                     const n = [...links]
                     n[li] = { ...n[li], url: e.target.value }
-                    handleChange('socialLinks', n)
-                  }}
+                    handleChange(field.key, n)}
+                  }
                   className="flex-[2] bg-slate-900/70 border border-slate-600/60 rounded px-2 py-1.5 text-xs text-slate-200 placeholder-slate-500 outline-none focus:border-sky-500"
                 />
               </div>
@@ -520,31 +529,31 @@ export default function SettingsPage() {
                     onChange={(e) => {
                       const n = [...links]
                       n[li] = { ...n[li], iconSvg: e.target.value }
-                      handleChange('socialLinks', n)
+                      handleChange(field.key, n)
                     }}
                     className="flex-1 bg-slate-900/70 border border-slate-600/60 rounded px-2 py-1.5 text-xs text-slate-200 placeholder-slate-500 outline-none focus:border-sky-500"
                   />
                   <input
                     type="text"
-                    placeholder="Emoji (for footer)"
+                    placeholder="Emoji"
                     value={link.iconEmoji || ''}
                     onChange={(e) => {
                       const n = [...links]
                       n[li] = { ...n[li], iconEmoji: e.target.value }
-                      handleChange('socialLinks', n)
-                    }}
-                    className="w-16 bg-slate-900/70 border border-slate-600/60 rounded px-2 py-1.5 text-xs text-slate-200 placeholder-slate-500 outline-none focus:border-sky-500"
-                  />
-                </div>
-              )}
-            </div>
-          ))}
-          <button
-            type="button"
-            className="text-xs text-sky-400 hover:text-sky-300 transition-colors flex items-center gap-1"
-            onClick={() => {
-              const n = [...links, { platform: '', label: '', url: '', iconSvg: '', iconEmoji: '🔗' }]
-              handleChange('socialLinks', n)
+                    handleChange(field.key, n)
+                  }}
+                  className="w-16 bg-slate-900/70 border border-slate-600/60 rounded px-2 py-1.5 text-xs text-slate-200 placeholder-slate-500 outline-none focus:border-sky-500"
+                />
+              </div>
+            )}
+          </div>
+        ))}
+        <button
+          type="button"
+          className="text-xs text-sky-400 hover:text-sky-300 transition-colors flex items-center gap-1"
+          onClick={() => {
+            const n = [...links, { platform: '', label: '', url: '', iconSvg: '', iconEmoji: '🔗' }]
+            handleChange(field.key, n)
             }}
           >
             <Plus size={11} /> Add Social Link

@@ -3,6 +3,7 @@ import { ObjectId } from 'mongodb'
 import { getAdminFromRequest, isSuperAdmin, getSubAdminPermissions } from '@/lib/auth'
 import { requirePermission } from '@/lib/permissions'
 import { getDb } from '@/lib/db'
+import { logActivity } from '@/lib/activity-log'
 
 export const dynamic = 'force-dynamic'
 
@@ -52,6 +53,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     )
     if (!res) return NextResponse.json({ error: 'Coupon not found' }, { status: 404 })
 
+    logActivity({ event: 'coupon_update', description: `Updated coupon: ${id}`, username: admin.username, dashboard: 'admin', target: id }).catch(() => {})
     return NextResponse.json({ success: true, coupon: { ...res, _id: res._id.toString() } })
   } catch (err: any) {
     return NextResponse.json({ error: err?.message || 'Server error' }, { status: 500 })
@@ -82,6 +84,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     if (res.deletedCount === 0) {
       return NextResponse.json({ error: 'Coupon not found' }, { status: 404 })
     }
+    logActivity({ event: 'coupon_delete', description: `Deleted coupon: ${id}`, username: admin.username, dashboard: 'admin', target: id }).catch(() => {})
     return NextResponse.json({ success: true })
   } catch (err: any) {
     return NextResponse.json({ error: err?.message || 'Server error' }, { status: 500 })

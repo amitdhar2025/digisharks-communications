@@ -12,6 +12,7 @@ import PageContent from '@/models/PageContent'
 import { connectCMSDb } from '@/lib/db-cms'
 import { getCMSAdminFromCookies } from '@/lib/auth-cms'
 import { getPageFields } from '@/lib/page-fields'
+import { logActivity } from '@/lib/activity-log'
 
 export const dynamic = 'force-dynamic'
 
@@ -88,6 +89,15 @@ export async function PUT(req, { params }) {
       },
       { upsert: true, new: true }
     ).lean()
+
+    logActivity({
+      event: 'page_edit',
+      description: `Updated page content: ${pageName} (/${slug})`,
+      username: admin.username,
+      dashboard: 'cms',
+      target: slug,
+      metadata: { pageName },
+    }).catch(() => {})
 
     return NextResponse.json({
       success: true,

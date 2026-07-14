@@ -13,6 +13,7 @@ import AdminUser from '@/models/AdminUser'
 import { connectCMSDb } from '@/lib/db-cms'
 import { getCMSAdminFromCookies, signCMSToken, setCMSCookie } from '@/lib/auth-cms'
 import { sendMail } from '@/lib/mailer'
+import { logActivity } from '@/lib/activity-log'
 
 export const dynamic = 'force-dynamic'
 
@@ -138,6 +139,7 @@ export async function POST(req) {
       })
     }
 
+    logActivity({ event: 'username_change', description: `CMS admin username changed: ${admin.username} → ${trimmedUsername}`, username: admin.username, dashboard: 'cms' }).catch(() => {})
     return NextResponse.json({
       success: true,
       message: 'Username changed successfully. A confirmation email has been sent. Please use your new username next time you log in.',

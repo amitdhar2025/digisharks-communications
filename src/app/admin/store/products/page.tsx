@@ -56,7 +56,7 @@ export default function AdminProductsPage() {
   useEffect(() => { load() }, [load])
 
   async function handleDelete(product: ProductItem) {
-    if (!confirm(`Delete "${product.title}"? This cannot be undone.`)) return
+    if (!confirm(`Move "${product.title}" to trash? You can restore it later from the Trash section.`)) return
     setBusy(true)
     try {
       const res = await fetch(`/api/admin/products/${product._id}`, {
@@ -65,7 +65,27 @@ export default function AdminProductsPage() {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Delete failed')
-      setToast({ kind: 'success', text: 'Product deleted.' })
+      setToast({ kind: 'success', text: data.message || 'Product moved to trash.' })
+      load()
+    } catch (e: any) {
+      setError(e.message)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function handleDeleteAll() {
+    if (!confirm('Move ALL products to trash?')) return
+    if (!confirm('⚠️ Are you sure? All products will be moved to the trash. You can restore them later from the Trash section.')) return
+    setBusy(true)
+    try {
+      const res = await fetch('/api/admin/products', {
+        method: 'DELETE',
+        credentials: 'include',
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Delete all failed')
+      setToast({ kind: 'success', text: data.message || 'All products moved to trash.' })
       load()
     } catch (e: any) {
       setError(e.message)
@@ -84,6 +104,11 @@ export default function AdminProductsPage() {
           <div className="cell-actions">
             <Link href="/admin/store/products/add" className="btn btn-primary">＋ Add Product</Link>
             <button className="btn btn-ghost" onClick={load}>↻ Refresh</button>
+            {items.length > 0 && (
+              <button className="btn btn-danger" onClick={handleDeleteAll} disabled={busy}>
+                🗑 Delete All
+              </button>
+            )}
           </div>
         </div>
 
@@ -154,7 +179,7 @@ export default function AdminProductsPage() {
                       <div className="cell-actions">
                         <Link href={`/admin/store/products/${product._id}/edit`} className="icon-btn">✏ Edit</Link>
                         <Link href={`/digital-products/${product.slug}`} target="_blank" className="icon-btn">👁 View</Link>
-                        <button className="icon-btn danger" onClick={() => handleDelete(product)} disabled={busy}>🗑 Delete</button>
+                        <button className="icon-btn danger" onClick={() => handleDelete(product)} disabled={busy}>🗑 Trash</button>
                       </div>
                     </td>
                   </tr>

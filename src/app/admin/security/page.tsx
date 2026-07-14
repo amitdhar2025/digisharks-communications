@@ -74,6 +74,7 @@ const FORM_LABELS: Record<string, string> = {
   checkout: 'Checkout',
   career: 'Career',
   chatbot: 'Chatbot',
+  registration: 'Registration',
 }
 
 const COUNTRY_FLAGS: Record<string, string> = {
@@ -910,6 +911,7 @@ export default function SecurityPage() {
                   <div>💳 Checkout: <strong style={{ color: '#7dd3fc' }}>10</strong> / min</div>
                   <div>💼 Career: <strong style={{ color: '#7dd3fc' }}>3</strong> / hour</div>
                   <div>🤖 Chatbot: <strong style={{ color: '#7dd3fc' }}>20</strong> / min</div>
+                  <div>📝 Registration: <strong style={{ color: '#7dd3fc' }}>3</strong> / 10 min</div>
                 </div>
               </div>
             </div>

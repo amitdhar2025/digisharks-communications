@@ -19,8 +19,10 @@ import {
   LogOut,
   Menu,
   Settings,
+  PenTool,
   Bug,
   Zap,
+  Users,
   type LucideIcon,
 } from 'lucide-react'
 import MaintenanceBanner from '@/components/MaintenanceBanner'
@@ -117,6 +119,8 @@ export default function CMSAdminLayout({ children }: { children: React.ReactNode
           <NavLink href="/content/admin/pages" icon={FileEdit} label="Pages" onClick={closeSidebar} />
           <NavLink href="/content/admin/menus" icon={Menu} label="Menus" onClick={closeSidebar} />
           <NavLink href="/content/admin/settings" icon={Settings} label="Settings" onClick={closeSidebar} />
+          <NavLink href="/content/admin/registered" icon={Users} label="Registrations" onClick={closeSidebar} />
+          <NavLink href="/content/admin/registration-form-builder" icon={PenTool} label="Form Builder" onClick={closeSidebar} />
         </nav>
 
         {/* Change Password */}

@@ -4,6 +4,7 @@ import { getAdminFromRequest, isSuperAdmin, getSubAdminPermissions } from '@/lib
 import { requirePermission } from '@/lib/permissions'
 import { getOrdersCollection } from '@/lib/products'
 import { softDeleteFromNative } from '@/lib/trash'
+import { logActivity } from '@/lib/activity-log'
 
 export const dynamic = 'force-dynamic'
 
@@ -39,6 +40,7 @@ export async function DELETE(
       (doc) => `Order #${(doc as any)?.orderNumber || id}`,
     )
 
+    logActivity({ event: 'order_delete', description: `Deleted order: ${id}`, username: admin.username, dashboard: 'admin', target: id }).catch(() => {})
     return NextResponse.json({ success: true, message: 'Order moved to trash.' })
   } catch (err: any) {
     console.error('DELETE /api/admin/orders/[id] error', err)

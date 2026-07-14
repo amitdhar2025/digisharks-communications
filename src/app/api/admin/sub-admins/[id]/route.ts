@@ -5,6 +5,7 @@ import { getAdminFromRequest, isSuperAdmin, DEFAULT_SUBADMIN_PERMISSIONS } from 
 import { getSubAdminsCollection, SubAdminPermissions } from '@/lib/db'
 import { deepMergePermissions } from '@/lib/permissions'
 import { softDeleteFromNative } from '@/lib/trash'
+import { logActivity } from '@/lib/activity-log'
 
 export const dynamic = 'force-dynamic'
 
@@ -125,6 +126,7 @@ export async function PUT(
 
     const updated = await col.findOne({ _id: new ObjectId(id) })
 
+    logActivity({ event: 'subadmin_update', description: `Updated sub-admin: ${updated?.username || id}`, username: admin.username, dashboard: 'admin' }).catch(() => {})
     return NextResponse.json({
       success: true,
       item: {
@@ -172,6 +174,7 @@ export async function DELETE(
       (doc) => (doc as any)?.username || id,
     )
 
+    logActivity({ event: 'subadmin_delete', description: `Deleted sub-admin: ${id}`, username: admin.username, dashboard: 'admin' }).catch(() => {})
     return NextResponse.json({ success: true, message: 'Sub-admin moved to trash.' })
   } catch (err) {
     console.error('DELETE /api/admin/sub-admins/[id] error', err)

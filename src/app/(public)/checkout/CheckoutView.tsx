@@ -571,7 +571,6 @@ function CoStyles() {
         margin: 0 0 1.25rem;
         color: #1a1a1a !important;
         padding-bottom: 1rem;
-        border-bottom: 1px solid #ededed;
       }
 
       .co-grid {

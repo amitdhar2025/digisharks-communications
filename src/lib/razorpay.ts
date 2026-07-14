@@ -13,6 +13,7 @@
  * build.
  */
 import crypto from 'crypto'
+import { getDb } from './db'
 
 export interface RazorpayOrder {
   id: string
@@ -29,10 +30,32 @@ export interface RazorpayConfig {
   mode: 'live' | 'test' | 'sandbox'
 }
 
-export function getRazorpayConfig(): RazorpayConfig {
-  // Trim whitespace and newlines — a leading/trailing space from a
-  // copy-paste in `.env.local` is one of the most common causes of the
-  // "Razorpay authentication failed (401)" error.
+/**
+ * Read Razorpay credentials from multiple sources in priority order:
+ * 1. MongoDB payment_settings collection (saved via Payment Settings UI)
+ * 2. Environment variables RAZORPAY_KEY_ID / RAZORPAY_KEY_SECRET
+ *
+ * This ensures keys saved through the admin Payment Settings page
+ * actually take effect, not just env vars.
+ */
+export async function getRazorpayConfig(): Promise<RazorpayConfig> {
+  // Try MongoDB first (payment settings saved via UI)
+  try {
+    const db = await getDb()
+    const settingsDoc = await db.collection('payment_settings').findOne({ _id: 'global' as any })
+    if (settingsDoc?.razorpayKeyId && settingsDoc?.razorpayKeySecret) {
+      const keyId = String(settingsDoc.razorpayKeyId).trim()
+      const keySecret = String(settingsDoc.razorpayKeySecret).trim()
+      if (keyId && keySecret) {
+        const mode: 'live' | 'test' = keyId.startsWith('rzp_test_') ? 'test' : 'live'
+        return { keyId, keySecret, mode }
+      }
+    }
+  } catch {
+    // DB unavailable — fall through to env vars
+  }
+
+  // Fall back to environment variables
   const rawId = process.env.RAZORPAY_KEY_ID
   const rawSecret = process.env.RAZORPAY_KEY_SECRET
   const keyId = rawId?.trim() ?? ''
@@ -54,7 +77,7 @@ export async function createRazorpayOrder(args: {
   receipt: string
   notes?: Record<string, string>
 }): Promise<RazorpayOrder> {
-  const cfg = getRazorpayConfig()
+  const cfg = await getRazorpayConfig()
   if (cfg.mode === 'sandbox') {
     return {
       id: `rzp_sandbox_${args.receipt}`,
@@ -118,12 +141,12 @@ export async function createRazorpayOrder(args: {
  * Verify the signature Razorpay sends back from the browser.
  * Signature = HMAC_SHA256(orderId + "|" + paymentId, keySecret)
  */
-export function verifyRazorpaySignature(args: {
+export async function verifyRazorpaySignature(args: {
   orderId: string
   paymentId: string
   signature: string
-}): boolean {
-  const cfg = getRazorpayConfig()
+}): Promise<boolean> {
+  const cfg = await getRazorpayConfig()
 
   // Sandbox/test mode: accept a magic payload so the flow is
   // demoable without real keys.

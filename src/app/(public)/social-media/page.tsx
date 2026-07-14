@@ -34,10 +34,11 @@ const DEFAULT_CONTENT = {
   ctaSecondaryCta: { text: 'View Pricing', href: '/services-top-pr-digital-marketing/' },
 }
 
-const siteUrl = "https://digisharks-communications.vercel.app/social-media/";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.digisharkscommunications.com'
+const siteUrl = `${SITE_URL}/social-media/`;
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://digisharks-communications.vercel.app/"),
+  metadataBase: new URL(SITE_URL + '/'),
   title: "Social Media Marketing Agency | Digisharks Communications",
   description:
     "Get instant growth results for your business with our Social Media Experts. Strategy, content, ads, and community management for measurable ROI.",

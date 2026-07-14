@@ -24,6 +24,7 @@ export const SECTION_TO_COLLECTION: Record<string, string> = {
   chatbotqa: 'chatbotqas',
   loginlogs: 'login_logs',
   securityattacks: 'security_attacks',
+  products: 'products',
 }
 
 /**
@@ -41,6 +42,7 @@ export const SECTION_LABELS: Record<string, string> = {
   loginlogs: 'Login Logs',
   securityattacks: 'Security Attacks',
   chatbotqa: 'Chatbot Q&A',
+  products: 'Store Products',
 }
 
 /**

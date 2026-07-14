@@ -6,6 +6,8 @@ import RobotsSettings from '@/lib/models/RobotsSettings'
 
 export const dynamic = 'force-dynamic'
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.digisharkscommunications.com'
+
 const DEFAULT_ROBOTS = `User-agent: *
 Allow: /
 Disallow: /admin/
@@ -14,7 +16,7 @@ Disallow: /checkout/
 Disallow: /cart/
 Disallow: /order-success/
 Disallow: /_next/
-Sitemap: https://www.digisharkscommunications.com/sitemap.xml
+Sitemap: ${SITE_URL}/sitemap.xml
 `
 
 export async function GET() {

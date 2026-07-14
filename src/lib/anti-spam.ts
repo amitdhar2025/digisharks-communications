@@ -49,6 +49,7 @@ export interface SecuritySettings {
     checkout: { max: number; windowMs: number }
     career: { max: number; windowMs: number }
     chatbot: { max: number; windowMs: number }
+    registration: { max: number; windowMs: number }
   }
   updatedAt: Date
 }
@@ -132,6 +133,7 @@ const DEFAULT_SETTINGS: SecuritySettings = {
     checkout: { max: 10, windowMs: 60 * 1000 },           // 10 per min
     career: { max: 3, windowMs: 60 * 60 * 1000 },         // 3 per hour
     chatbot: { max: 20, windowMs: 60 * 1000 },            // 20 per min
+    registration: { max: 3, windowMs: 10 * 60 * 1000 },   // 3 per 10 min
   },
   updatedAt: new Date(),
 }

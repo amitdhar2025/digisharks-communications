@@ -9,6 +9,7 @@ import { NextResponse } from 'next/server'
 import SiteSettings from '@/models/SiteSettings'
 import { connectCMSDb } from '@/lib/db-cms'
 import { getCMSAdminFromCookies } from '@/lib/auth-cms'
+import { logActivity } from '@/lib/activity-log'
 
 export const dynamic = 'force-dynamic'
 
@@ -111,6 +112,7 @@ export async function PUT(req) {
 
     const { _id, __v, key, createdAt, updatedAt, ...data } = updated
 
+    logActivity({ event: 'settings_update', description: `Updated site settings (${Object.keys(updateData).length} fields)`, username: admin.username, dashboard: 'cms' }).catch(() => {})
     return NextResponse.json({ settings: data })
   } catch (err) {
     console.error('[cms] PUT /api/content/admin/settings error:', err)

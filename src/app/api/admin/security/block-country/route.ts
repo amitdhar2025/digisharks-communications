@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminFromRequest } from '@/lib/auth'
 import { getSecuritySettings, saveSecuritySettings } from '@/lib/anti-spam'
+import { logActivity } from '@/lib/activity-log'
 
 export const dynamic = 'force-dynamic'
 
@@ -28,6 +29,7 @@ export async function POST(req: NextRequest) {
     }
 
     const updated = await saveSecuritySettings({ blockedCountries: list })
+    logActivity({ event: 'security_country_' + action, description: `${action === 'block' ? 'Blocked' : 'Unblocked'} country: ${normalized}`, username: admin.username, dashboard: 'admin', target: normalized }).catch(() => {})
     return NextResponse.json({ success: true, blockedCountries: updated.blockedCountries })
   } catch (err) {
     console.error('POST /api/admin/security/block-country error', err)

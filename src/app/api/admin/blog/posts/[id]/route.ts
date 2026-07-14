@@ -6,6 +6,7 @@ import BlogPost from '@/lib/models/BlogPost'
 import mongoose from 'mongoose'
 import { stripHtml } from '@/lib/sanitize'
 import { softDeleteFromMongoose } from '@/lib/trash'
+import { logActivity } from '@/lib/activity-log'
 
 export const dynamic = 'force-dynamic'
 
@@ -153,6 +154,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Post not found' }, { status: 404 })
     }
 
+    logActivity({ event: 'blog_update', description: `Updated blog post: ${post?.title || id} (${id})`, username: admin.username, dashboard: 'admin', target: id }).catch(() => {})
     return NextResponse.json({
       post: {
         ...post,
@@ -204,6 +206,7 @@ export async function DELETE(
       (doc) => String(doc.title || 'Untitled Post'),
     )
 
+    logActivity({ event: 'blog_delete', description: `Deleted blog post: ${id}`, username: admin.username, dashboard: 'admin', target: id }).catch(() => {})
     return NextResponse.json({ success: true, message: 'Post moved to trash.' })
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Unknown error'
