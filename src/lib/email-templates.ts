@@ -440,6 +440,83 @@ export function buildAdminStatusChangeEmail(info: AdminStatusChangeInfo, legalUr
   }
 }
 
+/* ─────── Admin Alert: Failed Login Attempt ─────── */
+
+export interface FailedLoginInfo {
+  username: string
+  ip: string
+  userAgent: string
+  reason: string
+  attemptTime: string
+  location?: string
+  attemptsInWindow?: number
+}
+
+export function buildFailedLoginAlertEmail(info: FailedLoginInfo, legalUrls?: LegalUrls): BuiltEmail {
+  const usernameSafe = escapeHtml(info.username || 'unknown')
+  const ipSafe = escapeHtml(info.ip || 'unknown')
+  const reasonLabel = info.reason === 'invalid_password' ? 'Wrong Password'
+    : info.reason === 'invalid_credentials' ? 'Invalid Credentials'
+    : info.reason === 'missing_credentials' ? 'Missing Credentials'
+    : info.reason === 'sub_admin_disabled' ? 'Disabled Account'
+    : info.reason === 'invalid_username' ? 'Unknown Username'
+    : escapeHtml(info.reason || 'Unknown')
+  const timeSafe = escapeHtml(info.attemptTime || new Date().toISOString())
+  const uaSafe = escapeHtml(info.userAgent || '—')
+  const locationSafe = info.location ? escapeHtml(info.location) : '—'
+
+  const body =
+    header('⚠️ Failed Login Attempt') +
+    '<tr><td style="padding:36px 36px 8px 36px;">' +
+    '<h1 style="margin:0 0 12px 0;font-size:26px;line-height:32px;color:' + COLORS.text + ';font-weight:700;">Failed Admin Login Attempt</h1>' +
+    '<p style="margin:0 0 22px 0;font-size:16px;line-height:24px;color:' + COLORS.muted + ';">' +
+    'Someone attempted to log into the admin panel with incorrect credentials. ' +
+    'If this was not you, please review the details below and take action if needed.' +
+    '</p></td></tr>' +
+    '<tr><td style="padding:0 36px 8px 36px;">' +
+    '<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.25);border-radius:12px;">' +
+    '<tr><td style="padding:18px 22px;text-align:center;">' +
+    '<div style="display:inline-block;padding:4px 14px;border-radius:999px;font-size:12px;font-weight:700;background:rgba(239,68,68,0.12);color:#fca5a5;border:1px solid rgba(239,68,68,0.3);">' + reasonLabel + '</div>' +
+    '</td></tr></table></td></tr>' +
+    '<tr><td style="padding:24px 36px 8px 36px;">' +
+    '<h2 style="margin:0 0 14px 0;font-size:15px;font-weight:700;color:' + COLORS.text + ';text-transform:uppercase;letter-spacing:.08em;">Attempt Details</h2>' +
+    '<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="border:1px solid ' + COLORS.border + ';border-radius:12px;overflow:hidden;">' +
+    detailRow('Time', timeSafe) +
+    detailRow('Username Attempted', usernameSafe) +
+    detailRow('IP Address', ipSafe) +
+    detailRow('Location', locationSafe) +
+    detailRow('User Agent', uaSafe, true) +
+    '</table></td></tr>' +
+    (info.attemptsInWindow !== undefined
+      ? '<tr><td style="padding:16px 36px 0 36px;"><div style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:14px 20px;"><div style="font-size:13px;font-weight:700;color:#ef4444;margin-bottom:4px;">🔴 ' + String(info.attemptsInWindow) + ' failed attempts in the last 15 minutes</div><p style="font-size:13px;color:' + COLORS.muted + ';line-height:1.5;margin:0;">If these continue, consider temporarily locking the account or changing the password from the admin panel.</p></div></td></tr>'
+      : '') +
+    '<tr><td align="center" style="padding:24px 36px 32px 36px;">' +
+    '<a href="' + SITE_URL + '/admin/login-logs" style="background:linear-gradient(135deg,' + COLORS.brandA + ' 0%,' + COLORS.brandB + ' 100%);border-radius:8px;color:' + COLORS.buttonText + ';display:inline-block;font-weight:600;padding:14px 32px;text-decoration:none;font-size:15px;">View Login Logs</a>' +
+    '</td></tr>' +
+    footer(legalUrls)
+
+  const html = layout(body)
+  const text =
+    '⚠️ Failed Admin Login Attempt\n\n' +
+    'Someone attempted to log into the admin panel with incorrect credentials.\n\n' +
+    'Reason: ' + reasonLabel + '\n' +
+    'Time: ' + timeSafe + '\n' +
+    'Username Attempted: ' + usernameSafe + '\n' +
+    'IP Address: ' + ipSafe + '\n' +
+    'Location: ' + locationSafe + '\n' +
+    'User Agent: ' + uaSafe + '\n\n' +
+    'View Login Logs: ' + SITE_URL + '/admin/login-logs\n' +
+    '---\n' +
+    'Digisharks Communications\n' +
+    SITE_URL + '\n'
+
+  return {
+    subject: '⚠️ Failed Admin Login Attempt — ' + usernameSafe + ' (' + reasonLabel + ')',
+    html,
+    text,
+  }
+}
+
 export function buildSeoAuditReportEmail(report: SeoAuditReport, legalUrls?: LegalUrls): BuiltEmail {
   const firstName = (report.name || '').split(' ')[0] || report.name || 'there'
   const subject = 'Your SEO Audit Report for ' + escapeHtml(report.domain) + ' is Ready!'

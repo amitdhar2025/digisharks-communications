@@ -6,6 +6,41 @@ import { ensureAdminExists } from '@/lib/admin-seed'
 import logger, { logAuthEvent } from '@/lib/logger'
 import { getClientIp } from '@/lib/rateLimit'
 import { logActivity } from '@/lib/activity-log'
+import { LRUCache } from 'lru-cache'
+import { sendMail } from '@/lib/mailer'
+import { buildFailedLoginAlertEmail } from '@/lib/email-templates'
+import { connectCMSDb } from '@/lib/db-cms'
+import SiteSettings from '@/models/SiteSettings'
+
+const ALERT_COOLDOWN_MS =
+  (parseInt(process.env.ADMIN_ALERT_COOLDOWN_MINUTES || '5', 10) || 5) * 60 * 1000
+
+/**
+ * Per-IP rate limiter for failed login email alerts.
+ * Prevents spamming the admin inbox when an attacker fires rapid requests.
+ * Entries auto-evict after the cooldown period via lru-cache TTL.
+ */
+const alertRateLimiter = new LRUCache<string, number>({
+  max: 10_000,
+  ttl: ALERT_COOLDOWN_MS,
+})
+
+/**
+ * Check whether we can send an alert for the given IP.
+ * Returns true if no alert was sent within the cooldown window.
+ */
+function checkAlertRateLimit(ip: string): boolean {
+  const lastSent = alertRateLimiter.get(ip)
+  const now = Date.now()
+
+  if (!lastSent || now - lastSent >= ALERT_COOLDOWN_MS) {
+    // Cooldown expired or first alert — allow and record
+    alertRateLimiter.set(ip, now)
+    return true
+  }
+
+  return false
+}
 
 export const dynamic = 'force-dynamic'
 
@@ -32,6 +67,53 @@ async function geoLookup(ip: string): Promise<{ country: string; region: string;
     }
   } catch {
     return { country: '', region: '', city: '', isp: '' }
+  }
+}
+
+/**
+ * Get the admin email address to send alert notifications to.
+ * Checks SiteSettings first, then env var, then a hard-coded default.
+ */
+async function getAdminAlertEmail(): Promise<string> {
+  try {
+    await connectCMSDb()
+    const settings = await SiteSettings.findOne({ key: 'global' }).select('email').lean()
+    if (settings && (settings as any).email) return (settings as any).email
+  } catch {
+    // Best-effort — fall through to env/default
+  }
+  return process.env.ADMIN_ALERT_EMAIL || 'marketing@digisharkscommunications.com'
+}
+
+/**
+ * Send a failed login alert email to the admin (fire-and-forget).
+ * Rate-limited per IP — at most one email per cooldown window (default 5 min).
+ */
+async function sendFailedLoginAlert(params: {
+  username: string
+  ip: string
+  userAgent: string
+  reason: string
+  location?: string
+}) {
+  // Rate-limit check: skip silently if we already sent one recently for this IP
+  if (!checkAlertRateLimit(params.ip)) {
+    return
+  }
+
+  try {
+    const to = await getAdminAlertEmail()
+    const { subject, html, text } = buildFailedLoginAlertEmail({
+      username: params.username,
+      ip: params.ip,
+      userAgent: params.userAgent,
+      reason: params.reason,
+      attemptTime: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) + ' IST',
+      location: params.location,
+    })
+    await sendMail({ to, subject, html, text })
+  } catch {
+    // Best-effort — don't let email failures break the login flow
   }
 }
 
@@ -72,6 +154,7 @@ export async function POST(req: NextRequest) {
 
     if (!username || !password) {
       logAuthEvent('login_failed', user || 'unknown', ip, { reason: 'missing_credentials' })
+      sendFailedLoginAlert({ username: user || 'unknown', ip, userAgent: req.headers.get('user-agent') || '', reason: 'missing_credentials' }).catch(() => {})
       return NextResponse.json(
         { error: 'Username and password are required' },
         { status: 400 }
@@ -87,6 +170,7 @@ export async function POST(req: NextRequest) {
     if (subAdmin) {
       if (!subAdmin.isActive) {
         logAuthEvent('login_failed', user, ip, { reason: 'sub_admin_disabled' })
+        sendFailedLoginAlert({ username: user, ip, userAgent, reason: 'sub_admin_disabled' }).catch(() => {})
         return NextResponse.json(
           { error: 'Account is disabled. Contact the main admin.' },
           { status: 403 }
@@ -96,6 +180,7 @@ export async function POST(req: NextRequest) {
       const ok = await bcrypt.compare(pwd, subAdmin.passwordHash)
       if (!ok) {
         logAuthEvent('login_failed', user, ip, { reason: 'invalid_password' })
+        sendFailedLoginAlert({ username: user, ip, userAgent, reason: 'invalid_password' }).catch(() => {})
         return NextResponse.json(
           { error: 'Invalid username or password' },
           { status: 401 }
@@ -146,6 +231,13 @@ export async function POST(req: NextRequest) {
       const ok = await bcrypt.compare(pwd, admin.passwordHash)
       if (!ok) {
         logAuthEvent('login_failed', user, ip, { reason: 'invalid_password' })
+        // Fire-and-forget geo lookup for the alert email
+        geoLookup(ip).then((geo) => {
+          const loc = [geo.city, geo.region, geo.country].filter(Boolean).join(', ')
+          sendFailedLoginAlert({ username: user, ip, userAgent, reason: 'invalid_password', location: loc || undefined }).catch(() => {})
+        }).catch(() => {
+          sendFailedLoginAlert({ username: user, ip, userAgent, reason: 'invalid_password' }).catch(() => {})
+        })
         return NextResponse.json(
           { error: 'Invalid username or password' },
           { status: 401 }
@@ -208,6 +300,13 @@ export async function POST(req: NextRequest) {
     }
 
     logAuthEvent('login_failed', user, ip, { reason: 'invalid_credentials' })
+    // Fire-and-forget geo lookup for the alert email
+    geoLookup(ip).then((geo) => {
+      const loc = [geo.city, geo.region, geo.country].filter(Boolean).join(', ')
+      sendFailedLoginAlert({ username: user, ip, userAgent, reason: 'invalid_credentials', location: loc || undefined }).catch(() => {})
+    }).catch(() => {
+      sendFailedLoginAlert({ username: user, ip, userAgent, reason: 'invalid_credentials' }).catch(() => {})
+    })
     return NextResponse.json(
       { error: 'Invalid username or password' },
       { status: 401 }
