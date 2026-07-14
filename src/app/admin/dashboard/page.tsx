@@ -40,7 +40,7 @@ import {
 import TrashDashboardSection from '@/components/admin/TrashDashboardSection'
 import CacheClearBox from '@/components/admin/CacheClearBox'
 import ActivitySummaryWidget from '@/components/admin/ActivitySummaryWidget'
-import SyncToGitHubBox from '@/components/admin/SyncToGitHubBox'
+
 
 /* ── Types ────────────────────────────────────────────── */
 
@@ -474,9 +474,6 @@ export default function DashboardPage() {
 
         {/* ── CACHE CLEAR BOX ── */}
         <CacheClearBox />
-
-        {/* ── GITHUB SYNC ── */}
-        <SyncToGitHubBox />
 
         {/* ── YELLOW TIP BOX ── */}
         <div
