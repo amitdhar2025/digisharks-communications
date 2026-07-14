@@ -22,7 +22,6 @@ import { logActivity } from '@/lib/activity-log'
 import { sendMail } from '@/lib/mailer'
 import { buildFailedLoginAlertEmail } from '@/lib/email-templates'
 import { getClientIp } from '@/lib/rateLimit'
-import SiteSettings from '@/models/SiteSettings'
 
 export const dynamic = 'force-dynamic'
 
@@ -47,18 +46,16 @@ function checkAlertRateLimit(ip) {
 }
 
 async function getAdminAlertEmail() {
-  try {
-    await connectCMSDb()
-    const settings = await SiteSettings.findOne({ key: 'global' }).select('email').lean()
-    if (settings && settings.email) return settings.email
-  } catch {
-    // best-effort
-  }
-  return process.env.ADMIN_ALERT_EMAIL || 'marketing@digisharkscommunications.com'
+  // Uses ADMIN_ALERT_EMAIL env var, with a hard-coded fallback.
+  // NOTE: Does NOT use SiteSettings.email — that's the public contact email.
+  return process.env.ADMIN_ALERT_EMAIL || 'amitdhar9717@gmail.com'
 }
 
 async function sendFailedLoginAlert({ username, ip, userAgent, reason, location }) {
-  if (!checkAlertRateLimit(ip)) return
+  if (!checkAlertRateLimit(ip)) {
+    console.log('[cms] Alert rate-limited for IP:', ip, '(cooldown:', ALERT_COOLDOWN_MS / 1000, 's)')
+    return
+  }
   try {
     const to = await getAdminAlertEmail()
     const { subject, html, text } = buildFailedLoginAlertEmail({

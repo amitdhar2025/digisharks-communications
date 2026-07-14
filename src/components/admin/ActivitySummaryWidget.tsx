@@ -34,7 +34,6 @@ import {
   Ban,
   Globe2,
   RotateCcw,
-  HardDrive,
 } from 'lucide-react'
 
 interface ActivityEntry {
@@ -98,11 +97,6 @@ const EVENT_CONFIG: Record<string, { icon: any; color: string; label: string }> 
   seo_audit_delete: { icon: Trash2, color: '#ef4444', label: 'SEO Audit' },
   seo_audit_config_update: { icon: Settings, color: '#6366f1', label: 'SEO Config' },
 
-  /* ── Backup Operations ── */
-  backup_start: { icon: HardDrive, color: '#f59e0b', label: 'Backup Start' },
-  backup_trigger: { icon: HardDrive, color: '#0ea5e9', label: 'Backup' },
-  backup_trigger_failed: { icon: HardDrive, color: '#ef4444', label: 'Backup Failed' },
-  backup_complete: { icon: HardDrive, color: '#22c55e', label: 'Backup Done' },
 }
 
 function getRelativeTime(iso: string): string {

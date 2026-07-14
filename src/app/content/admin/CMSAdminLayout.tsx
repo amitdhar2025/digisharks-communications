@@ -58,8 +58,11 @@ export default function CMSAdminLayout({ children }: { children: React.ReactNode
   const [errorCount, setErrorCount] = useState(0)
   const router = useRouter()
 
-  // Detect login page so we render standalone (no sidebar)
-  const isLoginPage = pathname === '/content/admin/login'
+  // Detect standalone pages that should render without sidebar
+  const isStandalonePage =
+    pathname === '/content/admin/login' ||
+    pathname === '/content/admin/forgot-password' ||
+    pathname === '/content/admin/forgot-username'
 
   async function handleLogout() {
     setLoggingOut(true)
@@ -94,8 +97,8 @@ export default function CMSAdminLayout({ children }: { children: React.ReactNode
     setSidebarOpen(false)
   }
 
-  // ── Login page: render standalone, no sidebar ─────────────────────
-  if (isLoginPage) {
+  // ── Standalone pages (login, forgot-password, forgot-username): no sidebar ─────
+  if (isStandalonePage) {
     return (
       <div className="cms-shell">
         <main className="cms-content" style={{ padding: 0 }}>{children}</main>

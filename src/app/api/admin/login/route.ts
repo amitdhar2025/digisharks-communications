@@ -9,8 +9,6 @@ import { logActivity } from '@/lib/activity-log'
 import { LRUCache } from 'lru-cache'
 import { sendMail } from '@/lib/mailer'
 import { buildFailedLoginAlertEmail } from '@/lib/email-templates'
-import { connectCMSDb } from '@/lib/db-cms'
-import SiteSettings from '@/models/SiteSettings'
 
 const ALERT_COOLDOWN_MS =
   (parseInt(process.env.ADMIN_ALERT_COOLDOWN_MINUTES || '5', 10) || 5) * 60 * 1000
@@ -72,17 +70,11 @@ async function geoLookup(ip: string): Promise<{ country: string; region: string;
 
 /**
  * Get the admin email address to send alert notifications to.
- * Checks SiteSettings first, then env var, then a hard-coded default.
+ * Uses ADMIN_ALERT_EMAIL env var, with a hard-coded fallback.
+ * NOTE: Does NOT use SiteSettings.email — that's the public contact email.
  */
 async function getAdminAlertEmail(): Promise<string> {
-  try {
-    await connectCMSDb()
-    const settings = await SiteSettings.findOne({ key: 'global' }).select('email').lean()
-    if (settings && (settings as any).email) return (settings as any).email
-  } catch {
-    // Best-effort — fall through to env/default
-  }
-  return process.env.ADMIN_ALERT_EMAIL || 'marketing@digisharkscommunications.com'
+  return process.env.ADMIN_ALERT_EMAIL || 'amitdhar9717@gmail.com'
 }
 
 /**
@@ -96,8 +88,9 @@ async function sendFailedLoginAlert(params: {
   reason: string
   location?: string
 }) {
-  // Rate-limit check: skip silently if we already sent one recently for this IP
+  // Rate-limit check: skip if we already sent one recently for this IP
   if (!checkAlertRateLimit(params.ip)) {
+    console.log('[admin] Alert rate-limited for IP:', params.ip, '(cooldown:', ALERT_COOLDOWN_MS / 1000, 's)')
     return
   }
 

@@ -96,7 +96,6 @@ async function main() {
 
   // Collections to skip — auth credentials, internal system data, temp/cache
   const skipCollections = [
-    'backuprecords',           // Backup metadata (not content)
     'admins',                  // Admin password hashes
     'cmsadminusers',           // CMS admin password hashes
     'sub_admins',              // Sub-admin password hashes + permissions
