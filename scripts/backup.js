@@ -29,7 +29,7 @@ const os = require('os')
 const { MongoClient } = require('mongodb')
 const cloudinary = require('cloudinary').v2
 const B2 = require('backblaze-b2')
-const archiver = require('archiver')
+const { Archiver } = require('archiver')
 const https = require('https')
 
 const BACKUP_TYPE = process.argv[2] || 'full'
@@ -222,7 +222,7 @@ async function createZip(workDir, outputPath) {
 
   return new Promise((resolve, reject) => {
     const output = fs.createWriteStream(outputPath)
-    const archive = archiver('zip', { zlib: { level: 6 } })
+    const archive = new Archiver('zip', { zlib: { level: 6 } })
 
     output.on('close', () => {
       const stats = fs.statSync(outputPath)
