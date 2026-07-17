@@ -1,5 +1,5 @@
 /**
- * Route Protection Proxy — Next.js 16 (replaces src/middleware.ts)
+ * Route Protection Middleware — Next.js 16
  *
  * Protects /admin/* and /content/admin/* routes.
  * If no valid session cookie is found, redirects to the appropriate login.
@@ -8,8 +8,8 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-import { COOKIE_NAME as CMS_COOKIE } from './src/lib/auth-cms'
-import { COOKIE_NAME as ADMIN_COOKIE } from './src/lib/auth'
+import { COOKIE_NAME as CMS_COOKIE } from './lib/auth-cms'
+import { COOKIE_NAME as ADMIN_COOKIE } from './lib/auth'
 
 // ── Public paths (no auth required) ────────────────────────────────────
 
@@ -47,7 +47,7 @@ function isPublicExtension(pathname: string): boolean {
   return PUBLIC_EXTENSIONS.some((ext) => pathname.endsWith(ext))
 }
 
-export default function proxy(req: NextRequest) {
+export default function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
 
   // ── Allow non-admin routes through immediately ───────────────────────
