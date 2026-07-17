@@ -74,6 +74,12 @@ export default function proxy(req: NextRequest) {
     return NextResponse.next()
   }
 
+  // ── /content/admin root → always redirect to login ────────────────
+  if (pathname === '/content/admin') {
+    const loginUrl = new URL('/content/admin/login', req.url)
+    return NextResponse.redirect(loginUrl)
+  }
+
   // ── /content/admin/* protection ──────────────────────────────────────
   if (isPublicPath(CMS_PUBLIC, pathname) || isPublicExtension(pathname)) {
     return NextResponse.next()

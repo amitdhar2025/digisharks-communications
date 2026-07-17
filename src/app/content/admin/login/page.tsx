@@ -8,7 +8,7 @@
 
 'use client'
 
-import { Suspense, useState } from 'react'
+import { Suspense, useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 
 function LoginForm() {
@@ -16,8 +16,27 @@ function LoginForm() {
   const search = useSearchParams()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+
+  // Auto-redirect if already authenticated (e.g. after proxy.ts sends logged-in
+  // users here when they visit /content/admin root)
+  useEffect(() => {
+    fetch('/api/content/admin/me')
+      .then((r) => {
+        if (r.ok) {
+          const next = search.get('next')
+          const redirectTo =
+            next && next.startsWith('/') && !next.startsWith('//')
+              ? next
+              : '/content/admin/pages'
+          router.replace(redirectTo)
+        } else {
+          setLoading(false)
+        }
+      })
+      .catch(() => setLoading(false))
+  }, [router, search])
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -47,10 +66,12 @@ function LoginForm() {
       }
 
       const next = search.get('next')
+      // Default to /content/admin/pages instead of /content/admin root
+      // because proxy.ts always redirects /content/admin to the login page.
       const redirectTo =
         next && next.startsWith('/') && !next.startsWith('//')
           ? next
-          : '/content/admin'
+          : '/content/admin/pages'
 
       router.push(redirectTo)
       router.refresh()
