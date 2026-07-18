@@ -1,25 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { clearAllCaches } from '@/lib/clear-caches'
+import { getAdminFromCookies } from '@/lib/auth'
+import { getCMSAdminFromCookies } from '@/lib/auth-cms'
 
 /**
  * POST /api/admin/cache/clear
  * Clears all in-memory caches and invalidates Next.js data cache.
- * Accessible only to authenticated admin users.
+ * Accessible to authenticated admin users (both old admin & CMS admin).
  */
 
 export async function POST(req: NextRequest) {
-  // Simple auth check — verify admin session
-  try {
-    const cookieHeader = req.headers.get('cookie') || ''
-    const meRes = await fetch(new URL('/api/admin/me', req.url), {
-      headers: { cookie: cookieHeader },
-    })
-    const meData = await meRes.json()
-    if (!meData?.authenticated) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-  } catch {
-    return NextResponse.json({ error: 'Auth check failed' }, { status: 401 })
+  // Auth check — verify admin session (supports both old admin & CMS admin)
+  const admin = await getAdminFromCookies()
+  const cmsAdmin = await getCMSAdminFromCookies()
+  if (!admin && !cmsAdmin) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const results = clearAllCaches()
