@@ -49,6 +49,9 @@ const DEFAULT_CONTENT = {
   leaderRole: '🏆 Founder & Managing Director',
   leaderBio: 'Vansh Mehra is a young and dynamic entrepreneur with extensive experience in digital marketing and political campaign management. As the founder of Digisharks Communications, he has led the organization to become a recognized name in digital marketing, public relations, and political campaign management across India. His vision combines innovation, data-driven strategy, and a relentless focus on client success.',
   leaderCredentials: ['📰 BJP IT Convenor', '🎓 Uttarakhand Elections 2017', '🏆 Top 10 CEOs', '🚀 Top 10 Entrepreneurs'],
+  politicalExperience: '<ul class="feature-list"><li>BJP IT Convenor, Shamli District</li><li>Authorized Digital Partner for BJP Election Campaigns in Uttarakhand (2017)</li><li>Management of multiple political communication and voter outreach campaigns</li></ul>',
+  mediaVentures: 'Vansh Mehra is also the founder of <b>The Indian Alert</b>, an online news platform delivering news and updates related to: Politics, Entertainment, Sports, Fashion, and Current Affairs.',
+  socialImpact: 'Apart from business leadership, Vansh Mehra actively participates in social welfare initiatives and is the Co-Founder of Vivaan Welfare Foundation, contributing to various community welfare programs across India.',
   timelineLabel: 'Our Journey',
   timelineHeading: '10+ Years of Building & Growing',
   timelineDescription: 'From a small New Delhi studio to a trusted national PR & digital marketing partner — the milestones that shaped us.',
@@ -328,27 +331,17 @@ export default async function AboutUs() {
 
                 <div style={{ marginTop: "1.4rem" }}>
                   <div className="section-label" style={{ marginBottom: ".75rem" }}>Political Campaign Experience</div>
-                  <ul className="feature-list">
-                    <li>BJP IT Convenor, Shamli District</li>
-                    <li>Authorized Digital Partner for BJP Election Campaigns in Uttarakhand (2017)</li>
-                    <li>Management of multiple political communication and voter outreach campaigns</li>
-                  </ul>
+                  <div dangerouslySetInnerHTML={{ __html: content.politicalExperience }} />
                 </div>
 
                 <div style={{ marginTop: "1.4rem" }}>
                   <div className="section-label" style={{ marginBottom: ".75rem" }}>Media & Publishing Ventures</div>
-                  <p className="text-muted" style={{ lineHeight: 1.8, fontSize: ".95rem", textAlign: 'justify', textAlignLast: 'left' }}>
-                    Vansh Mehra is also the founder of <b>The Indian Alert</b>, an online news platform delivering news and updates related to:
-                    Politics, Entertainment, Sports, Fashion, and Current Affairs.
-                  </p>
+                  <p className="text-muted" style={{ lineHeight: 1.8, fontSize: ".95rem", textAlign: 'justify', textAlignLast: 'left' }} dangerouslySetInnerHTML={{ __html: content.mediaVentures }} />
                 </div>
 
                 <div style={{ marginTop: "1.4rem" }}>
                   <div className="section-label" style={{ marginBottom: ".75rem" }}>Social Impact & Philanthropy</div>
-                  <p className="text-muted" style={{ lineHeight: 1.8, fontSize: ".95rem", textAlign: 'justify', textAlignLast: 'left' }}>
-                    Apart from business leadership, Vansh Mehra actively participates in social welfare initiatives and is the Co-Founder of
-                    Vivaan Welfare Foundation, contributing to various community welfare programs across India.
-                  </p>
+                  <p className="text-muted" style={{ lineHeight: 1.8, fontSize: ".95rem", textAlign: 'justify', textAlignLast: 'left' }} dangerouslySetInnerHTML={{ __html: content.socialImpact }} />
                 </div>
               </div>
             </div>

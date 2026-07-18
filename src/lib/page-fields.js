@@ -187,6 +187,9 @@ const PAGE_FIELDS = {
           { key: 'leaderBio', label: 'Leader Bio', type: 'richtext' },
           { key: 'leaderImage', label: 'Leader Image', type: 'image' },
           { key: 'leaderCredentials', label: 'Credential Tags', type: 'text[]' },
+          { key: 'politicalExperience', label: 'Political Campaign Experience', type: 'richtext' },
+          { key: 'mediaVentures', label: 'Media & Publishing Ventures', type: 'richtext' },
+          { key: 'socialImpact', label: 'Social Impact & Philanthropy', type: 'richtext' },
         ],
       },
       {
@@ -529,6 +532,57 @@ const PAGE_FIELDS = {
           { key: 'heroDescription', label: 'Hero Description', type: 'richtext' },
           { key: 'heroPrimaryCta', label: 'Primary CTA', type: 'link' },
           { key: 'heroSecondaryCta', label: 'Secondary CTA', type: 'link' },
+        ],
+      },
+      {
+        label: 'Professional Web Development (Benefits)',
+        fields: [
+          { key: 'webDevLabel', label: 'Section Label', type: 'text' },
+          { key: 'webDevHeading', label: 'Section Heading', type: 'richtext' },
+          { key: 'webDevDescription', label: 'Section Description', type: 'richtext' },
+          { key: 'webDevBenefits', label: 'Benefit Cards', type: 'card[]' },
+        ],
+      },
+      {
+        label: 'Services Section',
+        fields: [
+          { key: 'servicesLabel', label: 'Section Label', type: 'text' },
+          { key: 'servicesHeading', label: 'Section Heading', type: 'richtext' },
+          { key: 'servicesDescription', label: 'Section Description', type: 'richtext' },
+        ],
+      },
+      {
+        label: 'Why Choose Digisharks',
+        fields: [
+          { key: 'whyLabel', label: 'Section Label', type: 'text' },
+          { key: 'whyHeading', label: 'Section Heading', type: 'richtext' },
+          { key: 'whyChooseBenefits', label: 'Benefit Cards', type: 'card[]' },
+        ],
+      },
+      {
+        label: 'Benefits Section',
+        fields: [
+          { key: 'benefitsLabel', label: 'Section Label', type: 'text' },
+          { key: 'benefitsHeading', label: 'Section Heading', type: 'richtext' },
+          { key: 'benefitsCards', label: 'Benefit Cards', type: 'card[]' },
+        ],
+      },
+      {
+        label: 'Industries Section',
+        fields: [
+          { key: 'industriesLabel', label: 'Section Label', type: 'text' },
+          { key: 'industriesHeading', label: 'Section Heading', type: 'richtext' },
+          { key: 'industriesDescription', label: 'Section Description', type: 'richtext' },
+          { key: 'industriesFooter', label: 'Section Footer Text', type: 'richtext' },
+        ],
+      },
+      {
+        label: 'Final CTA',
+        fields: [
+          { key: 'ctaHeading', label: 'CTA Heading', type: 'richtext' },
+          { key: 'ctaDescription', label: 'CTA Description', type: 'richtext' },
+          { key: 'ctaPrimaryCta', label: 'Primary CTA', type: 'link' },
+          { key: 'ctaSecondaryCta', label: 'Secondary CTA', type: 'link' },
         ],
       },
     ],

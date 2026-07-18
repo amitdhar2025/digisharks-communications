@@ -3,18 +3,59 @@ export const dynamic = "force-dynamic";
 import type { Metadata } from "next";
 import type React from "react";
 import Footer from "../../../components/Footer";
+import { getPageContent } from '@/lib/cms-page-content'
 import QuickEditButton from '@/components/QuickEditButton'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.digisharkscommunications.com'
-const siteUrl = `${SITE_URL}/web-development/`;
-
-export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL + '/'),
-  title: "Web Development Company in India | Digisharks Communications",
-  description:
-    "Build a powerful digital presence for your business with modern, responsive, conversion-focused website development. Business websites, e-commerce, WordPress, and more.",
-  alternates: { canonical: siteUrl },
-};
+// ── Hardcoded default content (used when no CMS data exists) ──────────
+const DEFAULT_CONTENT = {
+  heroEyebrow: '✦ Web Development Company in India',
+  heroHeading: 'Build a Powerful <span class="orange-text">Digital Presence</span> for Your Business',
+  heroDescription: 'We design and develop modern, responsive, conversion-focused websites that look great, load fast, and turn visitors into customers. From business sites to complex e-commerce platforms — we build for performance.',
+  heroPrimaryCta: { text: 'Get Started Today →', href: '/contact-us/' },
+  heroSecondaryCta: { text: 'Explore Services', href: '#services' },
+  webDevLabel: 'Professional Web Development',
+  webDevHeading: 'Built Right. <span class="orange-text">From Day One.</span>',
+  webDevDescription: 'Every site we build is engineered around the qualities that actually move the needle.',
+  webDevBenefits: [
+    { icon: '⚡', title: 'Fast Loading', desc: 'Optimized for speed so your visitors stay engaged and Google rewards you with higher rankings.' },
+    { icon: '📱', title: 'Mobile Responsive', desc: 'Pixel-perfect experiences across every device, screen size, and platform.' },
+    { icon: '🔍', title: 'SEO Friendly', desc: 'Clean code, semantic markup, and best practices built in from the start.' },
+    { icon: '🔒', title: 'Secure', desc: 'Hardened against common threats with regular updates and security monitoring.' },
+    { icon: '😊', title: 'User-Friendly', desc: 'Intuitive navigation and clear calls-to-action that guide visitors to convert.' },
+    { icon: '🎯', title: 'Conversion Focused', desc: 'Every element is designed to move visitors closer to becoming customers.' },
+  ],
+  servicesLabel: 'Our Web Development Services',
+  servicesHeading: 'Solutions for <span class="orange-text">Every Stage of Growth</span>',
+  servicesDescription: "From your first business site to a full e-commerce platform, we have the team and technology to build it right.",
+  whyLabel: 'Why Choose Digisharks?',
+  whyHeading: 'Web Development That <span class="orange-text">Drives Business</span>',
+  whyChooseBenefits: [
+    { icon: '👨‍💻', title: 'Experienced Team', desc: 'Developers, designers, and strategists with years of experience building sites that work.' },
+    { icon: '🔍', title: 'SEO-Friendly Development', desc: 'Every site is built with technical SEO best practices baked in from day one.' },
+    { icon: '📱', title: 'Mobile Responsive', desc: 'Every site is mobile-first, ensuring perfect experiences on phones, tablets, and desktops.' },
+    { icon: '🔒', title: 'Secure Development', desc: 'Best-in-class security practices to keep your site and your customers safe.' },
+    { icon: '🤝', title: 'Ongoing Support', desc: 'Maintenance, updates, and support plans to keep your site running smoothly for years.' },
+    { icon: '⏱️', title: 'On-Time Delivery', desc: 'Clear timelines, milestone-based delivery, and zero surprises along the way.' },
+  ],
+  benefitsLabel: 'Why It Matters',
+  benefitsHeading: 'Benefits of <span class="orange-text">Professional Web Development</span>',
+  benefitsCards: [
+    { icon: '🌐', title: '24/7 Online Presence', desc: 'Your website works for you around the clock, even when you sleep.' },
+    { icon: '🎯', title: 'Lead Generation', desc: 'Capture qualified leads through forms, chatbots, and conversion-optimized flows.' },
+    { icon: '💎', title: 'Brand Credibility', desc: 'A professional website builds instant trust with new visitors and customers.' },
+    { icon: '📈', title: 'Higher Search Rankings', desc: 'SEO-optimized sites rank better and attract more organic traffic.' },
+    { icon: '⚙️', title: 'Scalable Foundation', desc: 'Built to grow with you as your business expands and evolves.' },
+    { icon: '📊', title: 'Data & Insights', desc: 'Track every visitor, click, and conversion to keep improving.' },
+  ],
+  industriesLabel: 'Industries We Serve',
+  industriesHeading: 'Web Development Across <span class="orange-text">Industries — 2026</span>',
+  industriesDescription: 'The global web development market is valued at over <strong style="color:var(--orange)">$87 billion in 2026</strong>, growing at a CAGR of 8.87%. We build powerful, fast, and secure web platforms for every major industry driving that growth.',
+  industriesFooter: "From hospitals to banks, retail giants to government portals — every sector depends on powerful, fast, and secure web platforms to operate and compete. <strong style='color:var(--orange)'>Let's build yours.</strong>",
+  ctaHeading: 'Ready to Build <span class="orange-text">Something Great?</span>',
+  ctaDescription: "Tell us about your project and we'll get back within 24 hours with a clear plan, transparent pricing, and a timeline you can count on.",
+  ctaPrimaryCta: { text: 'Request Free Consultation →', href: '/contact-us/' },
+  ctaSecondaryCta: { text: 'View Pricing', href: '/services-top-pr-digital-marketing/' },
+}
 
 const services = [
   {
@@ -66,7 +107,7 @@ const industries = [
     emoji: '🛒',
     name: 'E-Commerce & Retail',
     color: '#FF5B2E',
-    headline: 'Powering the World\'s Digital Storefronts',
+    headline: "Powering the World's Digital Storefronts",
     deliverables: [
       'Fast-loading product pages with AI-powered search and recommendations',
       'Secure payment gateways with multi-currency and crypto support',
@@ -232,7 +273,21 @@ const industries = [
   },
 ]
 
-export default function WebDevelopmentPage() {
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.digisharkscommunications.com'
+const siteUrl = `${SITE_URL}/web-development/`;
+
+export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL + '/'),
+  title: "Web Development Company in India | Digisharks Communications",
+  description:
+    "Build a powerful digital presence for your business with modern, responsive, conversion-focused website development. Business websites, e-commerce, WordPress, and more.",
+  alternates: { canonical: siteUrl },
+};
+
+export default async function WebDevelopmentPage() {
+  // Fetch CMS content — if available, it overrides DEFAULT_CONTENT
+  const cmsContent = await getPageContent('web-development')
+  const content = { ...DEFAULT_CONTENT, ...(cmsContent || {}) }
   return (
     <>
       <div className="orb orb-1"></div>
@@ -243,16 +298,14 @@ export default function WebDevelopmentPage() {
         {/* HERO */}
         <section className="hero centered compact">
           <div className="hero-inner">
-            <div className="hero-eyebrow fade-up">✦ Web Development Company in India</div>
-            <h1 className="fade-up stagger-1">
-              Build a Powerful <span className="orange-text">Digital Presence</span> for Your Business
-            </h1>
+            <div className="hero-eyebrow fade-up">{content.heroEyebrow}</div>
+            <h1 className="fade-up stagger-1" dangerouslySetInnerHTML={{ __html: content.heroHeading }} />
             <p className="fade-up stagger-2">
-              We design and develop modern, responsive, conversion-focused websites that look great, load fast, and turn visitors into customers. From business sites to complex e-commerce platforms — we build for performance.
+              {content.heroDescription}
             </p>
             <div className="hero-ctas fade-up stagger-3">
-              <a href="/contact-us/" className="btn-primary">Get Started Today →</a>
-              <a href="#services" className="btn-outline">Explore Services</a>
+              <a href={content.heroPrimaryCta.href || '#'} className="btn-primary">{content.heroPrimaryCta.text}</a>
+              <a href={content.heroSecondaryCta.href || '#'} className="btn-outline">{content.heroSecondaryCta.text}</a>
             </div>
           </div>
         </section>
@@ -260,42 +313,19 @@ export default function WebDevelopmentPage() {
         {/* PROFESSIONAL COMPANY */}
         <section className="section-bg-white">
           <div className="container">
-            <div className="section-label fade-up">Professional Web Development</div>
-            <h2 className="fade-up stagger-1">Built Right. <span className="orange-text">From Day One.</span></h2>
+            <div className="section-label fade-up">{content.webDevLabel}</div>
+            <h2 className="fade-up stagger-1" dangerouslySetInnerHTML={{ __html: content.webDevHeading }} />
             <p className="fade-up stagger-2" style={{ color: "var(--muted)", maxWidth: "720px", marginTop: "0.75rem" }}>
-              Every site we build is engineered around the qualities that actually move the needle.
+              {content.webDevDescription}
             </p>
             <div className="benefits-grid">
-              <div className="benefit-card fade-up stagger-1">
-                <div className="b-icon">⚡</div>
-                <h3>Fast Loading</h3>
-                <p>Optimized for speed so your visitors stay engaged and Google rewards you with higher rankings.</p>
-              </div>
-              <div className="benefit-card fade-up stagger-2">
-                <div className="b-icon">📱</div>
-                <h3>Mobile Responsive</h3>
-                <p>Pixel-perfect experiences across every device, screen size, and platform.</p>
-              </div>
-              <div className="benefit-card fade-up stagger-3">
-                <div className="b-icon">🔍</div>
-                <h3>SEO Friendly</h3>
-                <p>Clean code, semantic markup, and best practices built in from the start.</p>
-              </div>
-              <div className="benefit-card fade-up stagger-1">
-                <div className="b-icon">🔒</div>
-                <h3>Secure</h3>
-                <p>Hardened against common threats with regular updates and security monitoring.</p>
-              </div>
-              <div className="benefit-card fade-up stagger-2">
-                <div className="b-icon">😊</div>
-                <h3>User-Friendly</h3>
-                <p>Intuitive navigation and clear calls-to-action that guide visitors to convert.</p>
-              </div>
-              <div className="benefit-card fade-up stagger-3">
-                <div className="b-icon">🎯</div>
-                <h3>Conversion Focused</h3>
-                <p>Every element is designed to move visitors closer to becoming customers.</p>
-              </div>
+              {(content.webDevBenefits || []).map((benefit, i) => (
+                <div className={`benefit-card fade-up stagger-${(i % 3) + 1}`} key={i}>
+                  <div className="b-icon">{benefit.icon}</div>
+                  <h3>{benefit.title}</h3>
+                  <p>{benefit.desc}</p>
+                </div>
+              ))}
             </div>
           </div>
         </section>
@@ -303,10 +333,10 @@ export default function WebDevelopmentPage() {
         {/* SERVICES — Enhanced 3-column card grid */}
         <section id="services" className="section-bg-soft">
           <div className="container">
-            <div className="section-label fade-up">Our Web Development Services</div>
-            <h2 className="fade-up stagger-1">Solutions for <span className="orange-text">Every Stage of Growth</span></h2>
+            <div className="section-label fade-up">{content.servicesLabel}</div>
+            <h2 className="fade-up stagger-1" dangerouslySetInnerHTML={{ __html: content.servicesHeading }} />
             <p className="fade-up stagger-2" style={{ color: "var(--muted)", maxWidth: "720px", marginTop: "0.75rem" }}>
-              From your first business site to a full e-commerce platform, we have the team and technology to build it right.
+              {content.servicesDescription}
             </p>
 
             <div className="service-grid-enhanced">
@@ -332,39 +362,16 @@ export default function WebDevelopmentPage() {
         {/* WHY CHOOSE */}
         <section className="pr-media">
           <div className="container">
-            <div className="section-label fade-up">Why Choose Digisharks?</div>
-            <h2 className="fade-up stagger-1">Web Development That <span className="orange-text">Drives Business</span></h2>
+            <div className="section-label fade-up">{content.whyLabel}</div>
+            <h2 className="fade-up stagger-1" dangerouslySetInnerHTML={{ __html: content.whyHeading }} />
             <div className="benefits-grid">
-              <div className="benefit-card fade-up stagger-1">
-                <div className="b-icon">👨‍💻</div>
-                <h3>Experienced Team</h3>
-                <p>Developers, designers, and strategists with years of experience building sites that work.</p>
-              </div>
-              <div className="benefit-card fade-up stagger-2">
-                <div className="b-icon">🔍</div>
-                <h3>SEO-Friendly Development</h3>
-                <p>Every site is built with technical SEO best practices baked in from day one.</p>
-              </div>
-              <div className="benefit-card fade-up stagger-3">
-                <div className="b-icon">📱</div>
-                <h3>Mobile Responsive</h3>
-                <p>Every site is mobile-first, ensuring perfect experiences on phones, tablets, and desktops.</p>
-              </div>
-              <div className="benefit-card fade-up stagger-1">
-                <div className="b-icon">🔒</div>
-                <h3>Secure Development</h3>
-                <p>Best-in-class security practices to keep your site and your customers safe.</p>
-              </div>
-              <div className="benefit-card fade-up stagger-2">
-                <div className="b-icon">🤝</div>
-                <h3>Ongoing Support</h3>
-                <p>Maintenance, updates, and support plans to keep your site running smoothly for years.</p>
-              </div>
-              <div className="benefit-card fade-up stagger-3">
-                <div className="b-icon">⏱️</div>
-                <h3>On-Time Delivery</h3>
-                <p>Clear timelines, milestone-based delivery, and zero surprises along the way.</p>
-              </div>
+              {(content.whyChooseBenefits || []).map((benefit, i) => (
+                <div className={`benefit-card fade-up stagger-${(i % 3) + 1}`} key={i}>
+                  <div className="b-icon">{benefit.icon}</div>
+                  <h3>{benefit.title}</h3>
+                  <p>{benefit.desc}</p>
+                </div>
+              ))}
             </div>
           </div>
         </section>
@@ -372,39 +379,16 @@ export default function WebDevelopmentPage() {
         {/* BENEFITS */}
         <section className="section-bg-white">
           <div className="container">
-            <div className="section-label fade-up">Why It Matters</div>
-            <h2 className="fade-up stagger-1">Benefits of <span className="orange-text">Professional Web Development</span></h2>
+            <div className="section-label fade-up">{content.benefitsLabel}</div>
+            <h2 className="fade-up stagger-1" dangerouslySetInnerHTML={{ __html: content.benefitsHeading }} />
             <div className="benefits-grid">
-              <div className="benefit-card fade-up stagger-1">
-                <div className="b-icon">🌐</div>
-                <h3>24/7 Online Presence</h3>
-                <p>Your website works for you around the clock, even when you sleep.</p>
-              </div>
-              <div className="benefit-card fade-up stagger-2">
-                <div className="b-icon">🎯</div>
-                <h3>Lead Generation</h3>
-                <p>Capture qualified leads through forms, chatbots, and conversion-optimized flows.</p>
-              </div>
-              <div className="benefit-card fade-up stagger-3">
-                <div className="b-icon">💎</div>
-                <h3>Brand Credibility</h3>
-                <p>A professional website builds instant trust with new visitors and customers.</p>
-              </div>
-              <div className="benefit-card fade-up stagger-1">
-                <div className="b-icon">📈</div>
-                <h3>Higher Search Rankings</h3>
-                <p>SEO-optimized sites rank better and attract more organic traffic.</p>
-              </div>
-              <div className="benefit-card fade-up stagger-2">
-                <div className="b-icon">⚙️</div>
-                <h3>Scalable Foundation</h3>
-                <p>Built to grow with you as your business expands and evolves.</p>
-              </div>
-              <div className="benefit-card fade-up stagger-3">
-                <div className="b-icon">📊</div>
-                <h3>Data & Insights</h3>
-                <p>Track every visitor, click, and conversion to keep improving.</p>
-              </div>
+              {(content.benefitsCards || []).map((benefit, i) => (
+                <div className={`benefit-card fade-up stagger-${(i % 3) + 1}`} key={i}>
+                  <div className="b-icon">{benefit.icon}</div>
+                  <h3>{benefit.title}</h3>
+                  <p>{benefit.desc}</p>
+                </div>
+              ))}
             </div>
           </div>
         </section>
@@ -412,10 +396,10 @@ export default function WebDevelopmentPage() {
         {/* INDUSTRIES — Web Development Across Industries 2026 */}
         <section className="pr-media">
           <div className="container">
-            <div className="section-label fade-up">Industries We Serve</div>
-            <h2 className="fade-up stagger-1">Web Development Across <span className="orange-text">Industries — 2026</span></h2>
-            <p className="fade-up stagger-2" style={{ color: "var(--muted)", maxWidth: "760px", marginTop: "0.75rem" }}>
-              The global web development market is valued at over <strong style={{color:"var(--orange)"}}>$87 billion in 2026</strong>, growing at a CAGR of 8.87%. We build powerful, fast, and secure web platforms for every major industry driving that growth.
+            <div className="section-label fade-up">{content.industriesLabel}</div>
+            <h2 className="fade-up stagger-1" dangerouslySetInnerHTML={{ __html: content.industriesHeading }} />
+            <p className="fade-up stagger-2" style={{ color: "var(--muted)", maxWidth: "760px", marginTop: "0.75rem" }}
+               dangerouslySetInnerHTML={{ __html: content.industriesDescription }}>
             </p>
 
             <div className="industry-detail-grid">
@@ -435,8 +419,8 @@ export default function WebDevelopmentPage() {
               ))}
             </div>
 
-            <p className="fade-up" style={{ textAlign:"center", color:"var(--muted)", fontSize:"0.9rem", marginTop:"2.5rem", maxWidth:"800px", marginLeft:"auto", marginRight:"auto", lineHeight:1.7 }}>
-              From hospitals to banks, retail giants to government portals — every sector depends on powerful, fast, and secure web platforms to operate and compete. <strong style={{color:"var(--orange)"}}>Let&apos;s build yours.</strong>
+            <p className="fade-up" style={{ textAlign:"center", color:"var(--muted)", fontSize:"0.9rem", marginTop:"2.5rem", maxWidth:"800px", marginLeft:"auto", marginRight:"auto", lineHeight:1.7 }}
+               dangerouslySetInnerHTML={{ __html: content.industriesFooter }}>
             </p>
           </div>
         </section>
@@ -444,13 +428,11 @@ export default function WebDevelopmentPage() {
         {/* CTA */}
         <section className="final-cta section-bg-white">
           <div className="cta-box fade-up container">
-            <h2>Ready to Build <span className="orange-text">Something Great?</span></h2>
-            <p>
-              Tell us about your project and we'll get back within 24 hours with a clear plan, transparent pricing, and a timeline you can count on.
-            </p>
+            <h2 dangerouslySetInnerHTML={{ __html: content.ctaHeading }} />
+            <p>{content.ctaDescription}</p>
             <div className="hero-ctas" style={{ justifyContent: "center", marginBottom: 0 }}>
-              <a href="/contact-us/" className="btn-primary">Request Free Consultation →</a>
-              <a href="/services-top-pr-digital-marketing/" className="btn-outline">View Pricing</a>
+              <a href={content.ctaPrimaryCta.href || '#'} className="btn-primary">{content.ctaPrimaryCta.text}</a>
+              <a href={content.ctaSecondaryCta.href || '#'} className="btn-outline">{content.ctaSecondaryCta.text}</a>
             </div>
           </div>
         </section>
