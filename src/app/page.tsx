@@ -13,6 +13,7 @@ import QuickEditButton from '@/components/QuickEditButton'
 import { DEFAULT_CONTENT } from '@/lib/home-content'
 import SiteSettings from '@/models/SiteSettings'
 import { connectCMSDb } from '@/lib/db-cms'
+import { getFromCache, setInCache } from '@/lib/cms-cache'
 import "./home.css";
 import "./multi-color.css";
 import Image from "next/image";
@@ -22,10 +23,14 @@ export default async function Home() {
   const cmsContent = await getPageContent('home')
   const content = { ...DEFAULT_CONTENT, ...(cmsContent || {}) }
 
-  // Fetch site settings for legal link URLs
+  // Fetch site settings for legal link URLs (cached for 60s)
   try {
-    await connectCMSDb()
-    const settings = await SiteSettings.findOne({ key: 'global' }).lean()
+    let settings = getFromCache<any>('site-settings')
+    if (!settings) {
+      await connectCMSDb()
+      settings = await SiteSettings.findOne({ key: 'global' }).lean()
+      setInCache('site-settings', settings, 60_000)
+    }
     if (settings) {
       content.privacyPolicyUrl = settings.privacyPolicyUrl || '#'
       content.termsUrl = settings.termsUrl || '#'
