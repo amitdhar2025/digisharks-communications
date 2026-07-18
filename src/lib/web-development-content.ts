@@ -137,6 +137,20 @@ export const services: ServiceCard[] = [
     desc: 'Robust RESTful and GraphQL APIs, third-party integrations, and microservices that connect your systems and scale seamlessly.',
     features: ['RESTful & GraphQL APIs', 'Third-Party Integrations', 'Microservices Architecture', 'API Documentation', 'Webhook Systems', 'Real-Time Data Sync'],
   },
+  {
+    emoji: '🎨',
+    label: 'UI/UX Design & Prototyping',
+    color: '#A855F7',
+    desc: 'User-centered design with wireframes, interactive prototypes, and pixel-perfect mockups that bring your vision to life before a single line of code is written.',
+    features: ['Wireframing & Prototyping', 'User Research & Testing', 'Design Systems', 'Interactive Mockups', 'Accessibility (WCAG)', 'Usability Audits'],
+  },
+  {
+    emoji: '🤖',
+    label: 'AI-Powered Web Solutions',
+    color: '#22D3EE',
+    desc: 'Intelligent web platforms powered by AI — from chatbots and recommendation engines to content personalization and predictive analytics.',
+    features: ['AI Chatbots & Assistants', 'Recommendation Engines', 'Content Personalization', 'Predictive Analytics', 'Natural Language Search', 'Automated Workflows'],
+  },
 ]
 
 // ── Industries ────────────────────────────────────────────────────────
@@ -332,5 +346,33 @@ export const industries: IndustryCard[] = [
     ],
     tech: 'Next.js, React Native, Three.js, Node.js, Stripe, Elasticsearch',
     stat: 'The global beauty e-commerce market is projected to reach $580 billion by 2027 — making web innovation a critical competitive advantage for fashion and beauty brands.',
+  },
+  {
+    emoji: '🍔',
+    name: 'Food & Beverage (FoodTech)',
+    color: '#F97316',
+    headline: 'Digital Platforms Serving the Modern Food Industry',
+    deliverables: [
+      'Online ordering and delivery platforms with real-time tracking',
+      'Restaurant management dashboards with POS integration',
+      'Menu and inventory management systems',
+      'Loyalty programs and personalized dining recommendation engines',
+    ],
+    tech: 'React, Next.js, Node.js, MongoDB, Redis, Stripe',
+    stat: 'The online food delivery market is projected to reach $1.9 trillion globally by 2030 — with web and mobile platforms serving as the primary driver of industry growth.',
+  },
+  {
+    emoji: '🤝',
+    name: 'Nonprofit & NGOs',
+    color: '#06B6D4',
+    headline: 'Tech for Good: Platforms That Drive Social Impact',
+    deliverables: [
+      'Donation and fundraising portals with recurring payment support',
+      'Volunteer management and event coordination platforms',
+      'Impact storytelling dashboards with real-time donation tracking',
+      'Grant application and reporting management systems',
+    ],
+    tech: 'React, Next.js, Node.js, PostgreSQL, Stripe, Mapbox',
+    stat: null,
   },
 ]
