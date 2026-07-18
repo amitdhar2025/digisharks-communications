@@ -96,7 +96,7 @@ async function main() {
 
   console.log('\n📋 requirePermission — null/undefined admin (Unauthorized 401)')
 
-  const unauthCases: [string, PermissionSection, string][] = [
+  const unauthCases: [string, string][] = [
     ['orders', 'view'],
     ['orders', 'edit'],
     ['products', 'create'],

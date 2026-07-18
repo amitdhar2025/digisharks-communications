@@ -103,7 +103,7 @@ assert(testCache.size === 0, 'individual cache store is also cleared (not just t
 const clearedMsg = results3.find(r => r.includes('Cleared'))
 assert(clearedMsg !== undefined, 'reports cleared cache count')
 assert(typeof clearedMsg === 'string' && clearedMsg.length > 0, 'cleared message is non-empty')
-assert(clearedMsg.includes('stores emptied'), 'message confirms individual stores were emptied')
+assert(clearedMsg!.includes('stores emptied'), 'message confirms individual stores were emptied')
 
 // New cache instances registered after clearing
 global.__appCaches = new Map()

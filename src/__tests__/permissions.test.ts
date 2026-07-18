@@ -219,9 +219,9 @@ assertDeepEqual(merged3, DEFAULT_SUBADMIN_PERMISSIONS, 'empty override returns b
 
 // Override with unknown section (should be ignored if not in base)
 const merged4 = deepMergePermissions(DEFAULT_SUBADMIN_PERMISSIONS, {
-  orders: { view: true },
-  nonexistent: { foo: true } as any,
-})
+    orders: { view: true },
+    nonexistent: { foo: true },
+  } as any)
 assertEqual(merged4.orders.view, true, 'orders view updated despite unknown section in override')
 assertEqual(Object.keys(merged4).includes('nonexistent' as any), false, 'unknown section is NOT added to result')
 
