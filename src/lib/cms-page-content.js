@@ -12,24 +12,36 @@
 
 import PageContent from '@/models/PageContent'
 import { connectCMSDb } from '@/lib/db-cms'
+import { getFromCache, setInCache } from '@/lib/cms-cache'
 
 /**
  * Fetch CMS content for a page by its slug.
  * Returns null if no CMS content exists (the caller should use hardcoded defaults).
  *
- * This is designed to be called from server components / async page functions.
+ * Uses an in-memory TTL cache (60s) to avoid hitting MongoDB on every request.
+ * Cache is cleared automatically when the admin clears the cache.
  *
  * @param {string} pageSlug - e.g. 'about-us', 'home', 'services-top-pr-digital-marketing'
  * @returns {Promise<object|null>} The content object from CMS, or null
  */
 export async function getPageContent(pageSlug) {
+  // Check cache first
+  const cacheKey = `cms:${pageSlug}`
+  const cached = getFromCache(cacheKey)
+  if (cached !== undefined) {
+    return cached
+  }
+
   try {
     await connectCMSDb()
     const doc = await PageContent.findOne({ pageSlug })
-    if (!doc || !doc.content || Object.keys(doc.content).length === 0) {
-      return null
+    let result = null
+    if (doc && doc.content && Object.keys(doc.content).length > 0) {
+      result = doc.content
     }
-    return doc.content
+    // Cache the result (even null, to avoid repeated failed lookups)
+    setInCache(cacheKey, result, 60_000)
+    return result
   } catch (err) {
     console.error(`[cms] Failed to fetch content for "${pageSlug}":`, err)
     return null

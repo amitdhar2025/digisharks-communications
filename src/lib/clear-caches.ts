@@ -4,6 +4,7 @@
  */
 
 import { revalidatePath } from 'next/cache'
+import { clearCMSCache } from '@/lib/cms-cache'
 
 declare global {
   var __appCaches: Map<string, Map<string, unknown>> | undefined
@@ -16,7 +17,11 @@ declare global {
 export function clearAllCaches(): string[] {
   const results: string[] = []
 
-  // 1. Clear each individual cache store, THEN clear the registry
+  // 1. Clear CMS page content cache
+  clearCMSCache()
+  results.push('📄 CMS page content cache cleared')
+
+  // 2. Clear each individual cache store, THEN clear the registry
   if (global.__appCaches) {
     const size = global.__appCaches.size
     // Clear each individual cache store first (e.g. TTLCache stores)
@@ -32,7 +37,7 @@ export function clearAllCaches(): string[] {
     results.push('ℹ️ No global caches registered')
   }
 
-  // 2. Clear Next.js revalidation cache
+  // 3. Clear Next.js revalidation cache
   try {
     revalidatePath('/', 'layout')
     results.push('🔄 Next.js data cache revalidated')
