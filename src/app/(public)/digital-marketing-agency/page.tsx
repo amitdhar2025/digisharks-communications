@@ -4,28 +4,7 @@ import type { Metadata } from "next";
 import Footer from "../../../components/Footer";
 import { getPageContent } from '@/lib/cms-page-content'
 import QuickEditButton from '@/components/QuickEditButton'
-
-// ── Hardcoded default content (used when no CMS data exists) ──────────
-const DEFAULT_CONTENT = {
-  heroEyebrow: '✦ Get Instant Growth Results for Your Business',
-  heroHeading: 'India\'s Leading <span class="orange-text">Digital Marketing Agency</span>',
-  heroDescription: 'We are a leading digital marketing agency helping brands grow through data-driven strategies, performance media, and high-quality content. Our campaigns are designed to deliver measurable ROI and long-term business outcomes.',
-  heroPrimaryCta: { text: 'Start Now →', href: '/contact-us/' },
-  heroSecondaryCta: { text: 'Explore Services', href: '#services' },
-  pillarsLabel: 'Digital Marketing Experts',
-  pillarsHeading: 'Built on Three <span class="orange-text">Core Pillars</span>',
-  pillarsSubtitle: 'Every campaign we run is designed around the three pillars that drive real digital growth.',
-  servicesLabel: 'Our Digital Marketing Services',
-  servicesHeading: 'End-to-End <span class="orange-text">Performance Marketing</span>',
-  servicesSubtitle: 'From search to social, content to conversion — explore the full suite of services that power your digital growth.',
-  whyLabel: 'Why Choose Digisharks?',
-  whyHeading: 'Strategy Backed by <span class="orange-text">Demographic Intelligence</span>',
-  whyDescription: 'Our demographic analysis approach is used by Digisharks Communications to help you understand the characteristics of the people who buy your products and services. We map your audience by age, location, gender, job title, income, interests, and behaviors — so every campaign hits the right target.',
-  ctaHeading: 'Ready for <span class="orange-text">Instant Growth?</span>',
-  ctaDescription: 'Let\'s build a digital marketing strategy that compounds your growth month over month. From SEO to Google Ads, content to conversion — we handle the heavy lifting so you can focus on running your business.',
-  ctaPrimaryCta: { text: 'Start Now →', href: '/contact-us/' },
-  ctaSecondaryCta: { text: 'View Pricing', href: '/services-top-pr-digital-marketing/' },
-}
+import { DEFAULT_CONTENT } from '@/lib/digital-marketing-content'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.digisharkscommunications.com'
 const siteUrl = `${SITE_URL}/digital-marketing-agency/`;

@@ -130,6 +130,13 @@ export const services: ServiceCard[] = [
     desc: 'Scalable, multi-tenant SaaS platforms with subscription billing, user management, and architecture built for growth.',
     features: ['Multi-Tenant Architecture', 'Subscription Billing', 'User Management', 'Role-Based Access', 'Analytics Dashboards', 'Scalable Infrastructure'],
   },
+  {
+    emoji: '🔗',
+    label: 'API Development & Integration',
+    color: '#84CC16',
+    desc: 'Robust RESTful and GraphQL APIs, third-party integrations, and microservices that connect your systems and scale seamlessly.',
+    features: ['RESTful & GraphQL APIs', 'Third-Party Integrations', 'Microservices Architecture', 'API Documentation', 'Webhook Systems', 'Real-Time Data Sync'],
+  },
 ]
 
 // ── Industries ────────────────────────────────────────────────────────
