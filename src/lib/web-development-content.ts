@@ -123,6 +123,13 @@ export const services: ServiceCard[] = [
     desc: 'Progressive Web Apps that load instantly, work offline, and deliver app-like experiences straight from the browser.',
     features: ['Offline Support', 'Push Notifications', 'App-Like UX', 'Service Workers', 'Install to Home Screen', 'Background Sync'],
   },
+  {
+    emoji: '☁️',
+    label: 'SaaS Platform Development',
+    color: '#F43F5E',
+    desc: 'Scalable, multi-tenant SaaS platforms with subscription billing, user management, and architecture built for growth.',
+    features: ['Multi-Tenant Architecture', 'Subscription Billing', 'User Management', 'Role-Based Access', 'Analytics Dashboards', 'Scalable Infrastructure'],
+  },
 ]
 
 // ── Industries ────────────────────────────────────────────────────────
@@ -304,5 +311,19 @@ export const industries: IndustryCard[] = [
     ],
     tech: 'React, TypeScript, Node.js, Python, PostgreSQL, AWS',
     stat: null,
+  },
+  {
+    emoji: '👗',
+    name: 'Fashion & Beauty',
+    color: '#14B8A6',
+    headline: 'Digital Storefronts for the Style-Driven World',
+    deliverables: [
+      'Virtual try-on experiences powered by AR/VR technology',
+      'AI-driven personalized product recommendations and styling',
+      'Seamless e-commerce platforms with visual search capabilities',
+      'Influencer collaboration portals with real-time analytics',
+    ],
+    tech: 'Next.js, React Native, Three.js, Node.js, Stripe, Elasticsearch',
+    stat: 'The global beauty e-commerce market is projected to reach $580 billion by 2027 — making web innovation a critical competitive advantage for fashion and beauty brands.',
   },
 ]
