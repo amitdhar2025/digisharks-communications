@@ -3,7 +3,9 @@ import { getPageContent } from '@/lib/cms-page-content'
 import QuickEditButton from '@/components/QuickEditButton'
 import { DEFAULT_CONTENT } from '@/lib/about-us-content'
 
-export const dynamic = "force-dynamic";
+// ISR: revalidate every 60 seconds for better performance
+// Content is refreshed via the CMS cache clear API when admin edits are made
+export const revalidate = 60;
 
 export default async function AboutUs() {
   // Fetch CMS content — if available, it overrides DEFAULT_CONTENT

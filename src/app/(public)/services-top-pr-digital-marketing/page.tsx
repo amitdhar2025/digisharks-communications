@@ -1,4 +1,6 @@
-export const dynamic = "force-dynamic";
+// ISR: revalidate every 60 seconds for better performance
+// Content is refreshed via the CMS cache clear API when admin edits are made
+export const revalidate = 60;
 
 import type { Metadata } from "next";
 import Footer from "../../../components/Footer";
