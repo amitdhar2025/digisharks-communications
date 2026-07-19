@@ -754,11 +754,17 @@ const PAGE_FIELDS = {
     pageName: 'Privacy Policy',
     sections: [
       {
-        label: 'Page Content',
+        label: 'Page Header',
         fields: [
           { key: 'pageTitle', label: 'Page Title', type: 'text' },
           { key: 'pageSubtitle', label: 'Last Updated Text', type: 'text' },
           { key: 'intro', label: 'Intro Paragraph', type: 'richtext' },
+        ],
+      },
+      {
+        label: 'Policy Sections',
+        fields: [
+          { key: 'sections', label: 'Policy Content Sections', type: 'policy-section[]' },
         ],
       },
     ],
@@ -771,11 +777,69 @@ const PAGE_FIELDS = {
     pageName: 'Terms and Conditions',
     sections: [
       {
-        label: 'Page Content',
+        label: 'Page Header',
         fields: [
           { key: 'pageTitle', label: 'Page Title', type: 'text' },
           { key: 'pageSubtitle', label: 'Last Updated Text', type: 'text' },
           { key: 'intro', label: 'Intro Paragraph', type: 'richtext' },
+        ],
+      },
+      {
+        label: 'Policy Sections',
+        fields: [
+          { key: 'sections', label: 'Policy Content Sections', type: 'policy-section[]' },
+        ],
+      },
+    ],
+  },
+
+  // ═══════════════════════════════════════════════════════════════════
+  // CAREER PAGE
+  // ═══════════════════════════════════════════════════════════════════
+  career: {
+    pageName: 'Career',
+    sections: [
+      {
+        label: 'Hero Section',
+        fields: [
+          { key: 'heroHeading', label: 'Hero Heading', type: 'text' },
+          { key: 'heroDescription', label: 'Hero Description', type: 'richtext' },
+          { key: 'heroImage', label: 'Hero Desktop Image', type: 'image' },
+          { key: 'heroMobileImage', label: 'Hero Mobile Image', type: 'image' },
+        ],
+      },
+      {
+        label: 'Company Values Section',
+        fields: [
+          { key: 'valuesLabel', label: 'Section Label', type: 'text' },
+          { key: 'valuesHeading', label: 'Section Heading', type: 'richtext' },
+          { key: 'valuesSubtitle', label: 'Section Subtitle', type: 'richtext' },
+          { key: 'values', label: 'Value Cards', type: 'card[]' },
+        ],
+      },
+      {
+        label: 'CTA / Final Section',
+        fields: [
+          { key: 'ctaHeading', label: 'CTA Heading', type: 'richtext' },
+          { key: 'ctaDescription', label: 'CTA Description', type: 'richtext' },
+          { key: 'ctaEmail', label: 'Contact Email', type: 'text' },
+        ],
+      },
+    ],
+  },
+
+  // ═══════════════════════════════════════════════════════════════════
+  // BLOG PAGE
+  // ═══════════════════════════════════════════════════════════════════
+  blog: {
+    pageName: 'Blog',
+    sections: [
+      {
+        label: 'Hero Banner',
+        fields: [
+          { key: 'heroHeading', label: 'Hero Heading', type: 'text' },
+          { key: 'heroDescription', label: 'Hero Description', type: 'richtext' },
+          { key: 'heroImage', label: 'Hero Banner Image', type: 'image' },
         ],
       },
     ],
@@ -788,11 +852,17 @@ const PAGE_FIELDS = {
     pageName: 'Refund Policy',
     sections: [
       {
-        label: 'Page Content',
+        label: 'Page Header',
         fields: [
           { key: 'pageTitle', label: 'Page Title', type: 'text' },
           { key: 'pageSubtitle', label: 'Last Updated Text', type: 'text' },
           { key: 'intro', label: 'Intro Paragraph', type: 'richtext' },
+        ],
+      },
+      {
+        label: 'Policy Sections',
+        fields: [
+          { key: 'sections', label: 'Policy Content Sections', type: 'policy-section[]' },
         ],
       },
     ],

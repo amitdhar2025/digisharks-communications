@@ -296,6 +296,42 @@ function CardArrayField({ value, onChange, label }: { value: any[]; onChange: (v
   )
 }
 
+function PolicySectionArrayField({ value, onChange, label }: { value: any[]; onChange: (v: any[]) => void; label: string }) {
+  const items = value || []
+  return (
+    <div className="mb-4">
+      <FieldLabel label={label} />
+      {items.map((item: any, i: number) => (
+        <div key={i} className="bg-slate-900/50 border border-slate-700 rounded-lg p-3.5 mb-2">
+          <div className="flex items-center justify-between mb-2.5">
+            <span className="text-xs font-bold text-slate-500 bg-slate-800 px-2 py-0.5 rounded">#{i + 1}</span>
+            <button
+              type="button"
+              className="p-1 rounded-lg text-red-400 hover:bg-red-600/15 transition-colors"
+              onClick={() => onChange(items.filter((_: any, j: number) => j !== i))}
+            >
+              <Trash2 size={13} />
+            </button>
+          </div>
+          <input type="text" placeholder="Section Title (e.g. 1. Acceptance of Terms)" value={item.title || ''}
+            onChange={(e) => { const n = [...items]; n[i] = { ...n[i], title: e.target.value }; onChange(n) }}
+            className="w-full mb-2 bg-slate-900/70 border border-slate-600/60 rounded-lg px-2.5 py-2 text-sm text-slate-200 placeholder-slate-500 outline-none focus:border-sky-500" />
+          <textarea placeholder="Section Content" value={item.content || ''} rows={4}
+            onChange={(e) => { const n = [...items]; n[i] = { ...n[i], content: e.target.value }; onChange(n) }}
+            className="w-full bg-slate-900/70 border border-slate-600/60 rounded-lg px-2.5 py-2 text-sm text-slate-200 placeholder-slate-500 outline-none focus:border-sky-500 resize-y min-h-[80px]" />
+        </div>
+      ))}
+      <button
+        type="button"
+        className={BTN_GHOST}
+        onClick={() => onChange([...items, { title: '', content: '' }])}
+      >
+        <Plus size={12} /> Add Section
+      </button>
+    </div>
+  )
+}
+
 function FAQArrayField({ value, onChange, label }: { value: any[]; onChange: (v: any[]) => void; label: string }) {
   const items = value || []
   return (
@@ -923,6 +959,8 @@ export default function CMSPageEditPage() {
         return <TextArrayField key={idx} value={value} onChange={onChange} label={field.label} />
       case 'card[]':
         return <CardArrayField key={idx} value={value} onChange={onChange} label={field.label} />
+      case 'policy-section[]':
+        return <PolicySectionArrayField key={idx} value={value} onChange={onChange} label={field.label} />
       case 'faq[]':
         return <FAQArrayField key={idx} value={value} onChange={onChange} label={field.label} />
       case 'timeline[]':

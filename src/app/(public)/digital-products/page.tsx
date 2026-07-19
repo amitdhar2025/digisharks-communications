@@ -1,6 +1,7 @@
 import DigitalProductsPageClient from '../digital-products-page-client'
 import QuickEditButton from '@/components/QuickEditButton'
-
+import { getPageContent } from '@/lib/cms-page-content'
+import { DEFAULT_CONTENT } from '@/lib/digital-products-content'
 
 export const dynamic = 'force-dynamic'
 export const metadata = {
@@ -9,9 +10,12 @@ export const metadata = {
     'Browse verified digital databases and assets from Digisharks Communications. Instant download after secure checkout.',
 }
 
-export default function DigitalProductsPage() {
+export default async function DigitalProductsPage() {
+  // Fetch CMS content — if available, it overrides DEFAULT_CONTENT
+  const cmsContent = await getPageContent('digital-products')
+  const content = { ...DEFAULT_CONTENT, ...(cmsContent || {}) }
   return <>
-    <DigitalProductsPageClient />
+    <DigitalProductsPageClient content={content} />
     <QuickEditButton slug="digital-products" />
   </>
 }

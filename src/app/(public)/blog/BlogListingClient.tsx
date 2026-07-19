@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
+import type { BlogContent } from '@/lib/blog-content'
 
 interface Category {
   _id: string
@@ -29,7 +30,7 @@ interface BlogPost {
   comments: number
 }
 
-export default function BlogListingClient() {
+export default function BlogListingClient({ content }: { content?: BlogContent }) {
   const [posts, setPosts] = useState<BlogPost[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [total, setTotal] = useState(0)
@@ -97,13 +98,13 @@ export default function BlogListingClient() {
       {/* Hero Banner */}
       <div className="blog-hero-banner">
         <img
-          src="/blog.webp"
-          alt="Digisharks Blog"
+          src={content?.heroImage || '/blog.webp'}
+          alt={content?.heroHeading || 'Digisharks Blog'}
           onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
         />
         <div className="blog-hero-overlay">
-          <h1>Digisharks Blog</h1>
-          <p>Insights, analysis, and stories on digital PR, marketing, technology, and business growth.</p>
+          <h1>{content?.heroHeading || 'Digisharks Blog'}</h1>
+          <p>{content?.heroDescription || 'Insights, analysis, and stories on digital PR, marketing, technology, and business growth.'}</p>
         </div>
       </div>
 

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useCart } from '@/lib/cart-context'
 import { useWishlist } from '@/lib/wishlist-context'
+import type { DigitalProductsContent } from '@/lib/digital-products-content'
 
 interface Product {
   _id?: string
@@ -44,7 +45,11 @@ const SORT_LABELS: Record<SortOption, string> = {
   'name-desc': 'Name: Z → A',
 }
 
-export default function DigitalProductsPageClient() {
+interface DigitalProductsPageClientProps {
+  content?: DigitalProductsContent
+}
+
+export default function DigitalProductsPageClient({ content }: DigitalProductsPageClientProps) {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -174,10 +179,8 @@ export default function DigitalProductsPageClient() {
   return (
     <div className="dp-page">
       <div className="dp-container">
-        <h1 className="dp-title">Digital Products</h1>
-        <p className="dp-listing-intro">
-           Choose a product to view details and add to cart.
-        </p>
+        <h1 className="dp-title" dangerouslySetInnerHTML={{ __html: content?.heroHeading || 'Digital Products' }} />
+        <p className="dp-listing-intro" dangerouslySetInnerHTML={{ __html: content?.heroDescription || 'Browse verified digital databases and assets from Digisharks Communications. Instant download after secure checkout.' }} />
 
         {loading ? (
           <p style={{ color: '#666' }}>Loading products…</p>
