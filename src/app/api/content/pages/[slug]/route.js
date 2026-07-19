@@ -12,6 +12,7 @@ import PageContent from '@/models/PageContent'
 import { connectCMSDb } from '@/lib/db-cms'
 import { getCMSAdminFromCookies } from '@/lib/auth-cms'
 import { getPageFields } from '@/lib/page-fields'
+import { getPageDefaults } from '@/lib/page-defaults'
 import { logActivity } from '@/lib/activity-log'
 import { triggerGithubSync } from '@/lib/trigger-github-sync'
 
@@ -30,22 +31,19 @@ export async function GET(req, { params }) {
 
     const pageContent = await PageContent.findOne({ pageSlug: slug }).lean()
 
-    if (!pageContent) {
-      // Return empty content for new pages
-      return NextResponse.json({
-        pageSlug: slug,
-        pageName: getPageFields(slug)?.pageName || slug,
-        content: {},
-        hasContent: false,
-      })
-    }
+    // Always merge defaults with saved content so missing fields get pre-populated.
+    // If pageContent exists, saved values override defaults.
+    // If no pageContent, defaults fill everything.
+    const defaults = getPageDefaults(slug) || {}
+    const savedContent = pageContent?.content || {}
+    const merged = { ...defaults, ...savedContent }
 
     return NextResponse.json({
-      pageSlug: pageContent.pageSlug,
-      pageName: pageContent.pageName,
-      content: pageContent.content || {},
-      hasContent: true,
-      updatedAt: pageContent.updatedAt?.toISOString?.() ?? null,
+      pageSlug: slug,
+      pageName: getPageFields(slug)?.pageName || slug,
+      content: merged,
+      hasContent: !!pageContent,
+      updatedAt: pageContent?.updatedAt?.toISOString?.() ?? null,
     })
   } catch (err) {
     console.error('[cms] GET /api/content/pages/[slug] error:', err)
