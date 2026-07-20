@@ -71,7 +71,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head />
+      <head>
+        {/* ── Preconnect to external origins for faster LCP ── */}
+        <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
+      </head>
       <body
         suppressHydrationWarning
         className={`${inter.variable} ${plusJakarta.variable} antialiased`}

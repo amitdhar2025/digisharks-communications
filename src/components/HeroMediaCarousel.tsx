@@ -133,6 +133,7 @@ export default function HeroMediaCarousel({
           <img
             src={currentItem.image || ''}
             alt={currentItem.alt || currentItem.caption || 'Hero banner'}
+            fetchPriority={currentIndex === 0 ? 'high' : 'auto'}
             style={{
               width: '100%',
               height: '100%',
