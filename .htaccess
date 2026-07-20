@@ -2,13 +2,15 @@
 AddType image/avif .avif
 AddType image/webp .webp
 AddType image/svg+xml .svg
-AddType image/avif-sequence .avifs
 
 # ── Correct MIME types for fonts ──
 AddType font/woff2 .woff2
 AddType font/woff .woff
 
-# ── Aggressive caching for static assets (1 year, immutable) ──
+# ── Security: prevent MIME sniffing ──
+Header always set X-Content-Type-Options "nosniff"
+
+# ── Aggressive caching for content-hashed static assets (1 year, immutable) ──
 <FilesMatch "(?i)\.(avif|webp|jpg|jpeg|png|gif|svg|ico|woff2|woff|ttf|eot)$">
   Header always set Cache-Control "public, max-age=31536000, immutable"
 </FilesMatch>
