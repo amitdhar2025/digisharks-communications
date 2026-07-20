@@ -1,3 +1,5 @@
+import { withSentryConfig } from "@sentry/nextjs";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // ================================================================
@@ -85,7 +87,7 @@ const nextConfig = {
               "img-src 'self' data: res.cloudinary.com *.google.com *.googleapis.com *.gstatic.com; " +
               "media-src 'self' res.cloudinary.com; " +
               "font-src 'self'; " +
-              "connect-src 'self' https://*.razorpay.com https://checkout.razorpay.com; " +
+              "connect-src 'self' https://*.razorpay.com https://checkout.razorpay.com https://*.sentry.io; " +
               "frame-src 'self' https://checkout.razorpay.com https://www.youtube.com https://player.vimeo.com https://www.dailymotion.com https://www.google.com; " +
               "object-src 'none'; " +
               "base-uri 'self';",
@@ -106,5 +108,16 @@ const nextConfig = {
   },
 }
 
-export default nextConfig;
+// Wrap with Sentry for error tracking and performance monitoring
+// See https://docs.sentry.io/platforms/javascript/guides/nextjs/
+export default withSentryConfig(nextConfig, {
+  // Suppress source map uploading during local builds
+  silent: !process.env.CI,
+  // Upload a larger set of dependency files for more precise error traces
+  widenClientFileUpload: true,
+  // Hides source maps from logged-in users
+  hideSourceMaps: true,
+  // Route browser requests to Sentry through the Next.js server to avoid ad-blockers
+  tunnelRoute: "/monitoring",
+});
 
