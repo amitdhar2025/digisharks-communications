@@ -64,7 +64,7 @@ const ABOUT_US_CONTENT = {
     { icon: '🤝', title: 'Client-First Approach', desc: 'Your goals are our goals. We become an extension of your team, fully invested in your success with dedicated account management.' },
     { icon: '🚀', title: 'Innovation', desc: 'Always learning, always improving. We adopt new tools, trends, and technologies to keep our clients ahead of the competition.' },
   ],
-  leaderImage: '/Vansh.webp',
+  leaderImage: '/Vansh.avif',
   leaderName: 'Vansh Mehra',
   leaderRole: '🏆 Founder & Managing Director',
   leaderBio: 'Vansh Mehra is a young and dynamic entrepreneur with extensive experience in digital marketing and political campaign management. As the founder of Digisharks Communications, he has led the organization to become a recognized name in digital marketing, public relations, and political campaign management across India. His vision combines innovation, data-driven strategy, and a relentless focus on client success.',
