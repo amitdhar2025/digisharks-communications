@@ -218,7 +218,7 @@ export default function BlogDetailPage() {
       publisher: {
         '@type': 'Organization',
         name: 'Digisharks Communications',
-        logo: { '@type': 'ImageObject', url: `${siteUrl}/darks.webp` },
+        logo: { '@type': 'ImageObject', url: `${siteUrl}/darks.avif` },
       },
       datePublished: post.publishedAt || '',
       dateModified: post.publishedAt || '',

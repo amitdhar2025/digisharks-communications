@@ -223,7 +223,7 @@ export default function Navigation({ active = "none" }: NavigationProps) {
       <nav id="navbar">
         <Link href="/" className="nav-logo" aria-label="DigiSharks Home">
           <Image
-            src={headerLogo || "/darks.webp"}
+            src={headerLogo || "/darks.avif"}
             alt={headerLogoAlt}
             width={256}
             height={171}

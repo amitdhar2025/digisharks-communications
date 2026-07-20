@@ -92,6 +92,16 @@ const nextConfig = {
           },
         ],
       },
+      // ── Aggressive caching for static assets (images only) for 1 year ──
+      {
+        source: '/:path((?:.+\.(?:avif|webp|jpg|jpeg|png|gif|svg|ico))$)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
     ]
   },
 }

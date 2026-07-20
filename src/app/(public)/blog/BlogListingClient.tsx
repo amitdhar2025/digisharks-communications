@@ -98,7 +98,7 @@ export default function BlogListingClient({ content }: { content?: BlogContent }
       {/* Hero Banner */}
       <div className="blog-hero-banner">
         <img
-          src={content?.heroImage || '/blog.webp'}
+          src={content?.heroImage || '/blog.avif'}
           alt={content?.heroHeading || 'Digisharks Blog'}
           onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
         />

@@ -39,8 +39,8 @@ export interface CareerContent {
 export const DEFAULT_CONTENT: CareerContent = {
   heroHeading: 'Join the DigiSharks Team',
   heroDescription: 'We are always looking for passionate, creative, and driven individuals to help us deliver exceptional digital PR and marketing solutions.',
-  heroImage: '/career%20hero%20image.webp',
-  heroMobileImage: '/career%20hero%20mobile%20image.webp',
+  heroImage: '/career%20hero%20image.avif',
+  heroMobileImage: '/career%20hero%20mobile%20image.avif',
   valuesLabel: 'Why Work With Us',
   valuesHeading: 'Why Work at <span class="career-values-accent">Digisharks</span>?',
   valuesSubtitle: 'We foster a culture of innovation, growth, and collaboration.',

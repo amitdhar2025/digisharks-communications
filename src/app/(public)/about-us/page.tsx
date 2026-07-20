@@ -206,7 +206,7 @@ export default async function AboutUs() {
 
             <div className="leader-card fade-up" style={{ marginTop: "2.5rem" }}>
               <div className="leader-avatar-wrap">
-                <img src={content.leaderImage || '/Vansh.webp'} alt={content.leaderName} />
+                <img src={content.leaderImage || '/Vansh.avif'} alt={content.leaderName} />
               </div>
               <div>
                 <div className="leader-name">{content.leaderName}</div>

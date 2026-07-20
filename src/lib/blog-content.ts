@@ -18,5 +18,5 @@ export interface BlogContent {
 export const DEFAULT_CONTENT: BlogContent = {
   heroHeading: 'Digisharks Blog',
   heroDescription: 'Insights, analysis, and stories on digital PR, marketing, technology, and business growth.',
-  heroImage: '/blog.webp',
+  heroImage: '/blog.avif',
 }
