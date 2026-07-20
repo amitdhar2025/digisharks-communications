@@ -137,7 +137,7 @@ export default async function Home() {
                     // Fallback: hardcoded 1-8 images
                     return [1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8].map((n, i) => (
                       <div className="brand-carousel-item" key={n + "-" + i}>
-                        <img src={"/one card (" + n + ").avif"} alt={"Project " + n} width="160" height="94" loading="lazy" className="brand-carousel-img" />
+                        <img src={"/one-card-" + n + ".avif"} alt={"Project " + n} width="160" height="94" loading="lazy" className="brand-carousel-img" />
                       </div>
                     ))
                   })()}
@@ -191,7 +191,7 @@ export default async function Home() {
                     <div className={`award-card-light fade-up stagger-${(i % 3) + 1}`} key={i}>
                       <div className="award-img-wrap">
                         <Image
-                          src={award.image || '/google partner.avif'}
+                          src={award.image || '/google-partner.avif'}
                           alt={award.title || 'Award'}
                           width={160}
                           height={80}
@@ -206,9 +206,9 @@ export default async function Home() {
                 }
                 // Fallback: hardcoded awards
                 return [
-                  { src: '/google partner.avif', alt: 'Google Partner', title: 'Google Partner', sub: 'Premier 2026' },
-                  { src: '/meta partner.avif', alt: 'Meta Business Partner', title: 'Meta Business Partner', sub: 'Certified 2025' },
-                  { src: '/clutch award.avif', alt: 'Clutch Award', title: 'Clutch Award', sub: 'Top PPC Company 2026' },
+                  { src: '/google-partner.avif', alt: 'Google Partner', title: 'Google Partner', sub: 'Premier 2026' },
+                  { src: '/meta-partner.avif', alt: 'Meta Business Partner', title: 'Meta Business Partner', sub: 'Certified 2025' },
+                  { src: '/clutch-award.avif', alt: 'Clutch Award', title: 'Clutch Award', sub: 'Top PPC Company 2026' },
                 ].map((award, i) => (
                   <div className={`award-card-light fade-up stagger-${i + 1}`} key={i}>
                     <div className="award-img-wrap">

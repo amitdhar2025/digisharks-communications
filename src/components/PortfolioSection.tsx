@@ -37,7 +37,7 @@ export default function PortfolioSection() {
 
         <div className="portfolio-grid-mc">
           <div className="pf-card theme-cyan fade-up stagger-1">
-            <div className="pf-card-header" style={{ backgroundImage: 'url("/Digital PR.avif")', backgroundPosition: 'center' }}>
+            <div className="pf-card-header" style={{ backgroundImage: 'url("/digital-pr.avif")', backgroundPosition: 'center' }}>
               <span className="pf-tag">Digital PR</span>
               <span className="pf-year">2026</span>
             </div>
@@ -71,7 +71,7 @@ export default function PortfolioSection() {
           </div>
 
           <div className="pf-card theme-violet fade-up stagger-2">
-            <div className="pf-card-header" style={{ backgroundImage: 'url("/Web Development.avif")', backgroundPosition: 'center' }}>
+            <div className="pf-card-header" style={{ backgroundImage: 'url("/web-development.avif")', backgroundPosition: 'center' }}>
               <span className="pf-tag">Web Development</span>
               <span className="pf-year">2025</span>
             </div>
@@ -105,7 +105,7 @@ export default function PortfolioSection() {
           </div>
 
           <div className="pf-card theme-magenta fade-up stagger-3">
-            <div className="pf-card-header" style={{ backgroundImage: 'url("/Social Media.avif")', backgroundPosition: 'center' }}>
+            <div className="pf-card-header" style={{ backgroundImage: 'url("/social-media.avif")', backgroundPosition: 'center' }}>
               <span className="pf-tag">Social Media</span>
               <span className="pf-year">2026</span>
             </div>
@@ -139,7 +139,7 @@ export default function PortfolioSection() {
           </div>
 
           <div className="pf-card theme-pink fade-up stagger-1">
-            <div className="pf-card-header" style={{ backgroundImage: 'url("/Political PR.avif")', backgroundPosition: 'center' }}>
+            <div className="pf-card-header" style={{ backgroundImage: 'url("/political-pr.avif")', backgroundPosition: 'center' }}>
               <span className="pf-tag">Political PR</span>
               <span className="pf-year">2024</span>
             </div>
@@ -173,7 +173,7 @@ export default function PortfolioSection() {
           </div>
 
           <div className="pf-card theme-orange fade-up stagger-2">
-            <div className="pf-card-header" style={{ backgroundImage: 'url("/SEO & PPC.avif")', backgroundPosition: 'center' }}>
+            <div className="pf-card-header" style={{ backgroundImage: 'url("/seo-ppc.avif")', backgroundPosition: 'center' }}>
               <span className="pf-tag">SEO & PPC</span>
               <span className="pf-year">2026</span>
             </div>
@@ -309,7 +309,7 @@ export default function PortfolioSection() {
           </div>
 
           <div className="pf-card theme-ocean fade-up stagger-3">
-            <div className="pf-card-header" style={{ backgroundImage: 'url("/AI Tools.avif")', backgroundPosition: 'center' }}>
+            <div className="pf-card-header" style={{ backgroundImage: 'url("/ai-tools.avif")', backgroundPosition: 'center' }}>
               <span className="pf-tag">AI Tools</span>
               <span className="pf-year">2026</span>
             </div>

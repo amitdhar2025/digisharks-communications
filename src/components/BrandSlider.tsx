@@ -16,7 +16,7 @@ export default function BrandSlider() {
             return (
               <div className="brand-carousel-item" key={"" + num + idx}>
                 <img
-                  src={"/one card (" + num + ").avif"}
+                  src={"/one-card-" + num + ".avif"}
                   alt={"Project " + num}
                   width="160"
                   height="94"
