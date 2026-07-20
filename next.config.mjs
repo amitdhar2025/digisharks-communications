@@ -104,6 +104,21 @@ const nextConfig = {
           },
         ],
       },
+      // ── HTML pages — NO CACHE (prevent browser from serving stale HTML) ──
+      // This ensures every visit fetches fresh HTML from the server, which
+      // references the latest JS chunk URLs with new content hashes.
+      // Only matches paths WITHOUT file extensions (e.g. /, /about-us, /blog)
+      // to avoid overriding image/font caching rules.
+      {
+        source: '/:path((?!_next/)(?!.+\\.[a-z0-9]+$).*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-cache, must-revalidate',
+          },
+        ],
+      },
+
       // ── Aggressive caching for static assets (images only) for 1 year ──
       {
         source: '/:path((?:.+\.(?:avif|webp|jpg|jpeg|png|gif|svg|ico))$)',
