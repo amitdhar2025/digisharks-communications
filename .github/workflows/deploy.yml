@@ -1,0 +1,76 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+  # Allow manual trigger from GitHub Actions tab
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Deploy to Hostinger
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24.x'
+          cache: 'npm'
+
+      - name: Install dependencies (verify lockfile)
+        run: npm ci
+
+      # ── Deploy via SSH to Hostinger ──────────────────────────────
+      # Required GitHub secrets (Settings → Secrets and variables → Actions):
+      #
+      #   HOSTINGER_HOST       – Server IP or hostname
+      #   HOSTINGER_USERNAME   – SSH username (e.g. root or u123456)
+      #   HOSTINGER_SSH_KEY    – Private SSH key (copy from ~/.ssh/id_rsa)
+      #                          The public key must be in ~/.ssh/authorized_keys
+      #                          on the Hostinger server
+      #   HOSTINGER_PORT       – SSH port (default 22 — optional)
+      #   APP_PATH             – Full path to the app on server
+      #                          (e.g. /home/u123456/domains/digisharkscommunications.com/public_nodejs)
+      #
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.HOSTINGER_HOST }}
+          username: ${{ secrets.HOSTINGER_USERNAME }}
+          key: ${{ secrets.HOSTINGER_SSH_KEY }}
+          port: ${{ secrets.HOSTINGER_PORT || 22 }}
+          script: |
+            echo "🚀 Deploy started: $(date)"
+
+            cd ${{ secrets.APP_PATH }}
+
+            # Pull latest code
+            git pull origin main
+
+            # Install dependencies
+            npm install
+
+            # Build the app
+            npm run build
+
+            # Restart the Node.js app via PM2 (recommended for Hostinger)
+            if command -v pm2 &> /dev/null; then
+              pm2 restart all
+              echo "✅ App restarted via PM2"
+            else
+              echo "⚠️  No process manager (PM2) found."
+              echo "   Please restart the app manually in Hostinger hPanel:"
+              echo "   Websites → Dashboard → Node.js → Restart"
+              echo "   Or install PM2: npm install -g pm2 && pm2 start npm --name digisharks -- start && pm2 save && pm2 startup"
+            fi
+
+            echo "✅ Deploy complete: $(date)"
