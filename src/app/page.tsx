@@ -39,8 +39,19 @@ export default async function Home() {
   } catch (err) {
     console.error('[page.tsx] Failed to fetch site settings:', err)
   }
+
+  // ── Preload the first hero carousel image for LCP ──
+  const heroMediaItems = (content.heroMedia || [])
+    .filter((m: any) => m.isActive !== false)
+    .sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0))
+  const firstHeroImage = heroMediaItems.length > 0 ? heroMediaItems[0].image || null : null
+
   return (
     <>
+      {/* Preload first hero carousel image for faster LCP */}
+      {firstHeroImage && (
+        <link rel="preload" href={firstHeroImage} as="image" fetchPriority="high" />
+      )}
       <div className="content">
 
         {/* ===== HERO SECTION ===== */}
