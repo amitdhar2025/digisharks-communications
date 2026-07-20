@@ -3,6 +3,16 @@ import { withSentryConfig } from "@sentry/nextjs";
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // ================================================================
+  // Build ID — unique per build so Next.js can detect server/client
+  // mismatch and force a hard navigation instead of broken hydration.
+  // When the build ID in the server HTML doesn't match the client
+  // bundle's build ID, Next.js does a full page load (not hydration).
+  // ================================================================
+  generateBuildId: async () => {
+    return `ds-${Date.now()}`
+  },
+
+  // ================================================================
   // Image optimisation — Next.js uses sharp under the hood to
   // serve AVIF/WebP, resize, and compress on-the-fly for images
   // loaded via the `next/image` component.

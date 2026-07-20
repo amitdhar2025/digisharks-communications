@@ -15,7 +15,12 @@ Header always set X-Content-Type-Options "nosniff"
   Header always set Cache-Control "public, max-age=31536000, immutable"
 </FilesMatch>
 
-# ── CSS/JS caching (1 year, immutable — content-hashed by Next.js) ──
-<FilesMatch "(?i)\.(css|js)$">
+# ── JS/JSX chunks — no-cache (must-revalidate to prevent stale bundles) ──
+<FilesMatch "(?i)\.(js)$">
+  Header always set Cache-Control "public, max-age=0, must-revalidate"
+</FilesMatch>
+
+# ── CSS caching (1 year, immutable — content-hashed by Next.js) ──
+<FilesMatch "(?i)\.(css)$">
   Header always set Cache-Control "public, max-age=31536000, immutable"
 </FilesMatch>
