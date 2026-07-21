@@ -39,11 +39,10 @@
   min-height: 70vh;
   display: flex;
   align-items: center;
-  padding-top: 140px;
+  padding-top: 110px;
   padding-bottom: 60px;
   background: var(--bg);
   overflow: hidden;
-  top: 60px;
 }
 
 .pf-hero-inner {

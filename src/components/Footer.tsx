@@ -137,6 +137,7 @@ export default function Footer() {
               alt={s.footerLogoAlt || "DigiSharks Logo"}
               width={256}
               height={171}
+              unoptimized
               style={{
                 width: "140px",
                 height: "auto",

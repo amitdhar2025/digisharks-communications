@@ -228,6 +228,7 @@ export default function Navigation({ active = "none" }: NavigationProps) {
             width={256}
             height={171}
             priority
+            unoptimized
             style={{
               width: "170px",
               height: "auto",

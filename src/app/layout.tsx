@@ -21,6 +21,7 @@ import MaintenanceGuard from "../components/MaintenanceGuard";
 import FaviconInjector from "../components/FaviconInjector";
 import CartProviderShell from "../components/CartProvider";
 import { WishlistProvider } from "../lib/wishlist-context";
+import StaleBundleDetector from "./StaleBundleDetector";
 
 // Body copy -> Inter (400 regular / 600 buttons)
 const inter = Inter({
@@ -85,6 +86,18 @@ export default function RootLayout({
         {/* ── Preload above-the-fold assets ── */}
         <link rel="preload" href="/darks.avif" as="image" />
 
+        {/* ── Build version meta tag for stale-bundle detection ── */}
+        <meta name="build-time" content={process.env.NEXT_PUBLIC_BUILD_TIME || ''} />
+
+        {/* ── Inline script: stamps the build time on window so the
+              StaleBundleDetector component can compare it with the
+              compiled-in value and force-reload if the JS bundle is stale. ── */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.__BUILD_TIME=${JSON.stringify(process.env.NEXT_PUBLIC_BUILD_TIME || '')}`
+          }}
+        />
+
         {/* ── Inline critical CSS for first paint ── */}
         <style>{`
           /* Critical above-the-fold styles */
@@ -126,6 +139,7 @@ export default function RootLayout({
               <Navigation />
               {children}
               <ChatWidget />
+              <StaleBundleDetector />
             </CartProviderShell>
           </WishlistProvider>
         </MaintenanceGuard>

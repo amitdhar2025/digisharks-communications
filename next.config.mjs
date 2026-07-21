@@ -1,7 +1,18 @@
 import { withSentryConfig } from "@sentry/nextjs";
 
+// ── Single build timestamp shared between generateBuildId and NEXT_PUBLIC_* ──
+// This ensures the HTML meta tag, the inline script, and the JS bundle all
+// share the same version. When the client bundle is stale (cached old JS),
+// the StaleBundleDetector component detects the mismatch and force-reloads.
+const BUILD_TIME = Date.now();
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // ── Expose build timestamp to both server and client components ──
+  env: {
+    NEXT_PUBLIC_BUILD_TIME: String(BUILD_TIME),
+  },
+
   // ================================================================
   // Build ID — unique per build so Next.js can detect server/client
   // mismatch and force a hard navigation instead of broken hydration.
@@ -9,7 +20,7 @@ const nextConfig = {
   // bundle's build ID, Next.js does a full page load (not hydration).
   // ================================================================
   generateBuildId: async () => {
-    return `ds-${Date.now()}`
+    return `ds-${BUILD_TIME}`
   },
 
   // ================================================================

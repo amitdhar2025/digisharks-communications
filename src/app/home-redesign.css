@@ -156,13 +156,13 @@
    HERO SECTION (COMPLETELY NEW)
    ================================================================== */
 .hero-section {
-  min-height: 100vh !important;
-  display: flex !important;
+  background: #f8f9fb !important;
   align-items: center !important;
-  padding: 160px 5% 60px !important;
+  min-height: 100vh !important;
+  padding: 60px 5% 60px !important;
+  display: flex !important;
   position: relative !important;
   overflow: hidden !important;
-  background: #F8F9FB !important;
 }
 .hero-inner {
   max-width: 1200px !important;
@@ -1532,7 +1532,7 @@
 /* Hero compact variant — shorter, not full viewport height */
 .hero.compact {
   min-height: auto !important;
-  padding-top: 140px !important;
+  padding-top: 110px !important;
   padding-bottom: 40px !important;
 }
 
@@ -1566,12 +1566,12 @@
    ================================================================== */
 @media (max-width: 600px) {
   .hero {
-    padding-top: 130px !important;
+    padding-top: 110px !important;
     padding-bottom: 30px !important;
     min-height: auto !important;
   }
   .hero.compact {
-    padding-top: 130px !important;
+    padding-top: 110px !important;
     padding-bottom: 30px !important;
   }
   .hero h1 {
@@ -1647,8 +1647,8 @@
 }
 @media (max-width: 600px) {
   .hero-section {
-    padding: 140px 5% 40px !important;
     min-height: auto !important;
+    padding: 40px 5% 40px !important;
   }
   .hero-grid {
     grid-template-columns: 1fr !important;

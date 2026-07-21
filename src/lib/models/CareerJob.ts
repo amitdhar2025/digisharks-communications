@@ -36,7 +36,6 @@ const CareerJobSchema = new Schema<ICareerJob>(
 )
 
 CareerJobSchema.index({ status: 1, isActive: 1, category: 1 })
-CareerJobSchema.index({ slug: 1 }, { unique: true })
 
 const CareerJob: Model<ICareerJob> =
   mongoose.models.CareerJob || mongoose.model<ICareerJob>('CareerJob', CareerJobSchema)
