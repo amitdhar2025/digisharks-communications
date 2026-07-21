@@ -29,7 +29,7 @@
 .dp-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 120px 20px 60px;
+  padding: 110px 20px 60px;
 }
 
 /* Breadcrumb — enhanced for SEO & visibility */
@@ -1243,7 +1243,7 @@
 .dp-cart {
   background: #fff;
   color: #2a2a2a;
-  padding: 120px 20px 60px;
+  padding: 110px 20px 60px;
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -2664,7 +2664,7 @@
 .dp-checkout {
   background: #fff;
   color: #2a2a2a;
-  padding: 120px 20px 60px;
+  padding: 110px 20px 60px;
   max-width: 1200px;
   margin: 0 auto;
 }
