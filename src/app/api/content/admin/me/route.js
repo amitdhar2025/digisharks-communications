@@ -20,7 +20,7 @@ export async function GET() {
     if (!admin) {
       return NextResponse.json(
         { loggedIn: false },
-        { status: 401 }
+        { status: 200 }
       )
     }
 

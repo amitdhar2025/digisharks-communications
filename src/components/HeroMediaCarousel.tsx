@@ -1,9 +1,9 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import {
-  isDirectVideoUrl,
+import { isDirectVideoUrl,
   isAnyVideoUrl,
+  getAnyVideoEmbedUrl,
 } from '@/lib/video-utils'
 
 interface MediaItem {
@@ -52,7 +52,16 @@ export default function HeroMediaCarousel({
   autoPlayInterval = 5000,
 }: HeroMediaCarouselProps) {
   const activeItems = items
-    .filter((item) => item.isActive !== false && (item.image || item.link))
+    .filter((item) => {
+      if (item.isActive === false) return false
+      // Must have either a valid image or a resolvable video URL
+      if (item.image) return true
+      if (item.link && isAnyVideoUrl(item.link)) {
+        // Ensure the video URL actually resolves to something playable
+        return !!(isDirectVideoUrl(item.link) || getAnyVideoEmbedUrl(item.link))
+      }
+      return false
+    })
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
 
   const [currentIndex, setCurrentIndex] = useState(0)
