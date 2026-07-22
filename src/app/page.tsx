@@ -52,6 +52,8 @@ export default async function Home() {
       {firstHeroImage && (
         <link rel="preload" href={firstHeroImage} as="image" fetchPriority="high" />
       )}
+      {/* Preload poster image — shown immediately while video loads */}
+      <link rel="preload" href="/Video-poster.webp" as="image" fetchPriority="high" />
       <div className="content">
 
         {/* ===== HERO SECTION ===== */}
@@ -101,7 +103,8 @@ export default async function Home() {
           // Fallback: show the heroVideo single video
           return (
             <div style={{position:"relative",left:"50%",right:"50%",marginLeft:"-50vw",marginRight:"-50vw",width:"100vw",lineHeight:0,overflow:"hidden"}}>
-              <video autoPlay muted loop playsInline disablePictureInPicture preload="none" style={{width:"100vw",display:"block",pointerEvents:"none"}}>
+              <video autoPlay muted loop playsInline disablePictureInPicture preload="none" poster="/Video-poster.webp" style={{width:"100vw",display:"block",pointerEvents:"none"}}>
+                <source src={content.heroVideo || '/Video.webm'} type="video/webm" />
                 <source src={content.heroVideo || '/Video.mp4'} type="video/mp4" />
               </video>
             </div>
